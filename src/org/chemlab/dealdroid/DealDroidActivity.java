@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+/**
+ * @author shade
+ * @version $Id$
+ */
 public class DealDroidActivity extends Activity {
 
     /** Called when the activity is first created. */
