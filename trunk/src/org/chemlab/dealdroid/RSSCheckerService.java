@@ -1,5 +1,6 @@
 package org.chemlab.dealdroid;
 
+import java.net.URLConnection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Timer;
@@ -123,7 +124,12 @@ public class RSSCheckerService extends Service {
 
 						try {
 							final Item item = new Item();
-							Xml.parse(site.getUrl().openStream(), Encoding.UTF_8, new RSSHandler(item));
+							
+							final URLConnection conn = site.getUrl().openConnection();
+							conn.setConnectTimeout(10);
+							conn.setReadTimeout(60);
+							
+							Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
 
 							if (item.getTitle() != null) {
 								notify(site, item);
@@ -136,6 +142,9 @@ public class RSSCheckerService extends Service {
 				} finally {
 					isActive = false;
 				}
+				
+			} else {
+				Log.i(this.getClass().getName(), "Task already running.");
 			}
 		}
 
