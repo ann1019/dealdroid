@@ -19,7 +19,7 @@ import android.widget.Toast;
 
 /**
  * @author shade
- * 
+ * @version $Id$
  */
 public class RSSCheckerService extends Service {
 

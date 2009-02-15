@@ -4,7 +4,7 @@ import android.net.Uri;
 
 /**
  * @author shade
- * 
+ * @version $Id$
  */
 public class Item {
 
