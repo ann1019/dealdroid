@@ -171,10 +171,9 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 	 */
 	private Notification createNotification(final DealSite key, final Item item, final Context context) {
 
-		final Notification notification = new Notification(key.getDrawable(), item.getTitle(), System
-				.currentTimeMillis());
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, item
-				.getLink()), 0);
+		final Notification notification = new Notification(key.getDrawable(), item.getTitle(), System.currentTimeMillis());
+		final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
+		
 		notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
 
 		notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
@@ -189,7 +188,7 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 			notification.ledARGB = 0xFFFF5171;
 			notification.ledOnMS = 500;
 			notification.ledOffMS = 500;
-			notification.flags = Notification.FLAG_SHOW_LIGHTS;
+			notification.flags = notification.flags | Notification.FLAG_SHOW_LIGHTS;
 		}
 
 		return notification;
