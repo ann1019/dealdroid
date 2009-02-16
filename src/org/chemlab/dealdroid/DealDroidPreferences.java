@@ -1,7 +1,10 @@
 package org.chemlab.dealdroid;
 
+import static org.chemlab.dealdroid.DealDroidSiteChecker.DEALDROID_START;
+import static org.chemlab.dealdroid.DealDroidSiteChecker.INTENT_CHECK_SITES;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -15,7 +18,7 @@ import android.preference.PreferenceScreen;
  * @author shade
  * @version $Id$
  */
-public class DealDroidPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class DealDroidPreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 		
 	public static final String PREFS_NAME = "org.chemlab.dealdroid_preferences";
 	
@@ -33,7 +36,7 @@ public class DealDroidPreferences extends PreferenceActivity implements SharedPr
 		
 		super.onCreate(savedInstanceState);
 		
-        final Intent si = new Intent(DealDroidServiceManager.DEALDROID_START);
+        final Intent si = new Intent(DEALDROID_START);
         sendBroadcast(si);
                 
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
@@ -49,7 +52,7 @@ public class DealDroidPreferences extends PreferenceActivity implements SharedPr
 		
 		// If a site is toggled, just check right away
 		if (key != null && key.startsWith(ENABLED) && sharedPreferences.getBoolean(key, false)) {
-			final Intent checkNow = new Intent(DealDroidSiteChecker.INTENT_CHECK_SITES);
+			final Intent checkNow = new Intent(INTENT_CHECK_SITES);
 			sendBroadcast(checkNow);
 		}
 	}
