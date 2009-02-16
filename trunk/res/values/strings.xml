@@ -6,8 +6,10 @@
 <string name="enable_notifications">Enable Notifications</string>
 <string name="enable_notifications_summary">Show a notification when new items are available from this source.</string>
 <string name="about">About DealDroid</string>
-<string name="about_summary">DealDroid is a very simple application for checking various one-at-a-time deal sites, where a single item is sold at a
-usually large discount for a limited amount of time.  When the time is up, the site switches to a new item.  DealDroid will create notifications
-when these sites are updated, so you never miss a good deal again.</string>
+<string name="notification_options">Notification Options</string>
 
+<string name="notify_vibrate">Vibrate Phone</string>
+<string name="notify_led_summary">Flash LED when new notifications are created.</string>
+<string name="notify_led">Flash LED</string>
+<string name="notify_vibrate_summary">Vibrate phone when new notifications are created.</string>
 </resources>
