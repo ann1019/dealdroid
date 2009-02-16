@@ -1,6 +1,7 @@
 package org.chemlab.dealdroid;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -9,11 +10,13 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
 
 /**
+ * The preferences panel.
+ * 
  * @author shade
  * @version $Id$
  */
 public class DealDroidPreferences extends PreferenceActivity {
-
+		
 	public static final String PREFS_NAME = "org.chemlab.dealdroid_preferences";
 	
 	public static final String ENABLED = "enabled_";
@@ -30,14 +33,17 @@ public class DealDroidPreferences extends PreferenceActivity {
 		
 		super.onCreate(savedInstanceState);
 		
-        final Intent si = new Intent(this, DealDroidService.class);
-        startService(si);
-        
+        final Intent si = new Intent(DealDroidServiceManager.DEALDROID_START);
+        sendBroadcast(si);
+                
 		setPreferenceScreen(createPreferences());
 	}
 
 	/**
-	 * @return
+	 * Dynamically creates the PreferenceScreen.  I didn't want this in XML because
+	 * it needs to have dynamic options from the DealSite enum.
+	 * 
+	 * @return the preference screen
 	 */
 	private PreferenceScreen createPreferences() {
 
@@ -87,4 +93,28 @@ public class DealDroidPreferences extends PreferenceActivity {
 		return root;
 	}
 	
+	/**
+	 * @param preferences
+	 * @param site
+	 * @return if the site is enabled 
+	 */
+	public static boolean isEnabled(final SharedPreferences preferences, final DealSite site) {
+		return preferences.getBoolean(ENABLED + site.toString(), false);
+	}
+	
+	/**
+	 * @param preferences
+	 * @return if any site is enabled
+	 */
+	public static boolean isAnySiteEnabled(final SharedPreferences preferences) {
+		boolean ret = false;
+		for (DealSite site : DealSite.values()) {
+			if (isEnabled(preferences, site)) {
+				ret = true;
+				break;
+			}
+		}
+		return ret;
+	}
+
 }

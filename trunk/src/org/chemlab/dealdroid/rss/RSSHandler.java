@@ -8,6 +8,9 @@ import org.xml.sax.helpers.DefaultHandler;
 import android.net.Uri;
 
 /**
+ * SAX event handler which has some idea of the kind of RSS that we are interested in,
+ * and creates and Item object out of the most recent entry in the feed.
+ * 
  * @author shade
  * @version $Id$
  */
