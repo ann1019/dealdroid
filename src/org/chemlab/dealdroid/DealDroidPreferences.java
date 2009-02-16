@@ -15,7 +15,7 @@ import android.preference.PreferenceScreen;
  * @author shade
  * @version $Id$
  */
-public class DealDroidPreferences extends PreferenceActivity {
+public class DealDroidPreferences extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 		
 	public static final String PREFS_NAME = "org.chemlab.dealdroid_preferences";
 	
@@ -36,8 +36,24 @@ public class DealDroidPreferences extends PreferenceActivity {
         final Intent si = new Intent(DealDroidServiceManager.DEALDROID_START);
         sendBroadcast(si);
                 
+        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
+        
 		setPreferenceScreen(createPreferences());
 	}
+
+	/* (non-Javadoc)
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
+	 */
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		
+		// If a site is toggled, just check right away
+		if (key != null && key.startsWith(ENABLED) && sharedPreferences.getBoolean(key, false)) {
+			final Intent checkNow = new Intent(DealDroidSiteChecker.INTENT_CHECK_SITES);
+			sendBroadcast(checkNow);
+		}
+	}
+
 
 	/**
 	 * Dynamically creates the PreferenceScreen.  I didn't want this in XML because
