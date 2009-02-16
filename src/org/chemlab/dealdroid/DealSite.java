@@ -4,6 +4,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 /**
+ * The various sites, RSS URLs, and associated icons.
+ * 
  * @author shade
  * @version $Id$
  */

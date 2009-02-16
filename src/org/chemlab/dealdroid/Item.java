@@ -3,6 +3,8 @@ package org.chemlab.dealdroid;
 import android.net.Uri;
 
 /**
+ * Holds information pulled from a source about the current deal.
+ * 
  * @author shade
  * @version $Id$
  */
