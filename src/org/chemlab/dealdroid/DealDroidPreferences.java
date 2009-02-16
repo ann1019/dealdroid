@@ -1,6 +1,7 @@
 package org.chemlab.dealdroid;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
@@ -52,8 +53,13 @@ public class DealDroidPreferences extends PreferenceActivity {
 			toggle.setSummary(R.string.enable_notifications_summary);
 			
 			category.addPreference(toggle);
-						
+				
 		}
+		
+		final PreferenceScreen about = getPreferenceManager().createPreferenceScreen(this);
+		about.setIntent(new Intent().setAction(Intent.ACTION_VIEW).setData(Uri.parse("http://dealdroid.googlecode.com")));
+		about.setTitle(R.string.about);
+		root.addPreference(about);
 		
 		return root;
 	}
