@@ -1,4 +1,5 @@
 package org.chemlab.dealdroid;
+
 import java.net.URLConnection;
 import java.util.EnumMap;
 import java.util.Map;
@@ -22,16 +23,15 @@ import android.util.Xml.Encoding;
  * @author shade
  * @version $Id$
  */
-public class DealDroidService extends Service {
-	
+public class DealDroidService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
+
 	public static final String DEALDROID = "DealDroid";
-	
+
 	private Timer timer;
 
 	public final Map<DealSite, Item> results = new EnumMap<DealSite, Item>(DealSite.class);
 
 	private static final long updateInterval = 60000;
-
 
 	/*
 	 * (non-Javadoc)
@@ -41,22 +41,23 @@ public class DealDroidService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
-		final SharedPreferences preferences = getSharedPreferences(DealDroidPreferences.PREFS_NAME, MODE_PRIVATE);
-		preferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
 
-			@Override
-			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-				if (key.startsWith(DealDroidPreferences.ENABLED)) {
-					stopService();
-					startService();
-				}
-				
-			}
-			
-		});
-		
+		final SharedPreferences preferences = getSharedPreferences(DealDroidPreferences.PREFS_NAME, MODE_PRIVATE);
+		preferences.registerOnSharedPreferenceChangeListener(this);
+
 		startService();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
+	 */
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		if (key.startsWith(DealDroidPreferences.ENABLED)) {
+			stopService();
+			startService();
+		}
 	}
 
 	/*
@@ -83,31 +84,32 @@ public class DealDroidService extends Service {
 	/**
 	 * 
 	 */
-	private void startService() {
-		
+	private synchronized void startService() {
+
 		Log.i(DEALDROID, "Starting DealDroid service..");
-		
+
 		if (timer != null) {
 			timer.cancel();
 		}
 
 		timer = new Timer();
-		
+
 		final SharedPreferences preferences = getSharedPreferences(DealDroidPreferences.PREFS_NAME, MODE_PRIVATE);
-		timer.scheduleAtFixedRate(new RSSCheckerTask(preferences, (NotificationManager) getSystemService(NOTIFICATION_SERVICE)), 0, updateInterval);
+		timer.scheduleAtFixedRate(new RSSCheckerTask(preferences,
+				(NotificationManager) getSystemService(NOTIFICATION_SERVICE)), 0, updateInterval);
 
 	}
 
 	/**
 	 * 
 	 */
-	private void stopService() {
-		
+	private synchronized void stopService() {
+
 		Log.i(DEALDROID, "Stopping DealDroid service..");
-		
+
 		if (timer != null) {
 			timer.cancel();
-		}			
+		}
 	}
 
 	/**
@@ -116,16 +118,16 @@ public class DealDroidService extends Service {
 	private final class RSSCheckerTask extends TimerTask {
 
 		private boolean isActive = false;
-		
+
 		private final SharedPreferences preferences;
-		
+
 		private final NotificationManager notificationManager;
-		
+
 		public RSSCheckerTask(SharedPreferences preferences, NotificationManager notificationManager) {
 			this.preferences = preferences;
 			this.notificationManager = notificationManager;
 		}
-		
+
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -186,9 +188,12 @@ public class DealDroidService extends Service {
 
 					results.put(key, item);
 
-					Notification notification = new Notification(key.getDrawable(), item.getTitle(), System.currentTimeMillis());
-					PendingIntent contentIntent = PendingIntent.getActivity(DealDroidService.this, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
-					notification.setLatestEventInfo(DealDroidService.this, item.getTitle(), item.getPrice(), contentIntent);
+					Notification notification = new Notification(key.getDrawable(), item.getTitle(), System
+							.currentTimeMillis());
+					PendingIntent contentIntent = PendingIntent.getActivity(DealDroidService.this, 0, new Intent(
+							Intent.ACTION_VIEW, item.getLink()), 0);
+					notification.setLatestEventInfo(DealDroidService.this, item.getTitle(), item.getPrice(),
+							contentIntent);
 					notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 					notificationManager.notify(key.ordinal(), notification);
 
