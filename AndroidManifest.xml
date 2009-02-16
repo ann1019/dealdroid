@@ -10,16 +10,15 @@
 	<application android:icon="@drawable/icon" android:label="@string/app_name">
 	
 		<!-- The app's UI is just a preferences page right now -->
-		<activity android:name=".DealDroidPreferences" android:label="@string/app_name">
+		<activity android:name=".Preferences" android:label="@string/app_name">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-
-
+		
 		<!-- The receiver invoked when the alarms fire -->
-		<receiver android:name=".DealDroidSiteChecker" android:enabled="true" android:exported="false" android:label="DealDroidSiteChecker">
+		<receiver android:name=".SiteChecker" android:enabled="true" android:exported="false" android:label="SiteChecker">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 				<action android:name="org.chemlab.dealdroid.DEALDROID_START" />

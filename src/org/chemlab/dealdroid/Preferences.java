@@ -1,7 +1,7 @@
 package org.chemlab.dealdroid;
 
-import static org.chemlab.dealdroid.DealDroidSiteChecker.DEALDROID_START;
-import static org.chemlab.dealdroid.DealDroidSiteChecker.INTENT_CHECK_SITES;
+import static org.chemlab.dealdroid.SiteChecker.DEALDROID_START;
+import static org.chemlab.dealdroid.SiteChecker.INTENT_CHECK_SITES;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -18,7 +18,7 @@ import android.preference.PreferenceScreen;
  * @author shade
  * @version $Id$
  */
-public class DealDroidPreferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
+public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 		
 	public static final String PREFS_NAME = "org.chemlab.dealdroid_preferences";
 	
@@ -38,7 +38,7 @@ public class DealDroidPreferences extends PreferenceActivity implements OnShared
 		
         final Intent si = new Intent(DEALDROID_START);
         sendBroadcast(si);
-                
+        
         getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
         
 		setPreferenceScreen(createPreferences());
@@ -70,7 +70,7 @@ public class DealDroidPreferences extends PreferenceActivity implements OnShared
 		
 		root.setTitle(R.string.app_name);
 		
-		for (DealSite site : DealSite.values()) {
+		for (Site site : Site.values()) {
 			
 			final PreferenceCategory category = new PreferenceCategory(this);
 			category.setTitle(site.getName() + " Options");
@@ -117,7 +117,7 @@ public class DealDroidPreferences extends PreferenceActivity implements OnShared
 	 * @param site
 	 * @return if the site is enabled 
 	 */
-	public static boolean isEnabled(final SharedPreferences preferences, final DealSite site) {
+	public static boolean isEnabled(final SharedPreferences preferences, final Site site) {
 		return preferences.getBoolean(ENABLED + site.toString(), false);
 	}
 	
@@ -127,7 +127,7 @@ public class DealDroidPreferences extends PreferenceActivity implements OnShared
 	 */
 	public static boolean isAnySiteEnabled(final SharedPreferences preferences) {
 		boolean ret = false;
-		for (DealSite site : DealSite.values()) {
+		for (Site site : Site.values()) {
 			if (isEnabled(preferences, site)) {
 				ret = true;
 				break;
