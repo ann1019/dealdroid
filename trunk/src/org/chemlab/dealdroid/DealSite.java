@@ -8,9 +8,11 @@ import java.net.URL;
  * @version $Id$
  */
 public enum DealSite {
-
+	
 	WHISKEYMILITIA("Whiskey Militia", "http://www.whiskeymilitia.com/docs/wm/rssplus.xml", R.drawable.icon_whiskeymilitia),
-	STEEPANDCHEAP("Steep and Cheap", "http://www.steepandcheap.com/docs/steepcheap/rssplus.xml", R.drawable.icon_steepandcheep);
+	STEEPANDCHEAP("Steep and Cheap", "http://www.steepandcheap.com/docs/steepcheap/rssplus.xml", R.drawable.icon_steepandcheep),
+	CHAINLOVE("Chain Love", "http://www.chainlove.com/docs/chainlove/rssplus.xml", R.drawable.icon_chainlove),
+	TRAMDOCK("Tramdock", "http://www.tramdock.com/docs/tramdock/rssplus.xml", R.drawable.icon_tramdock);
 	
 	private final String name;
 	
