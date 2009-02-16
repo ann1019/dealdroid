@@ -17,17 +17,18 @@ import android.os.IBinder;
 import android.util.Log;
 import android.util.Xml;
 import android.util.Xml.Encoding;
-import android.widget.Toast;
 
 /**
  * @author shade
  * @version $Id$
  */
-public class RSSCheckerService extends Service {
-
+public class DealDroidService extends Service {
+	
+	public static final String DEALDROID = "DealDroid";
+	
 	private Timer timer;
 
-	public final Map<DealSite, Item> RESULTS = new EnumMap<DealSite, Item>(DealSite.class);
+	public final Map<DealSite, Item> results = new EnumMap<DealSite, Item>(DealSite.class);
 
 	private static final long updateInterval = 60000;
 
@@ -55,8 +56,6 @@ public class RSSCheckerService extends Service {
 			
 		});
 		
-		Toast.makeText(this, "DealDroid service started.", Toast.LENGTH_SHORT).show();
-		
 		startService();
 	}
 
@@ -69,7 +68,6 @@ public class RSSCheckerService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		stopService();
-		Toast.makeText(this, "DealDroid service stopped.", Toast.LENGTH_SHORT).show();
 	}
 
 	/*
@@ -87,6 +85,8 @@ public class RSSCheckerService extends Service {
 	 */
 	private void startService() {
 		
+		Log.i(DEALDROID, "Starting DealDroid service..");
+		
 		if (timer != null) {
 			timer.cancel();
 		}
@@ -102,6 +102,9 @@ public class RSSCheckerService extends Service {
 	 * 
 	 */
 	private void stopService() {
+		
+		Log.i(DEALDROID, "Stopping DealDroid service..");
+		
 		if (timer != null) {
 			timer.cancel();
 		}			
@@ -136,7 +139,7 @@ public class RSSCheckerService extends Service {
 					isActive = true;
 					for (DealSite site : DealSite.values()) {
 
-						Log.i(this.getClass().getName(), "Handling " + site);
+						Log.d(DEALDROID, "Handling " + site);
 
 						if (preferences.getBoolean(DealDroidPreferences.ENABLED + site.toString(), false)) {
 							try {
@@ -154,10 +157,10 @@ public class RSSCheckerService extends Service {
 								}
 
 							} catch (Exception e) {
-								Log.e(this.getClass().getName(), e.getMessage());
+								Log.e(DEALDROID, e.getMessage());
 							}
 						} else {
-							Log.i(this.getClass().getName(), "Skipping " + site + " (disabled)");
+							Log.d(DEALDROID, "Skipping " + site + " (disabled)");
 						}
 					}
 				} finally {
@@ -165,7 +168,7 @@ public class RSSCheckerService extends Service {
 				}
 
 			} else {
-				Log.i(this.getClass().getName(), "Task already running.");
+				Log.w(DEALDROID, "Task already running.");
 			}
 		}
 
@@ -176,22 +179,22 @@ public class RSSCheckerService extends Service {
 		private void notify(final DealSite key, final Item item) {
 
 			if (item != null) {
-				final Item previousItem = RESULTS.get(key);
+				final Item previousItem = results.get(key);
 				if (previousItem == null || !previousItem.equals(item)) {
 
-					Log.d(this.getClass().getName(), "Creating new notification.");
+					Log.d(DEALDROID, "Creating new notification.");
 
-					RESULTS.put(key, item);
+					results.put(key, item);
 
 					Notification notification = new Notification(key.getDrawable(), item.getTitle(), System.currentTimeMillis());
-					PendingIntent contentIntent = PendingIntent.getActivity(RSSCheckerService.this, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
-					notification.setLatestEventInfo(RSSCheckerService.this, item.getTitle(), item.getPrice(), contentIntent);
+					PendingIntent contentIntent = PendingIntent.getActivity(DealDroidService.this, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
+					notification.setLatestEventInfo(DealDroidService.this, item.getTitle(), item.getPrice(), contentIntent);
 					notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 					notificationManager.notify(key.ordinal(), notification);
 
 				} else {
 
-					Log.d(this.getClass().getName(), "Not creating notification.");
+					Log.d(DEALDROID, "Not creating notification.");
 				}
 			}
 		}
