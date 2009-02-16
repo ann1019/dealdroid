@@ -25,7 +25,7 @@ public class DealDroidPreferences extends PreferenceActivity {
 		
 		super.onCreate(savedInstanceState);
 		
-        final Intent si = new Intent(this, RSSCheckerService.class);
+        final Intent si = new Intent(this, DealDroidService.class);
         startService(si);
         
 		setPreferenceScreen(createPreferences());

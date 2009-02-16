@@ -21,7 +21,7 @@ public class RSSHandler extends DefaultHandler {
 
 	private boolean firstItemComplete = false;
 
-	private ItemTag inTag = null;
+	private ItemTag currentTag = null;
 
 	private final Item currentItem;
 
@@ -42,15 +42,15 @@ public class RSSHandler extends DefaultHandler {
 			if (localName.trim().equals("item")) {
 				inItem = true;
 			} else if (localName.trim().equals("title")) {
-				inTag = ItemTag.TITLE;
+				currentTag = ItemTag.TITLE;
 			} else if (localName.trim().equals("link")) {
-				inTag = ItemTag.LINK;
+				currentTag = ItemTag.LINK;
 			} else if (localName.trim().equals("listDescription")) {
-				inTag = ItemTag.DESCRIPTION;
+				currentTag = ItemTag.DESCRIPTION;
 			} else if (localName.trim().equals("price")) {
-				inTag = ItemTag.PRICE;
+				currentTag = ItemTag.PRICE;
 			} else {
-				inTag = null;
+				currentTag = null;
 			}
 
 		}
@@ -68,7 +68,7 @@ public class RSSHandler extends DefaultHandler {
 		if (!firstItemComplete && localName.trim().equals("item")) {
 			inItem = false;
 			firstItemComplete = true;
-			inTag = null;
+			currentTag = null;
 		}
 	}
 
@@ -80,12 +80,12 @@ public class RSSHandler extends DefaultHandler {
 	@Override
 	public void characters(char[] ch, int start, int length) throws SAXException {
 
-		if (inItem && inTag != null) {
+		if (inItem && currentTag != null) {
 
 			final String chars = (new String(ch).substring(start, start + length)).trim();
 			if (chars.length() > 0) {
 
-				switch (inTag) {
+				switch (currentTag) {
 				case TITLE:
 					currentItem.setTitle(chars);
 					break;
