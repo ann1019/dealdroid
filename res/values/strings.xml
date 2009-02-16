@@ -2,4 +2,7 @@
 <resources>
     
     <string name="app_name">DealDroid</string>
+
+<string name="enable_notifications">Enable Notifications</string>
+<string name="enable_notifications_summary">Show a notification when new items are available from this source.</string>
 </resources>

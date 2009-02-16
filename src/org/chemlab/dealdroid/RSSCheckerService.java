@@ -1,17 +1,18 @@
 package org.chemlab.dealdroid;
-
 import java.net.URLConnection;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import android.app.Activity;
+import org.chemlab.dealdroid.rss.RSSHandler;
+
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 import android.util.Xml;
@@ -30,9 +31,6 @@ public class RSSCheckerService extends Service {
 
 	private static final long updateInterval = 60000;
 
-	private static Activity MAIN_ACTIVITY;
-
-	private static NotificationManager mNM;
 
 	/*
 	 * (non-Javadoc)
@@ -42,7 +40,23 @@ public class RSSCheckerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		
+		final SharedPreferences preferences = getSharedPreferences(DealDroidPreferences.PREFS_NAME, MODE_PRIVATE);
+		preferences.registerOnSharedPreferenceChangeListener(new SharedPreferences.OnSharedPreferenceChangeListener() {
+
+			@Override
+			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+				if (key.startsWith(DealDroidPreferences.ENABLED)) {
+					stopService();
+					startService();
+				}
+				
+			}
+			
+		});
+		
+		Toast.makeText(this, "DealDroid service started.", Toast.LENGTH_SHORT).show();
+		
 		startService();
 	}
 
@@ -55,6 +69,7 @@ public class RSSCheckerService extends Service {
 	public void onDestroy() {
 		super.onDestroy();
 		stopService();
+		Toast.makeText(this, "DealDroid service stopped.", Toast.LENGTH_SHORT).show();
 	}
 
 	/*
@@ -71,33 +86,25 @@ public class RSSCheckerService extends Service {
 	 * 
 	 */
 	private void startService() {
-
+		
 		if (timer != null) {
 			timer.cancel();
 		}
 
 		timer = new Timer();
+		
+		final SharedPreferences preferences = getSharedPreferences(DealDroidPreferences.PREFS_NAME, MODE_PRIVATE);
+		timer.scheduleAtFixedRate(new RSSCheckerTask(preferences, (NotificationManager) getSystemService(NOTIFICATION_SERVICE)), 0, updateInterval);
 
-		timer.scheduleAtFixedRate(new RSSCheckerTask(), 0, updateInterval);
-
-		Toast.makeText(this, "DealDroid service started.", Toast.LENGTH_SHORT).show();
 	}
 
 	/**
 	 * 
 	 */
 	private void stopService() {
-		timer.cancel();
-		Toast.makeText(this, "DealDroid service stopped.", Toast.LENGTH_SHORT).show();
-	}
-
-	/**
-	 * @param activity
-	 */
-	public static void setMainActivity(DealDroidActivity activity) {
-		if (MAIN_ACTIVITY == null) {
-			MAIN_ACTIVITY = activity;
-		}
+		if (timer != null) {
+			timer.cancel();
+		}			
 	}
 
 	/**
@@ -106,7 +113,16 @@ public class RSSCheckerService extends Service {
 	private final class RSSCheckerTask extends TimerTask {
 
 		private boolean isActive = false;
-
+		
+		private final SharedPreferences preferences;
+		
+		private final NotificationManager notificationManager;
+		
+		public RSSCheckerTask(SharedPreferences preferences, NotificationManager notificationManager) {
+			this.preferences = preferences;
+			this.notificationManager = notificationManager;
+		}
+		
 		/*
 		 * (non-Javadoc)
 		 * 
@@ -120,29 +136,34 @@ public class RSSCheckerService extends Service {
 					isActive = true;
 					for (DealSite site : DealSite.values()) {
 
-						Log.i(this.getClass().getName(), "Fetching data for " + site);
+						Log.i(this.getClass().getName(), "Handling " + site);
 
-						try {
-							final Item item = new Item();
-							
-							final URLConnection conn = site.getUrl().openConnection();
-							conn.setConnectTimeout(10);
-							conn.setReadTimeout(60);
-							
-							Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
+						if (preferences.getBoolean(DealDroidPreferences.ENABLED + site.toString(), false)) {
+							try {
 
-							if (item.getTitle() != null) {
-								notify(site, item);
+								final Item item = new Item();
+
+								final URLConnection conn = site.getUrl().openConnection();
+								conn.setConnectTimeout(10000);
+								conn.setReadTimeout(60000);
+
+								Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
+
+								if (item.getTitle() != null) {
+									notify(site, item);
+								}
+
+							} catch (Exception e) {
+								Log.e(this.getClass().getName(), e.getMessage());
 							}
-
-						} catch (Exception e) {
-							Log.e(this.getClass().getName(), e.getMessage());
+						} else {
+							Log.i(this.getClass().getName(), "Skipping " + site + " (disabled)");
 						}
 					}
 				} finally {
 					isActive = false;
 				}
-				
+
 			} else {
 				Log.i(this.getClass().getName(), "Task already running.");
 			}
@@ -165,7 +186,8 @@ public class RSSCheckerService extends Service {
 					Notification notification = new Notification(key.getDrawable(), item.getTitle(), System.currentTimeMillis());
 					PendingIntent contentIntent = PendingIntent.getActivity(RSSCheckerService.this, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
 					notification.setLatestEventInfo(RSSCheckerService.this, item.getTitle(), item.getPrice(), contentIntent);
-					mNM.notify(R.string.app_name, notification);
+					notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
+					notificationManager.notify(key.ordinal(), notification);
 
 				} else {
 
