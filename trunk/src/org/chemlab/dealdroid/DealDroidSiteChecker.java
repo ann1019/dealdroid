@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.chemlab.dealdroid.rss.RSSHandler;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,13 +24,21 @@ import android.util.Xml.Encoding;
 
 /**
  * @author shade
- * @version $Id$
+ * @version $Id: DealDroidSiteChecker.java 15 2009-02-16 17:06:44Z steve.kondik$
  */
 public class DealDroidSiteChecker extends BroadcastReceiver {
 
-	public static String INTENT_CHECK_SITES = "org.chemlab.dealdroid.CHECK_SITES";
+	public static final String BOOT_INTENT = "android.intent.action.BOOT_COMPLETED";
 
-	public final Map<DealSite, Item> results = new EnumMap<DealSite, Item>(DealSite.class);
+	public static final String DEALDROID_START = "org.chemlab.dealdroid.DEALDROID_START";
+
+	public static final String DEALDROID_STOP = "org.chemlab.dealdroid.DEALDROID_STOP";
+
+	public static final String INTENT_CHECK_SITES = "org.chemlab.dealdroid.CHECK_SITES";
+
+	private static final long UPDATE_INTERVAL = 120000;
+
+	private static final Map<DealSite, Item> results = new EnumMap<DealSite, Item>(DealSite.class);
 
 	private boolean isActive = false;
 
@@ -43,8 +52,45 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		if (INTENT_CHECK_SITES.equals(intent.getAction())) {
 			checkSites(context);
+		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
+			enable(context);
+		} else if (DEALDROID_STOP.equals(intent.getAction())) {
+			disable(context);
 		}
 
+	}
+
+	/**
+	 * @param context
+	 */
+	private void enable(final Context context) {
+		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
+		getAlarmManager(context).setRepeating(AlarmManager.RTC_WAKEUP, 0, UPDATE_INTERVAL,
+				getSiteCheckerIntent(context));
+	}
+
+	/**
+	 * @param context
+	 */
+	private void disable(final Context context) {
+		Log.i(this.getClass().getSimpleName(), "Stopping DealDroid updater..");
+		getAlarmManager(context).cancel(getSiteCheckerIntent(context));
+	}
+
+	/**
+	 * @param context
+	 * @return
+	 */
+	private AlarmManager getAlarmManager(final Context context) {
+		return (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+	}
+
+	/**
+	 * @param context
+	 * @return
+	 */
+	private PendingIntent getSiteCheckerIntent(final Context context) {
+		return PendingIntent.getBroadcast(context, 0, new Intent(DealDroidSiteChecker.INTENT_CHECK_SITES), 0);
 	}
 
 	/**
@@ -106,8 +152,9 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 				Log.d(this.getClass().getSimpleName(), "Creating new notification.");
 
 				results.put(key, item);
-				
-				((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(key.ordinal(), createNotification(key, item, context));
+
+				((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(key.ordinal(),
+						createNotification(key, item, context));
 
 			} else {
 
@@ -123,9 +170,11 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 	 * @return
 	 */
 	private Notification createNotification(final DealSite key, final Item item, final Context context) {
-		
-		final Notification notification = new Notification(key.getDrawable(), item.getTitle(), System.currentTimeMillis());
-		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
+
+		final Notification notification = new Notification(key.getDrawable(), item.getTitle(), System
+				.currentTimeMillis());
+		PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, item
+				.getLink()), 0);
 		notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
 
 		notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
@@ -138,11 +187,11 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 
 		if (preferences.getBoolean(DealDroidPreferences.NOTIFY_LED, false)) {
 			notification.ledARGB = 0xFFFF5171;
-			notification.ledOnMS = 100;
-			notification.ledOffMS = 100;
+			notification.ledOnMS = 500;
+			notification.ledOffMS = 500;
 			notification.flags = Notification.FLAG_SHOW_LIGHTS;
 		}
-		
+
 		return notification;
 
 	}

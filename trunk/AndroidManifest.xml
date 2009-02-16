@@ -18,19 +18,12 @@
 		</activity>
 
 
-		<!-- Starts the service when the phone boots -->
-		<receiver android:name=".DealDroidServiceManager" android:enabled="true" android:exported="false" android:label="DealDroidServiceManager">
+		<!-- The receiver invoked when the alarms fire -->
+		<receiver android:name=".DealDroidSiteChecker" android:enabled="true" android:exported="false" android:label="DealDroidSiteChecker">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
 				<action android:name="org.chemlab.dealdroid.DEALDROID_START" />
 				<action android:name="org.chemlab.dealdroid.DEALDROID_STOP" />
-			</intent-filter>
-		</receiver>
-
-
-		<!-- The receiver invoked when the alarms fire -->
-		<receiver android:name=".DealDroidSiteChecker" android:enabled="true" android:exported="false" android:label="DealDroidSiteChecker">
-			<intent-filter>
 				<action android:name="org.chemlab.dealdroid.CHECK_SITES" />
 			</intent-filter>
 		</receiver>
