@@ -1,12 +1,10 @@
 package org.chemlab.dealdroid;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static org.chemlab.dealdroid.DealDroidPreferences.PREFS_NAME;
-import static org.chemlab.dealdroid.DealDroidPreferences.isEnabled;
+import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
+import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.net.URLConnection;
-import java.util.EnumMap;
-import java.util.Map;
 
 import org.chemlab.dealdroid.rss.RSSHandler;
 
@@ -26,7 +24,7 @@ import android.util.Xml.Encoding;
  * @author shade
  * @version $Id: DealDroidSiteChecker.java 15 2009-02-16 17:06:44Z steve.kondik$
  */
-public class DealDroidSiteChecker extends BroadcastReceiver {
+public class SiteChecker extends BroadcastReceiver {
 
 	public static final String BOOT_INTENT = "android.intent.action.BOOT_COMPLETED";
 
@@ -38,10 +36,10 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 
 	private static final long UPDATE_INTERVAL = 120000;
 
-	private static final Map<DealSite, Item> results = new EnumMap<DealSite, Item>(DealSite.class);
-
 	private boolean isActive = false;
-
+	
+	private Database database;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -50,6 +48,9 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
+		
+		database = new Database(context);
+		
 		if (INTENT_CHECK_SITES.equals(intent.getAction())) {
 			checkSites(context);
 		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
@@ -90,7 +91,7 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 	 * @return
 	 */
 	private PendingIntent getSiteCheckerIntent(final Context context) {
-		return PendingIntent.getBroadcast(context, 0, new Intent(DealDroidSiteChecker.INTENT_CHECK_SITES), 0);
+		return PendingIntent.getBroadcast(context, 0, new Intent(SiteChecker.INTENT_CHECK_SITES), 0);
 	}
 
 	/**
@@ -101,10 +102,12 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 		if (!isActive) {
 			try {
 				isActive = true;
-
+				
+				database.open();
+				
 				final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-				for (DealSite site : DealSite.values()) {
+				for (Site site : Site.values()) {
 
 					Log.d(this.getClass().getSimpleName(), "Handling " + site);
 
@@ -124,13 +127,15 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 							}
 
 						} catch (Exception e) {
-							Log.e(this.getClass().getSimpleName(), e.getMessage());
+							
+							Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 						}
 					} else {
 						Log.d(this.getClass().getSimpleName(), "Skipping " + site + " (disabled)");
 					}
 				}
 			} finally {
+				database.close();
 				isActive = false;
 			}
 
@@ -140,38 +145,39 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 	}
 
 	/**
-	 * @param key
+	 * @param site
 	 * @param item
 	 */
-	private void notify(final DealSite key, final Item item, final Context context) {
+	private void notify(final Site site, final Item item, final Context context) {
 
 		if (item != null) {
-			final Item previousItem = results.get(key);
-			if (previousItem == null || !previousItem.equals(item)) {
 
-				Log.d(this.getClass().getSimpleName(), "Creating new notification.");
+				if (!database.isItemCurrent(site, item)) {
 
-				results.put(key, item);
+					Log.d(this.getClass().getSimpleName(), "Creating new notification.");
 
-				((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(key.ordinal(),
-						createNotification(key, item, context));
+					database.updateState(site, item);
 
-			} else {
+					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
+							createNotification(site, item, context));
 
-				Log.d(this.getClass().getSimpleName(), "Not creating notification.");
-			}
+				} else {
+
+					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
+				}
+
 		}
 	}
 
 	/**
-	 * @param key
+	 * @param site
 	 * @param item
 	 * @param context
 	 * @return
 	 */
-	private Notification createNotification(final DealSite key, final Item item, final Context context) {
+	private Notification createNotification(final Site site, final Item item, final Context context) {
 
-		final Notification notification = new Notification(key.getDrawable(), item.getTitle(), System.currentTimeMillis());
+		final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System.currentTimeMillis());
 		final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
 		
 		notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
@@ -180,11 +186,11 @@ public class DealDroidSiteChecker extends BroadcastReceiver {
 
 		// Notification options
 		final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-		if (preferences.getBoolean(DealDroidPreferences.NOTIFY_VIBRATE, false)) {
+		if (preferences.getBoolean(Preferences.NOTIFY_VIBRATE, false)) {
 			notification.vibrate = new long[] { 100, 250, 100, 500 };
 		}
 
-		if (preferences.getBoolean(DealDroidPreferences.NOTIFY_LED, false)) {
+		if (preferences.getBoolean(Preferences.NOTIFY_LED, false)) {
 			notification.ledARGB = 0xFFFF5171;
 			notification.ledOnMS = 500;
 			notification.ledOffMS = 500;

@@ -9,7 +9,7 @@ import java.net.URL;
  * @author shade
  * @version $Id$
  */
-public enum DealSite {
+public enum Site {
 	
 	WHISKEYMILITIA("Whiskey Militia", "http://www.whiskeymilitia.com/docs/wm/rssplus.xml", R.drawable.icon_whiskeymilitia),
 	STEEPANDCHEAP("Steep and Cheap", "http://www.steepandcheap.com/docs/steepcheap/rssplus.xml", R.drawable.icon_steepandcheep),
@@ -22,7 +22,7 @@ public enum DealSite {
 	
 	private final int drawable;
 	
-	DealSite(String name, String url, int drawable) {
+	Site(String name, String url, int drawable) {
 		try {
 			this.name = name;
 			this.url = new URL(url);
