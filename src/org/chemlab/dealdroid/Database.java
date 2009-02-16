@@ -38,6 +38,14 @@ public class Database {
 		dbHelper.close();
 	}
 
+	public void begin() {
+		db.beginTransaction();
+	}
+	
+	public void commit() {
+		db.endTransaction();
+	}
+	
 	public boolean delete(Site site) {
 		return db.delete(STATE_TABLE, KEY_ID + " = " + site.ordinal(), null) > 0;
 	}

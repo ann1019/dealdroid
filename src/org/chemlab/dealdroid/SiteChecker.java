@@ -72,7 +72,7 @@ public class SiteChecker extends BroadcastReceiver {
 	/**
 	 * @param context
 	 */
-	private void enable(final Context context) {
+	private synchronized void enable(final Context context) {
 		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
 		
 		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC;
@@ -82,7 +82,7 @@ public class SiteChecker extends BroadcastReceiver {
 	/**
 	 * @param context
 	 */
-	private void disable(final Context context) {
+	private synchronized void disable(final Context context) {
 		Log.i(this.getClass().getSimpleName(), "Stopping DealDroid updater..");
 		getAlarmManager(context).cancel(getSiteCheckerIntent(context));
 	}
@@ -166,6 +166,7 @@ public class SiteChecker extends BroadcastReceiver {
 					Log.d(this.getClass().getSimpleName(), "Handling " + site);
 
 					if (isEnabled(preferences, site)) {
+						
 						try {
 
 							final Item item = new Item();
@@ -184,8 +185,11 @@ public class SiteChecker extends BroadcastReceiver {
 
 							Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 						}
+						
 					} else {
+						
 						Log.d(this.getClass().getSimpleName(), "Skipping " + site + " (disabled)");
+						
 					}
 				}
 			} finally {
@@ -201,19 +205,25 @@ public class SiteChecker extends BroadcastReceiver {
 		private void notify(final Site site, final Item item) {
 
 			if (item != null) {
+				
+				database.begin();
+				
+				try {
+					if (!database.isItemCurrent(site, item)) {
 
-				if (!database.isItemCurrent(site, item)) {
+						Log.d(this.getClass().getSimpleName(), "Creating new notification.");
 
-					Log.d(this.getClass().getSimpleName(), "Creating new notification.");
+						database.updateState(site, item);
 
-					database.updateState(site, item);
+						((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(), createNotification(site, item));
 
-					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
-							createNotification(site, item));
+					} else {
 
-				} else {
-
-					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
+						Log.d(this.getClass().getSimpleName(), "Not creating notification.");
+					}
+				} finally {
+					
+					database.commit();
 				}
 
 			}
