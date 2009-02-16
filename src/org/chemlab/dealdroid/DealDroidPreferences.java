@@ -18,6 +18,10 @@ public class DealDroidPreferences extends PreferenceActivity {
 	
 	public static final String ENABLED = "enabled_";
 	
+	public static final String NOTIFY_VIBRATE = "notify_vibrate";
+	
+	public static final String NOTIFY_LED = "notify_lights";
+	
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -56,6 +60,25 @@ public class DealDroidPreferences extends PreferenceActivity {
 				
 		}
 		
+		// Notification Prefs
+		final PreferenceCategory notify = new PreferenceCategory(this);
+		notify.setTitle(R.string.notification_options);
+		root.addPreference(notify);
+		
+		final CheckBoxPreference vibrate = new CheckBoxPreference(this);
+		vibrate.setKey(NOTIFY_VIBRATE);
+		vibrate.setTitle(R.string.notify_vibrate);
+		vibrate.setSummary(R.string.notify_vibrate_summary);
+		
+		final CheckBoxPreference led = new CheckBoxPreference(this);
+		led.setKey(NOTIFY_LED);
+		led.setTitle(R.string.notify_led);
+		led.setSummary(R.string.notify_led_summary);
+		
+		notify.addPreference(vibrate);
+		notify.addPreference(led);
+		
+		// About Link
 		final PreferenceScreen about = getPreferenceManager().createPreferenceScreen(this);
 		about.setIntent(new Intent().setAction(Intent.ACTION_VIEW).setData(Uri.parse("http://dealdroid.googlecode.com")));
 		about.setTitle(R.string.about);

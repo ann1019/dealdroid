@@ -54,7 +54,7 @@ public class DealDroidService extends Service implements SharedPreferences.OnSha
 	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
 	 */
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		if (key.startsWith(DealDroidPreferences.ENABLED)) {
+		if (key.startsWith(DealDroidPreferences.ENABLED) || key.startsWith("notify_")) {
 			stopService();
 			startService();
 		}
@@ -194,7 +194,21 @@ public class DealDroidService extends Service implements SharedPreferences.OnSha
 							Intent.ACTION_VIEW, item.getLink()), 0);
 					notification.setLatestEventInfo(DealDroidService.this, item.getTitle(), item.getPrice(),
 							contentIntent);
+					
 					notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
+					
+					// Notification options
+					if (preferences.getBoolean(DealDroidPreferences.NOTIFY_VIBRATE, false)) {
+						notification.vibrate = new long[] { 100, 250, 100, 500 };
+					}
+
+					if (preferences.getBoolean(DealDroidPreferences.NOTIFY_LED, false)) {
+						notification.ledARGB = 0xFFFF5171;
+						notification.ledOnMS = 100;
+						notification.ledOffMS = 100;
+						notification.flags = Notification.FLAG_SHOW_LIGHTS;
+					}
+					
 					notificationManager.notify(key.ordinal(), notification);
 
 				} else {
