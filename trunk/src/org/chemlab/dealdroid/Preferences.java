@@ -1,7 +1,8 @@
 package org.chemlab.dealdroid;
 
+import static org.chemlab.dealdroid.SiteChecker.DEALDROID_RESTART;
 import static org.chemlab.dealdroid.SiteChecker.DEALDROID_START;
-import static org.chemlab.dealdroid.SiteChecker.INTENT_CHECK_SITES;
+import static org.chemlab.dealdroid.SiteChecker.DEALDROID_UPDATE;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -28,6 +29,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	
 	public static final String NOTIFY_LED = "notify_lights";
 	
+	public static final String KEEP_AWAKE = "keep_awake";
+	
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -51,9 +54,14 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		
 		// If a site is toggled, just check right away
-		if (key != null && key.startsWith(ENABLED) && sharedPreferences.getBoolean(key, false)) {
-			final Intent checkNow = new Intent(INTENT_CHECK_SITES);
-			sendBroadcast(checkNow);
+		if (key != null) {
+			if (key.startsWith(ENABLED) && sharedPreferences.getBoolean(key, false)) {
+				final Intent checkNow = new Intent(DEALDROID_UPDATE);
+				sendBroadcast(checkNow);
+			} else if (key.equals(KEEP_AWAKE)) {
+				final Intent reschedule = new Intent(DEALDROID_RESTART);
+				sendBroadcast(reschedule);
+			}
 		}
 	}
 
@@ -94,14 +102,22 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		vibrate.setKey(NOTIFY_VIBRATE);
 		vibrate.setTitle(R.string.notify_vibrate);
 		vibrate.setSummary(R.string.notify_vibrate_summary);
+		vibrate.setDefaultValue(true);
 		
 		final CheckBoxPreference led = new CheckBoxPreference(this);
 		led.setKey(NOTIFY_LED);
 		led.setTitle(R.string.notify_led);
 		led.setSummary(R.string.notify_led_summary);
+		led.setDefaultValue(true);
+		
+		final CheckBoxPreference keepAwake = new CheckBoxPreference(this);
+		keepAwake.setKey(KEEP_AWAKE);
+		keepAwake.setTitle(R.string.keep_awake);
+		keepAwake.setSummary(R.string.keep_awake_summary);
 		
 		notify.addPreference(vibrate);
 		notify.addPreference(led);
+		notify.addPreference(keepAwake);
 		
 		// About Link
 		final PreferenceScreen about = getPreferenceManager().createPreferenceScreen(this);

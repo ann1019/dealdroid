@@ -1,6 +1,7 @@
 package org.chemlab.dealdroid;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
@@ -16,6 +17,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.PowerManager;
 import android.util.Log;
 import android.util.Xml;
 import android.util.Xml.Encoding;
@@ -32,13 +34,11 @@ public class SiteChecker extends BroadcastReceiver {
 
 	public static final String DEALDROID_STOP = "org.chemlab.dealdroid.DEALDROID_STOP";
 
-	public static final String INTENT_CHECK_SITES = "org.chemlab.dealdroid.CHECK_SITES";
-
-	private static final long UPDATE_INTERVAL = 120000;
-
-	private boolean isActive = false;
+	public static final String DEALDROID_RESTART = "org.chemlab.dealdroid.DEALDROID_RESTART";
 	
-	private Database database;
+	public static final String DEALDROID_UPDATE = "org.chemlab.dealdroid.DEALDROID_UPDATE";
+		
+	private static final long UPDATE_INTERVAL = 120000;
 	
 	/*
 	 * (non-Javadoc)
@@ -48,26 +48,35 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
-		database = new Database(context);
-		
-		if (INTENT_CHECK_SITES.equals(intent.getAction())) {
+
+		if (DEALDROID_UPDATE.equals(intent.getAction())) {
 			checkSites(context);
 		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
 			enable(context);
 		} else if (DEALDROID_STOP.equals(intent.getAction())) {
 			disable(context);
+		} else if (DEALDROID_RESTART.equals(intent.getAction())) {
+			disable(context);
+			enable(context);
 		}
-
 	}
 
 	/**
 	 * @param context
 	 */
+	private void checkSites(final Context context) {
+		final Thread checker = new SiteCheckerThread(context);
+		checker.start();
+	}
+	
+	/**
+	 * @param context
+	 */
 	private void enable(final Context context) {
 		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
-		getAlarmManager(context).setRepeating(AlarmManager.RTC_WAKEUP, 0, UPDATE_INTERVAL,
-				getSiteCheckerIntent(context));
+		
+		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC;
+		getAlarmManager(context).setRepeating(mode, 0, UPDATE_INTERVAL,	getSiteCheckerIntent(context));
 	}
 
 	/**
@@ -91,20 +100,65 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @return
 	 */
 	private PendingIntent getSiteCheckerIntent(final Context context) {
-		return PendingIntent.getBroadcast(context, 0, new Intent(SiteChecker.INTENT_CHECK_SITES), 0);
+		return PendingIntent.getBroadcast(context, 0, new Intent(SiteChecker.DEALDROID_UPDATE), 0);
 	}
 
 	/**
 	 * @param context
+	 * @return
 	 */
-	private void checkSites(final Context context) {
+	private static boolean shouldKeepPhoneAwake(final Context context) {
+		final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		return preferences.getBoolean(KEEP_AWAKE, false);
+	}
+	
+	/**
+	 * @author shade
+	 *
+	 */
+	private static class SiteCheckerThread extends Thread {
 
-		if (!isActive) {
+		final Context context;
+		final Database database;
+
+		SiteCheckerThread(final Context context) {
+			this.context = context;
+			this.database = new Database(context);
+		}
+		
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Thread#run()
+		 */
+		@Override
+		public void run() {
+			
+			PowerManager.WakeLock wl = null;
+			if (shouldKeepPhoneAwake(context)) {
+				final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+				wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
+				wl.acquire();
+			}
+			
 			try {
-				isActive = true;
-				
+				checkSites();
+			} finally {
+				if (wl != null) {
+					wl.release();
+				}
+			}
+		}
+
+
+		/**
+		 * @param context
+		 */
+		private void checkSites() {
+
+			try {
+
 				database.open();
-				
+
 				final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
 				for (Site site : Site.values()) {
@@ -123,11 +177,11 @@ public class SiteChecker extends BroadcastReceiver {
 							Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
 
 							if (item.getTitle() != null) {
-								notify(site, item, context);
+								notify(site, item);
 							}
 
 						} catch (Exception e) {
-							
+
 							Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 						}
 					} else {
@@ -136,21 +190,17 @@ public class SiteChecker extends BroadcastReceiver {
 				}
 			} finally {
 				database.close();
-				isActive = false;
 			}
 
-		} else {
-			Log.w(this.getClass().getSimpleName(), "Task already running.");
 		}
-	}
 
-	/**
-	 * @param site
-	 * @param item
-	 */
-	private void notify(final Site site, final Item item, final Context context) {
+		/**
+		 * @param site
+		 * @param item
+		 */
+		private void notify(final Site site, final Item item) {
 
-		if (item != null) {
+			if (item != null) {
 
 				if (!database.isItemCurrent(site, item)) {
 
@@ -159,45 +209,48 @@ public class SiteChecker extends BroadcastReceiver {
 					database.updateState(site, item);
 
 					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
-							createNotification(site, item, context));
+							createNotification(site, item));
 
 				} else {
 
 					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
 				}
 
-		}
-	}
-
-	/**
-	 * @param site
-	 * @param item
-	 * @param context
-	 * @return
-	 */
-	private Notification createNotification(final Site site, final Item item, final Context context) {
-
-		final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System.currentTimeMillis());
-		final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, item.getLink()), 0);
-		
-		notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
-
-		notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
-
-		// Notification options
-		final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-		if (preferences.getBoolean(Preferences.NOTIFY_VIBRATE, false)) {
-			notification.vibrate = new long[] { 100, 250, 100, 500 };
+			}
 		}
 
-		if (preferences.getBoolean(Preferences.NOTIFY_LED, false)) {
-			notification.ledARGB = 0xFFFF5171;
-			notification.ledOnMS = 500;
-			notification.ledOffMS = 500;
-			notification.flags = notification.flags | Notification.FLAG_SHOW_LIGHTS;
+		/**
+		 * @param site
+		 * @param item
+		 * @param context
+		 * @return
+		 */
+		private Notification createNotification(final Site site, final Item item) {
+
+			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System
+					.currentTimeMillis());
+			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW,
+					item.getLink()), 0);
+
+			notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
+
+			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
+
+			// Notification options
+			final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+			if (preferences.getBoolean(Preferences.NOTIFY_VIBRATE, false)) {
+				notification.vibrate = new long[] { 100, 250, 100, 500 };
+			}
+
+			if (preferences.getBoolean(Preferences.NOTIFY_LED, false)) {
+				notification.ledARGB = 0xFFFF5171;
+				notification.ledOnMS = 500;
+				notification.ledOffMS = 500;
+				notification.flags = notification.flags | Notification.FLAG_SHOW_LIGHTS;
+			}
+
+			return notification;
+
 		}
-
-		return notification;
-
 	}
 }
