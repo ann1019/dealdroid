@@ -89,7 +89,7 @@ public class RSSHandler extends DefaultHandler {
 			
 			if (currentItem != null && currentTag != null) {
 				
-				final String chars = currentString.toString();
+				final String chars = currentString.toString().trim();
 			
 				switch (currentTag) {
 				case TITLE:
@@ -129,7 +129,7 @@ public class RSSHandler extends DefaultHandler {
 
 		if (inItem && currentTag != null) {
 
-			final String chars = (new String(ch).substring(start, start + length)).trim();
+			final String chars = (new String(ch).substring(start, start + length));
 						
 			if (chars.length() > 0) {
 				currentString.append(chars);
