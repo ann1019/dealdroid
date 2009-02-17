@@ -46,8 +46,7 @@ public class Database {
 		return db.delete(STATE_TABLE, KEY_ID + " = " + site.ordinal(), null) > 0;
 	}
 
-	public boolean updateStateIfNotCurrent(Site site, Item item) {
-		
+	public synchronized boolean updateStateIfNotCurrent(Site site, Item item) {
 		db.beginTransaction();
 		boolean ret = false;
 		try {
