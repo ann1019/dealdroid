@@ -1,5 +1,3 @@
 #summary Screenshots
 
-http://n0rp.chemlab.org/dd/dealdroid01.png
-
-http://n0rp.chemlab.org/dd/dealdroid02.png
+|| http://n0rp.chemlab.org/dd/dealdroid01.png || http://n0rp.chemlab.org/dd/dealdroid02.png ||
