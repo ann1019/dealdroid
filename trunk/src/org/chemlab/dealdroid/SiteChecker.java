@@ -39,9 +39,13 @@ public class SiteChecker extends BroadcastReceiver {
 	public static final String DEALDROID_RESTART = "org.chemlab.dealdroid.DEALDROID_RESTART";
 	
 	public static final String DEALDROID_UPDATE = "org.chemlab.dealdroid.DEALDROID_UPDATE";
-		
-	private static final long UPDATE_INTERVAL = 120000;
 	
+	public static final String DEALDROID_ENABLE = "org.chemlab.dealdroid.DEALDROID_ENABLE";
+	
+	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
+	
+	private static final long UPDATE_INTERVAL = 120000;
+		
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -50,9 +54,14 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-
-		if (DEALDROID_UPDATE.equals(intent.getAction())) {
+		
+		if (DEALDROID_ENABLE.equals(intent.getAction())) {
 			checkSites(context);
+		} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
+			final Site site = Site.valueOf(intent.getExtras().getString("site"));
+			if (site != null) {
+				disableSite(context, site);
+			}
 		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
 			enable(context);
 		} else if (DEALDROID_STOP.equals(intent.getAction())) {
@@ -60,9 +69,20 @@ public class SiteChecker extends BroadcastReceiver {
 		} else if (DEALDROID_RESTART.equals(intent.getAction())) {
 			disable(context);
 			enable(context);
-		}
+		} 
 	}
 
+	/**
+	 * @param site
+	 */
+	private void disableSite(final Context context, final Site site) {
+		Log.i(this.getClass().getSimpleName(), "Deleting data for site: " + site.toString());
+		final Database db = new Database(context);
+		db.open();
+		db.delete(site);
+		db.close();
+	}
+	
 	/**
 	 * @param context
 	 */
@@ -122,10 +142,12 @@ public class SiteChecker extends BroadcastReceiver {
 
 		final Context context;
 		final Database database;
-
+		final SharedPreferences preferences;
+		
 		SiteCheckerThread(final Context context) {
 			this.context = context;
 			this.database = new Database(context);
+			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 		}
 		
 		
@@ -158,8 +180,6 @@ public class SiteChecker extends BroadcastReceiver {
 		 * @param context
 		 */
 		private void checkSites() {
-
-			final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
 			for (Site site : Site.values()) {
 
@@ -238,7 +258,6 @@ public class SiteChecker extends BroadcastReceiver {
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 
 			// Notification options
-			final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 			if (preferences.getBoolean(Preferences.NOTIFY_VIBRATE, false)) {
 				notification.vibrate = new long[] { 100, 250, 100, 500 };
 			}

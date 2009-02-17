@@ -13,6 +13,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * SAX event handler which has some idea of the kind of RSS that we are interested in,
@@ -77,44 +78,44 @@ public class RSSHandler extends DefaultHandler {
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-
-		if (localName.trim().equals("item")) {
+		
+		if (currentItem != null && localName.trim().equals("item")) {
 			inItem = false;
 			if (currentItem.getPubDate() != null) {
-				final Item clone = (Item)currentItem.clone();
+				final Item clone = (Item) currentItem.clone();
 				items.put(clone.getPubDate(), clone);
 			}
-			
-		} else {
-			
-			if (currentItem != null && currentTag != null) {
-				
-				final String chars = currentString.toString().trim();
-			
-				switch (currentTag) {
-				case TITLE:
-					currentItem.setTitle(chars);
-					break;
-				case LINK:
-					currentItem.setLink(Uri.parse(chars));
-					break;
-				case DESCRIPTION:
-					currentItem.setDescription(chars);
-					break;
-				case PRICE:
-					currentItem.setPrice(chars);
-					break;
-				case PUBDATE:
-					try {
-						currentItem.setPubDate(pubDateFormat.parse(chars));
-					} catch (ParseException e) {
-						throw new SAXException(e);
-					}
-					break;
+
+		} else if (currentItem != null && currentTag != null) {
+
+			final String chars = currentString.toString().trim();
+
+			switch (currentTag) {
+			case TITLE:
+				currentItem.setTitle(chars);
+				break;
+			case LINK:
+				currentItem.setLink(Uri.parse(chars));
+				break;
+			case DESCRIPTION:
+				currentItem.setDescription(chars);
+				break;
+			case PRICE:
+				currentItem.setPrice(chars);
+				break;
+			case PUBDATE:
+				try {
+					currentItem.setPubDate(pubDateFormat.parse(chars));
+				} catch (ParseException e) {
+					
+					// BC likes to just send "MDT" sometimes as the pubDate
+					Log.e(this.getClass().getSimpleName(), e.getMessage());
 				}
+				break;
 			}
+
 		}
-		
+
 		currentTag = null;
 		
 	}

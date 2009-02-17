@@ -1,8 +1,9 @@
 package org.chemlab.dealdroid;
 
+import static org.chemlab.dealdroid.SiteChecker.DEALDROID_DISABLE;
+import static org.chemlab.dealdroid.SiteChecker.DEALDROID_ENABLE;
 import static org.chemlab.dealdroid.SiteChecker.DEALDROID_RESTART;
 import static org.chemlab.dealdroid.SiteChecker.DEALDROID_START;
-import static org.chemlab.dealdroid.SiteChecker.DEALDROID_UPDATE;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -55,9 +56,23 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		// If a site is toggled, just check right away
 		if (key != null) {
-			if (key.startsWith(ENABLED) && sharedPreferences.getBoolean(key, false)) {
-				final Intent checkNow = new Intent(DEALDROID_UPDATE);
-				sendBroadcast(checkNow);
+			
+			if (key.startsWith(ENABLED)) {
+				
+				final Site site = Site.valueOf(key.substring(ENABLED.length()));
+				
+				final String intent;
+				if (sharedPreferences.getBoolean(key, false)) {
+					intent = DEALDROID_ENABLE;
+				} else {
+					intent = DEALDROID_DISABLE;
+				}
+				
+				final Intent update = new Intent(intent);
+				update.putExtra("site", site.toString());
+				
+				sendBroadcast(update);
+				
 			} else if (key.equals(KEEP_AWAKE)) {
 				final Intent reschedule = new Intent(DEALDROID_RESTART);
 				sendBroadcast(reschedule);

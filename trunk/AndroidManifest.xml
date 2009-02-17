@@ -25,7 +25,8 @@
 				<action android:name="org.chemlab.dealdroid.DEALDROID_START" />
 				<action android:name="org.chemlab.dealdroid.DEALDROID_STOP" />
 				<action android:name="org.chemlab.dealdroid.DEALDROID_RESTART" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_UPDATE" />
+				<action android:name="org.chemlab.dealdroid.DEALDROID_ENABLE" />
+				<action android:name="org.chemlab.dealdroid.DEALDROID_DISABLE" />
 			</intent-filter>
 		</receiver>
 		
