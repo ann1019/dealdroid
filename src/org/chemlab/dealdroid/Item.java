@@ -1,5 +1,7 @@
 package org.chemlab.dealdroid;
 
+import java.util.Date;
+
 import android.net.Uri;
 
 /**
@@ -8,7 +10,7 @@ import android.net.Uri;
  * @author shade
  * @version $Id$
  */
-public class Item {
+public class Item implements Cloneable {
 
 	private String title;
 
@@ -17,6 +19,8 @@ public class Item {
 	private String description;
 
 	private Uri link;
+
+	private Date pubDate;
 
 	/**
 	 * 
@@ -29,15 +33,16 @@ public class Item {
 	 * @param title
 	 * @param price
 	 * @param description
-	 *            ;
 	 * @param link
+	 * @param pubDate
 	 */
-	public Item(String title, String price, String description, Uri link) {
+	public Item(String title, String price, String description, Uri link, Date pubDate) {
 		super();
 		this.title = title;
 		this.price = price;
 		this.description = description;
 		this.link = link;
+		this.pubDate = pubDate;
 	}
 
 	/**
@@ -100,6 +105,21 @@ public class Item {
 		this.link = link;
 	}
 
+	/**
+	 * @return the pubDate
+	 */
+	public Date getPubDate() {
+		return pubDate;
+	}
+
+	/**
+	 * @param pubDate
+	 *            the pubDate to set
+	 */
+	public void setPubDate(Date pubDate) {
+		this.pubDate = pubDate;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -112,6 +132,7 @@ public class Item {
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((price == null) ? 0 : price.hashCode());
+		result = prime * result + ((pubDate == null) ? 0 : pubDate.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -123,34 +144,72 @@ public class Item {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		Item other = (Item) obj;
 		if (description == null) {
-			if (other.description != null)
+			if (other.description != null) {
 				return false;
-		} else if (!description.equals(other.description))
+			}
+		} else if (!description.equals(other.description)) {
 			return false;
+		}
 		if (link == null) {
-			if (other.link != null)
+			if (other.link != null) {
 				return false;
-		} else if (!link.equals(other.link))
+			}
+		} else if (!link.equals(other.link)) {
 			return false;
+		}
 		if (price == null) {
-			if (other.price != null)
+			if (other.price != null) {
 				return false;
-		} else if (!price.equals(other.price))
+			}
+		} else if (!price.equals(other.price)) {
 			return false;
+		}
+		if (pubDate == null) {
+			if (other.pubDate != null) {
+				return false;
+			}
+		} else if (!pubDate.equals(other.pubDate)) {
+			return false;
+		}
 		if (title == null) {
-			if (other.title != null)
+			if (other.title != null) {
 				return false;
-		} else if (!title.equals(other.title))
+			}
+		} else if (!title.equals(other.title)) {
 			return false;
+		}
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Object#clone()
+	 */
+	@Override
+	public Object clone() {
+
+		final Item clone;
+
+		try {
+			clone = (Item) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new InternalError(e.toString());
+		}
+		
+		if (getPubDate() != null) {
+			clone.setPubDate(new Date(getPubDate().getTime()));
+		}
+		
+		return clone;
+	}
 }

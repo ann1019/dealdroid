@@ -6,6 +6,8 @@ import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.net.URLConnection;
+import java.util.Date;
+import java.util.SortedMap;
 
 import org.chemlab.dealdroid.rss.RSSHandler;
 
@@ -141,8 +143,10 @@ public class SiteChecker extends BroadcastReceiver {
 			}
 			
 			try {
+				database.open();
 				checkSites();
 			} finally {
+				database.close();
 				if (wl != null) {
 					wl.release();
 				}
@@ -165,18 +169,24 @@ public class SiteChecker extends BroadcastReceiver {
 
 					try {
 
-						final Item item = new Item();
-
 						final URLConnection conn = site.getUrl().openConnection();
 						conn.setConnectTimeout(10000);
 						conn.setReadTimeout(60000);
 
-						Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
-
-						if (item.getTitle() != null) {
-							notify(site, item);
+						final RSSHandler r = new RSSHandler();
+						Xml.parse(conn.getInputStream(), Encoding.UTF_8, r);
+						
+						final SortedMap<Date, Item> items = r.getItems();
+						
+						if (items.size() > 0) {
+							
+							final Item item = items.get(items.lastKey());
+													
+							if (item.getTitle() != null) {
+								notify(site, item);
+							}
 						}
-
+						
 					} catch (Exception e) {
 
 						Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
@@ -198,25 +208,15 @@ public class SiteChecker extends BroadcastReceiver {
 		private synchronized void notify(final Site site, final Item item) {
 
 			if (item != null) {
-				try {
-					database.open();
 
-					if (!database.isItemCurrent(site, item)) {
+				if (database.updateStateIfNotCurrent(site, item)) {
 
-						Log.d(this.getClass().getSimpleName(), "Creating new notification.");
+					Log.d(this.getClass().getSimpleName(), "Creating new notification.");
+					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(), createNotification(site, item));
 
-						database.updateState(site, item);
-
-						((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
-								createNotification(site, item));
-
-					} else {
-						Log.d(this.getClass().getSimpleName(), "Not creating notification.");
-					}
-				} finally {
-					database.close();
+				} else {
+					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
 				}
-
 			}
 		}
 

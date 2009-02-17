@@ -1,5 +1,7 @@
 package org.chemlab.dealdroid;
 
+import java.util.Date;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -15,7 +17,9 @@ public class Database {
 	private static final String KEY_ID = "id";
 
 	private static final String KEY_TITLE = "title";
-
+	
+	private static final String KEY_STAMP = "stamp";
+	
 	private static final String DATABASE_NAME = "dealdroid.db";
 
 	private static final int DATABASE_VERSION = 1;
@@ -38,35 +42,43 @@ public class Database {
 		dbHelper.close();
 	}
 
-	public void begin() {
-		db.beginTransaction();
-	}
-	
-	public void commit() {
-		db.endTransaction();
-	}
-	
 	public boolean delete(Site site) {
 		return db.delete(STATE_TABLE, KEY_ID + " = " + site.ordinal(), null) > 0;
 	}
 
-	public long updateState(Site site, Item item) {
-		delete(site);
-		final ContentValues v = new ContentValues();
-		v.put(KEY_ID, site.ordinal());
-		v.put(KEY_TITLE, item.getTitle());
-		return db.insert(STATE_TABLE, null, v);
+	public boolean updateStateIfNotCurrent(Site site, Item item) {
+		
+		db.beginTransaction();
+		boolean ret = false;
+		try {
+			if (isItemNew(site, item)) {
+				delete(site);
+				final ContentValues v = new ContentValues();
+				v.put(KEY_ID, site.ordinal());
+				v.put(KEY_TITLE, item.getTitle());
+				v.put(KEY_STAMP, item.getPubDate().getTime());
+				
+				db.insert(STATE_TABLE, null, v);
+				ret = true;
+			}
+			db.setTransactionSuccessful();
+		} finally {
+			db.endTransaction();
+		}
+		return ret;
 	}
 
-	public boolean isItemCurrent(Site site, Item item) {
+	private boolean isItemNew(Site site, Item item) {
 
-		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE }, KEY_ID + " = " + site.ordinal(),
+		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE, KEY_STAMP }, KEY_ID + " = " + site.ordinal(),
 				null, null, null, null);
 			
 		boolean ret = false;
-		if (c.getCount() > 0) {
+		if (c.getCount() == 0) {
+			ret = true;
+		} else {
 			c.moveToFirst();
-			ret = item.getTitle().equals(c.getString(1));
+			ret = !item.getTitle().equals(c.getString(1)) && item.getPubDate().after(new Date(c.getLong(2)));
 		}
 		
 		c.close();
@@ -89,7 +101,7 @@ public class Database {
 		 */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE dealdroid_state (id INTEGER PRIMARY KEY, title TEXT NOT NULL);");
+			db.execSQL("CREATE TABLE dealdroid_state (id INTEGER PRIMARY KEY, title TEXT NOT NULL, stamp INTEGER NOT NULL);");
 		}
 
 		/*
