@@ -91,7 +91,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param context
 	 * @return
 	 */
-	private AlarmManager getAlarmManager(final Context context) {
+	private static AlarmManager getAlarmManager(final Context context) {
 		return (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 	}
 
@@ -99,7 +99,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param context
 	 * @return
 	 */
-	private PendingIntent getSiteCheckerIntent(final Context context) {
+	private static PendingIntent getSiteCheckerIntent(final Context context) {
 		return PendingIntent.getBroadcast(context, 0, new Intent(SiteChecker.DEALDROID_UPDATE), 0);
 	}
 
@@ -155,45 +155,38 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private void checkSites() {
 
-			try {
+			final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-				database.open();
+			for (Site site : Site.values()) {
 
-				final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+				Log.d(this.getClass().getSimpleName(), "Handling " + site);
 
-				for (Site site : Site.values()) {
+				if (isEnabled(preferences, site)) {
 
-					Log.d(this.getClass().getSimpleName(), "Handling " + site);
+					try {
 
-					if (isEnabled(preferences, site)) {
-						
-						try {
+						final Item item = new Item();
 
-							final Item item = new Item();
+						final URLConnection conn = site.getUrl().openConnection();
+						conn.setConnectTimeout(10000);
+						conn.setReadTimeout(60000);
 
-							final URLConnection conn = site.getUrl().openConnection();
-							conn.setConnectTimeout(10000);
-							conn.setReadTimeout(60000);
+						Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
 
-							Xml.parse(conn.getInputStream(), Encoding.UTF_8, new RSSHandler(item));
-
-							if (item.getTitle() != null) {
-								notify(site, item);
-							}
-
-						} catch (Exception e) {
-
-							Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
+						if (item.getTitle() != null) {
+							notify(site, item);
 						}
-						
-					} else {
-						
-						Log.d(this.getClass().getSimpleName(), "Skipping " + site + " (disabled)");
-						
+
+					} catch (Exception e) {
+
+						Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 					}
+
+				} else {
+
+					Log.d(this.getClass().getSimpleName(), "Skipping " + site + " (disabled)");
+
 				}
-			} finally {
-				database.close();
 			}
 
 		}
@@ -202,28 +195,26 @@ public class SiteChecker extends BroadcastReceiver {
 		 * @param site
 		 * @param item
 		 */
-		private void notify(final Site site, final Item item) {
+		private synchronized void notify(final Site site, final Item item) {
 
 			if (item != null) {
-				
-				database.begin();
-				
 				try {
+					database.open();
+
 					if (!database.isItemCurrent(site, item)) {
 
 						Log.d(this.getClass().getSimpleName(), "Creating new notification.");
 
 						database.updateState(site, item);
 
-						((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(), createNotification(site, item));
+						((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
+								createNotification(site, item));
 
 					} else {
-
 						Log.d(this.getClass().getSimpleName(), "Not creating notification.");
 					}
 				} finally {
-					
-					database.commit();
+					database.close();
 				}
 
 			}
