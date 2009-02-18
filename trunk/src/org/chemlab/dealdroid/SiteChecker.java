@@ -6,10 +6,8 @@ import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.net.URLConnection;
-import java.util.Date;
-import java.util.SortedMap;
 
-import org.chemlab.dealdroid.rss.RSSHandler;
+import org.chemlab.dealdroid.feed.FeedHandler;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -193,19 +191,12 @@ public class SiteChecker extends BroadcastReceiver {
 						conn.setConnectTimeout(10000);
 						conn.setReadTimeout(60000);
 
-						final RSSHandler r = new RSSHandler();
-						Xml.parse(conn.getInputStream(), Encoding.UTF_8, r);
+						final FeedHandler handler = site.getHandler().newInstance();
 						
-						final SortedMap<Date, Item> items = r.getItems();
-						
-						if (items.size() > 0) {
-							
-							final Item item = items.get(items.lastKey());
-													
-							if (item.getTitle() != null) {
-								notify(site, item);
-							}
-						}
+						Xml.parse(conn.getInputStream(), Encoding.UTF_8, handler);
+
+						notify(site, handler.getCurrentItem());
+
 						
 					} catch (Exception e) {
 
@@ -227,7 +218,7 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private synchronized void notify(final Site site, final Item item) {
 
-			if (item != null) {
+			if (item != null && item.getTitle() != null) {
 
 				if (database.updateStateIfNotCurrent(site, item)) {
 

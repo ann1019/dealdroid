@@ -1,7 +1,5 @@
 package org.chemlab.dealdroid;
 
-import java.util.Date;
-
 import android.net.Uri;
 
 /**
@@ -20,8 +18,6 @@ public class Item implements Cloneable {
 
 	private Uri link;
 
-	private Date pubDate;
-
 	/**
 	 * 
 	 */
@@ -34,15 +30,13 @@ public class Item implements Cloneable {
 	 * @param price
 	 * @param description
 	 * @param link
-	 * @param pubDate
 	 */
-	public Item(String title, String price, String description, Uri link, Date pubDate) {
+	public Item(String title, String price, String description, Uri link) {
 		super();
 		this.title = title;
 		this.price = price;
 		this.description = description;
 		this.link = link;
-		this.pubDate = pubDate;
 	}
 
 	/**
@@ -105,21 +99,6 @@ public class Item implements Cloneable {
 		this.link = link;
 	}
 
-	/**
-	 * @return the pubDate
-	 */
-	public Date getPubDate() {
-		return pubDate;
-	}
-
-	/**
-	 * @param pubDate
-	 *            the pubDate to set
-	 */
-	public void setPubDate(Date pubDate) {
-		this.pubDate = pubDate;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -132,7 +111,6 @@ public class Item implements Cloneable {
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
 		result = prime * result + ((link == null) ? 0 : link.hashCode());
 		result = prime * result + ((price == null) ? 0 : price.hashCode());
-		result = prime * result + ((pubDate == null) ? 0 : pubDate.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -175,13 +153,6 @@ public class Item implements Cloneable {
 		} else if (!price.equals(other.price)) {
 			return false;
 		}
-		if (pubDate == null) {
-			if (other.pubDate != null) {
-				return false;
-			}
-		} else if (!pubDate.equals(other.pubDate)) {
-			return false;
-		}
 		if (title == null) {
 			if (other.title != null) {
 				return false;
@@ -204,10 +175,6 @@ public class Item implements Cloneable {
 			clone = (Item) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new InternalError(e.toString());
-		}
-		
-		if (getPubDate() != null) {
-			clone.setPubDate(new Date(getPubDate().getTime()));
 		}
 		
 		return clone;
