@@ -17,6 +17,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.PowerManager;
 import android.util.Log;
 import android.util.Xml;
@@ -52,7 +54,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		
+				
 		if (DEALDROID_ENABLE.equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 			if (site != null) {
@@ -92,11 +94,19 @@ public class SiteChecker extends BroadcastReceiver {
 	}
 	
 	/**
+	 * Checks the given sites for new items (only if the network is up).
+	 * 
 	 * @param context
 	 */
 	private void checkSites(final Context context, final Site... sites) {
-		final Thread checker = new SiteCheckerThread(context, sites);
-		checker.start();
+		
+		final ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		final NetworkInfo info = cm.getActiveNetworkInfo();
+		
+		if (info != null && info.isAvailable()) {
+			final Thread checker = new SiteCheckerThread(context, sites);
+			checker.start();
+		}
 	}
 	
 	/**
@@ -208,7 +218,7 @@ public class SiteChecker extends BroadcastReceiver {
 						Xml.parse(conn.getInputStream(), Encoding.UTF_8, handler);
 
 						notify(site, handler.getCurrentItem());
-
+						
 						
 					} catch (Exception e) {
 
@@ -234,7 +244,7 @@ public class SiteChecker extends BroadcastReceiver {
 
 				if (database.updateStateIfNotCurrent(site, item)) {
 
-					Log.d(this.getClass().getSimpleName(), "Creating new notification.");
+					Log.i(this.getClass().getSimpleName(), "Creating new notification for " + site.name());
 					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(), createNotification(site, item));
 
 				} else {
