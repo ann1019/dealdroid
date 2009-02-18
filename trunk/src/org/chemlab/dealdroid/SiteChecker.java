@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.util.Xml;
 import android.util.Xml.Encoding;
@@ -45,7 +46,9 @@ public class SiteChecker extends BroadcastReceiver {
 	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
 	
 	private static final long UPDATE_INTERVAL = 180000;
-		
+	
+	private WakeLock wakeLock;
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -55,6 +58,9 @@ public class SiteChecker extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 				
+		final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
+		
 		if (DEALDROID_ENABLE.equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 			if (site != null) {
@@ -115,7 +121,7 @@ public class SiteChecker extends BroadcastReceiver {
 	private synchronized void enable(final Context context) {
 		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
 		
-		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.RTC_WAKEUP : AlarmManager.RTC;
+		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
 		getAlarmManager(context).setRepeating(mode, 0, UPDATE_INTERVAL,	getSiteCheckerIntent(context));
 	}
 
@@ -156,7 +162,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @author shade
 	 *
 	 */
-	private static class SiteCheckerThread extends Thread {
+	private class SiteCheckerThread extends Thread {
 
 		final Context context;
 		final Database database;
@@ -177,11 +183,8 @@ public class SiteChecker extends BroadcastReceiver {
 		@Override
 		public void run() {
 			
-			PowerManager.WakeLock wl = null;
-			if (shouldKeepPhoneAwake(context)) {
-				final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-				wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
-				wl.acquire();
+			if (wakeLock != null) {
+				wakeLock.acquire();
 			}
 			
 			try {
@@ -189,8 +192,8 @@ public class SiteChecker extends BroadcastReceiver {
 				checkSites();
 			} finally {
 				database.close();
-				if (wl != null) {
-					wl.release();
+				if (wakeLock != null) {
+					wakeLock.release();
 				}
 			}
 		}
