@@ -54,20 +54,30 @@ public class SiteChecker extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 		
 		if (DEALDROID_ENABLE.equals(intent.getAction())) {
-			checkSites(context);
+			final Site site = Site.valueOf(intent.getExtras().getString("site"));
+			if (site != null) {
+				checkSites(context, site);
+			}
+			
 		} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 			if (site != null) {
 				disableSite(context, site);
 			}
+			
 		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
 			enable(context);
+			
 		} else if (DEALDROID_STOP.equals(intent.getAction())) {
 			disable(context);
+			
 		} else if (DEALDROID_RESTART.equals(intent.getAction())) {
 			disable(context);
 			enable(context);
-		} 
+			
+		} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
+			checkSites(context, Site.values());
+		}
 	}
 
 	/**
@@ -84,8 +94,8 @@ public class SiteChecker extends BroadcastReceiver {
 	/**
 	 * @param context
 	 */
-	private void checkSites(final Context context) {
-		final Thread checker = new SiteCheckerThread(context);
+	private void checkSites(final Context context, final Site... sites) {
+		final Thread checker = new SiteCheckerThread(context, sites);
 		checker.start();
 	}
 	
@@ -141,9 +151,11 @@ public class SiteChecker extends BroadcastReceiver {
 		final Context context;
 		final Database database;
 		final SharedPreferences preferences;
+		final Site[] sites;
 		
-		SiteCheckerThread(final Context context) {
+		SiteCheckerThread(final Context context, Site... sites) {
 			this.context = context;
+			this.sites = sites;
 			this.database = new Database(context);
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 		}
@@ -179,7 +191,7 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private void checkSites() {
 
-			for (Site site : Site.values()) {
+			for (Site site : sites) {
 
 				Log.d(this.getClass().getSimpleName(), "Handling " + site);
 
