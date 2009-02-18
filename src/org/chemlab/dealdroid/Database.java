@@ -26,26 +26,52 @@ public class Database {
 
 	private SQLiteDatabase db;
 
+	/**
+	 * @param context
+	 */
 	public Database(Context context) {
 		this.dbHelper = new DatabaseHelper(context);
 	}
 
+	/**
+	 * Opens the database for use.
+	 */
 	public void open() {
 		db = dbHelper.getWritableDatabase();
 	}
 
+	/**
+	 * Closes the database.
+	 */
 	public void close() {
 		dbHelper.close();
 	}
 	
+	/**
+	 * @param site
+	 * @return a where clause for matching the id
+	 */
 	private String idMatch(Site site) {
 		return new StringBuilder(KEY_ID).append("='").append(site.name()).append("'").toString();
 	}
 	
+	/**
+	 * Deletes data for a site.
+	 * 
+	 * @param site
+	 * @return if any sites were deleted
+	 */
 	public boolean delete(Site site) {
 		return db.delete(STATE_TABLE, idMatch(site), null) > 0;
 	}
 
+	/**
+	 * Updates the state of a site with a new item.
+	 * 
+	 * @param site
+	 * @param item
+	 * @return if the state was updated
+	 */
 	public synchronized boolean updateStateIfNotCurrent(Site site, Item item) {
 		db.beginTransaction();
 		boolean ret = false;
@@ -69,20 +95,26 @@ public class Database {
 		return ret;
 	}
 
+	/**
+	 * @param site
+	 * @param item
+	 * @return true if this is a new item
+	 */
 	private boolean isItemNew(Site site, Item item) {
 
-		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE }, idMatch(site), null, null, null, null);
-			
 		boolean ret = false;
-		if (c.getCount() == 0) {
-			ret = true;
-		} else {
-			c.moveToFirst();
-			ret = !item.getTitle().equals(c.getString(1));
+		if (site != null && item != null && item.getTitle() != null) {
+			final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE }, idMatch(site), null, null, null, null);
+			
+			if (c.getCount() == 0) {
+				ret = true;
+			} else {
+				c.moveToFirst();
+				ret = !item.getTitle().equals(c.getString(1));
+			}
+		
+			c.close();
 		}
-		
-		c.close();
-		
 		return ret;
 	}
 
