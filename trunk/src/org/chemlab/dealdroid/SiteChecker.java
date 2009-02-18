@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
@@ -57,34 +58,41 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-				
-		final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-		wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
-		
-		if (DEALDROID_ENABLE.equals(intent.getAction())) {
-			final Site site = Site.valueOf(intent.getExtras().getString("site"));
-			if (site != null) {
-				checkSites(context, site);
+
+		Log.d(this.getClass().getName(), "Intent: " + intent.getAction());
+
+		if (wakeLock == null) {
+			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
+
+			if (DEALDROID_ENABLE.equals(intent.getAction())) {
+				final Site site = Site.valueOf(intent.getExtras().getString("site"));
+				if (site != null) {
+					checkSites(context, site);
+				}
+
+			} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
+				final Site site = Site.valueOf(intent.getExtras().getString("site"));
+				if (site != null) {
+					disableSite(context, site);
+				}
+
+			} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
+				disable(context);
+				enable(context);
+
+			} else if (DEALDROID_STOP.equals(intent.getAction())) {
+				disable(context);
+
+			} else if (DEALDROID_RESTART.equals(intent.getAction())) {
+				disable(context);
+				enable(context);
+
+			} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
+				checkSites(context, Site.values());
 			}
-			
-		} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
-			final Site site = Site.valueOf(intent.getExtras().getString("site"));
-			if (site != null) {
-				disableSite(context, site);
-			}
-			
-		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
-			enable(context);
-			
-		} else if (DEALDROID_STOP.equals(intent.getAction())) {
-			disable(context);
-			
-		} else if (DEALDROID_RESTART.equals(intent.getAction())) {
-			disable(context);
-			enable(context);
-			
-		} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
-			checkSites(context, Site.values());
+		} else {
+			Log.e(this.getClass().getSimpleName(), "Wakelock already active, exiting.");
 		}
 	}
 
@@ -111,6 +119,7 @@ public class SiteChecker extends BroadcastReceiver {
 		
 		if (info != null && info.isAvailable()) {
 			final Thread checker = new SiteCheckerThread(context, sites);
+			checker.setDaemon(true);
 			checker.start();
 		}
 	}
@@ -214,7 +223,7 @@ public class SiteChecker extends BroadcastReceiver {
 
 						final URLConnection conn = site.getUrl().openConnection();
 						conn.setConnectTimeout(10000);
-						conn.setReadTimeout(60000);
+						conn.setReadTimeout(10000);
 
 						final FeedHandler handler = site.getHandler().newInstance();
 						
@@ -264,10 +273,16 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private Notification createNotification(final Site site, final Item item) {
 
-			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System
-					.currentTimeMillis());
-			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW,
-					item.getLink()), 0);
+			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System.currentTimeMillis());
+			
+			final Uri link;
+			if (site.getAffiliationKey() == null) {
+				link = item.getLink();
+			} else {
+				link = item.getLink().buildUpon().appendQueryParameter(site.getAffiliationKey(), site.getAffiliationValue()).build();
+			}
+			
+			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, link), 0);
 
 			notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
 

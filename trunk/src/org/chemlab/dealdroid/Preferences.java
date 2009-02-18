@@ -32,6 +32,9 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	
 	public static final String KEEP_AWAKE = "keep_awake";
 	
+	private PreferenceScreen preferenceScreen;
+	
+	
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -40,12 +43,15 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		super.onCreate(savedInstanceState);
 		
-        final Intent si = new Intent(DEALDROID_START);
-        sendBroadcast(si);
+		if (preferenceScreen == null) {
+			final Intent si = new Intent(DEALDROID_START);
+			sendBroadcast(si);
         
-        getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
-        
-		setPreferenceScreen(createPreferences());
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
+			preferenceScreen = createPreferences();
+		}
+		
+		setPreferenceScreen(preferenceScreen);
 	}
 
 	/* (non-Javadoc)
