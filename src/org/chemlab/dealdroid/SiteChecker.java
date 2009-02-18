@@ -42,7 +42,7 @@ public class SiteChecker extends BroadcastReceiver {
 	
 	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
 	
-	private static final long UPDATE_INTERVAL = 120000;
+	private static final long UPDATE_INTERVAL = 180000;
 		
 	/*
 	 * (non-Javadoc)
