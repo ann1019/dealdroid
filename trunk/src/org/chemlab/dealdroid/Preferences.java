@@ -49,15 +49,12 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		}
 		
 		if (savedInstanceState == null) {
-			Log.i("BUNDLE", "BUNDLE IS NULL");
 			final Intent si = new Intent(DEALDROID_START);
 			sendBroadcast(si);
 		}
 		
 		setPreferenceScreen(preferenceScreen);
 		
-		Log.d(this.getClass().getName(), "onCreate");
-
 	}
 
 	/* (non-Javadoc)
@@ -66,7 +63,6 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStop() {
 		super.onStop();
-		Log.d(this.getClass().getName(), "onStop");
 		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
@@ -76,7 +72,6 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStart() {
 		super.onStart();
-		Log.d(this.getClass().getName(), "onStart");
 		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
 	}
 
