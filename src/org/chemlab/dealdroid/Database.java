@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * @author shade
@@ -103,6 +104,9 @@ public class Database {
 			} else {
 				c.moveToFirst();
 				ret = !item.getTitle().equals(c.getString(1));
+				if (ret) {
+					Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
+				}
 			}
 		
 			c.close();

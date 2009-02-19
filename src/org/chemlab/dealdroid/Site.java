@@ -13,31 +13,42 @@ import org.chemlab.dealdroid.feed.FeedHandler;
  * @version $Id$
  */
 public enum Site {
-	
-	WHISKEYMILITIA("Whiskey Militia", 
-			"http://www.whiskeymilitia.com/docs/wm/rssaff.xml", 
-			"http://www.whiskeymilitia.com",
-			R.drawable.icon_whiskeymilitia, 
+
+	BONKTOWN("Bonktown",
+			"http://www.bonktown.com/docs/bonktown/rssaff.xml",
+			"http://www.bonktown.com",
+			R.drawable.icon_bonktown,
 			BCFeedHandler.class, "avad", "14749"),
+			
+	BROCIETY("Brociety",
+			"http://www.brociety.com/docs/brociety/rssaff.xml",
+			"http://www.brociety.com",
+			R.drawable.icon_brociety,
+			BCFeedHandler.class, "avad", "14749"),
+			
+	CHAINLOVE("Chain Love", 
+			"http://www.chainlove.com/docs/chainlove/rssaff.xml", 
+			
+			"http://www.chainlove.com", 
+			R.drawable.icon_chainlove, 
+			BCFeedHandler.class, "avad", "14749"),
+			
 	STEEPANDCHEAP("Steep and Cheap", 
 			"http://www.steepandcheap.com/docs/steepcheap/rssaff.xml", 
 			"http://www.steepandcheap.com",
 			R.drawable.icon_steepandcheep, 
 			BCFeedHandler.class, "avad", "14749"),
-	CHAINLOVE("Chain Love", 
-			"http://www.chainlove.com/docs/chainlove/rssaff.xml", 
-			"http://www.chainlove.com", 
-			R.drawable.icon_chainlove, 
-			BCFeedHandler.class, "avad", "14749"),
+			
 	TRAMDOCK("Tramdock", 
 			"http://www.tramdock.com/docs/tramdock/rssaff.xml", 
 			"http://www.tramdock.com", 
 			R.drawable.icon_tramdock, 
 			BCFeedHandler.class, "avad", "14749"),
-	BONKTOWN("Bonktown",
-			"http://www.bonktown.com/docs/bonktown/rssaff.xml",
-			"http://www.bonktown.com",
-			R.drawable.icon_bonktown,
+			
+	WHISKEYMILITIA("Whiskey Militia", 
+			"http://www.whiskeymilitia.com/docs/wm/rssaff.xml", 
+			"http://www.whiskeymilitia.com",
+			R.drawable.icon_whiskeymilitia, 
 			BCFeedHandler.class, "avad", "14749");
 	
 	private final String name;

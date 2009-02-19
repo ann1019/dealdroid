@@ -3,10 +3,17 @@ package org.chemlab.dealdroid;
 import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
+import static org.chemlab.dealdroid.Preferences.isAnySiteEnabled;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
-import java.net.URLConnection;
+import java.io.InputStream;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.params.AllClientPNames;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.chemlab.dealdroid.feed.FeedHandler;
 
 import android.app.AlarmManager;
@@ -39,17 +46,17 @@ public class SiteChecker extends BroadcastReceiver {
 	public static final String DEALDROID_STOP = "org.chemlab.dealdroid.DEALDROID_STOP";
 
 	public static final String DEALDROID_RESTART = "org.chemlab.dealdroid.DEALDROID_RESTART";
-	
+
 	public static final String DEALDROID_UPDATE = "org.chemlab.dealdroid.DEALDROID_UPDATE";
-	
+
 	public static final String DEALDROID_ENABLE = "org.chemlab.dealdroid.DEALDROID_ENABLE";
-	
+
 	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
-	
+
 	private static final long UPDATE_INTERVAL = 180000;
-	
+
 	private WakeLock wakeLock;
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -106,32 +113,41 @@ public class SiteChecker extends BroadcastReceiver {
 		db.delete(site);
 		db.close();
 	}
-	
+
 	/**
 	 * Checks the given sites for new items (only if the network is up).
 	 * 
 	 * @param context
 	 */
 	private void checkSites(final Context context, final Site... sites) {
-		
-		final ConnectivityManager cm = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		final ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
 		final NetworkInfo info = cm.getActiveNetworkInfo();
-		
+
 		if (info != null && info.isAvailable()) {
-			final Thread checker = new SiteCheckerThread(context, sites);
-			checker.setDaemon(true);
-			checker.start();
+
+			final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+			if (isAnySiteEnabled(prefs)) {
+				for (Site site : sites) {
+					if (isEnabled(prefs, site)) {
+						final Thread checker = new SiteCheckerThread(context, site);
+						checker.setDaemon(true);
+						checker.start();
+					}
+				}
+			}
 		}
 	}
-	
+
 	/**
 	 * @param context
 	 */
 	private synchronized void enable(final Context context) {
 		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
-		
-		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
-		getAlarmManager(context).setRepeating(mode, 0, UPDATE_INTERVAL,	getSiteCheckerIntent(context));
+
+		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP
+				: AlarmManager.ELAPSED_REALTIME;
+		getAlarmManager(context).setRepeating(mode, 0, UPDATE_INTERVAL, getSiteCheckerIntent(context));
 	}
 
 	/**
@@ -166,36 +182,42 @@ public class SiteChecker extends BroadcastReceiver {
 		final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 		return preferences.getBoolean(KEEP_AWAKE, false);
 	}
-	
+
 	/**
 	 * @author shade
-	 *
+	 * 
 	 */
 	private class SiteCheckerThread extends Thread {
 
-		final Context context;
-		final Database database;
-		final SharedPreferences preferences;
-		final Site[] sites;
-		
-		SiteCheckerThread(final Context context, Site... sites) {
+		private final Context context;
+		private final Database database;
+		private final SharedPreferences preferences;
+
+		private final HttpClient httpClient = new DefaultHttpClient();
+
+		private final Site site;
+
+		SiteCheckerThread(final Context context, final Site site) {
 			this.context = context;
-			this.sites = sites;
+			this.site = site;
 			this.database = new Database(context);
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 4000);
+			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 10000);
 		}
-		
-		
-		/* (non-Javadoc)
+
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.lang.Thread#run()
 		 */
 		@Override
 		public void run() {
-			
+
 			if (wakeLock != null) {
 				wakeLock.acquire();
 			}
-			
+
 			try {
 				database.open();
 				checkSites();
@@ -207,41 +229,39 @@ public class SiteChecker extends BroadcastReceiver {
 			}
 		}
 
-
 		/**
 		 * @param context
 		 */
 		private void checkSites() {
 
-			for (Site site : sites) {
+			Log.d(this.getClass().getSimpleName(), "Handling " + site);
 
-				Log.d(this.getClass().getSimpleName(), "Handling " + site);
+			try {
 
-				if (isEnabled(preferences, site)) {
+				final HttpGet req = new HttpGet(site.getUrl().toURI());
+				req.addHeader("Cache-Control", "no-cache");
+				req.addHeader("Pragma", "no-cache");
 
-					try {
+				final HttpResponse response = httpClient.execute(req);
 
-						final URLConnection conn = site.getUrl().openConnection();
-						conn.setConnectTimeout(10000);
-						conn.setReadTimeout(10000);
+				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
 
-						final FeedHandler handler = site.getHandler().newInstance();
-						
-						Xml.parse(conn.getInputStream(), Encoding.UTF_8, handler);
+					final FeedHandler handler = site.getHandler().newInstance();
 
-						notify(site, handler.getCurrentItem());
-						
-						
-					} catch (Exception e) {
+					final InputStream in = response.getEntity().getContent();
+					Xml.parse(in, Encoding.UTF_8, handler);
+					in.close();
 
-						Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
-					}
+					notify(site, handler.getCurrentItem());
 
 				} else {
-
-					Log.d(this.getClass().getSimpleName(), "Skipping " + site + " (disabled)");
-
+					Log.e(this.getClass().getSimpleName(), "HTTP request failed: "
+							+ response.getStatusLine().toString());
 				}
+
+			} catch (Exception e) {
+
+				Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			}
 
 		}
@@ -257,11 +277,14 @@ public class SiteChecker extends BroadcastReceiver {
 				if (database.updateStateIfNotCurrent(site, item)) {
 
 					Log.i(this.getClass().getSimpleName(), "Creating new notification for " + site.name());
-					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(), createNotification(site, item));
+					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
+							createNotification(site, item));
 
 				} else {
 					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
 				}
+			} else {
+				Log.e(this.getClass().getName(), "Incomplete item object, not notifying.");
 			}
 		}
 
@@ -273,16 +296,19 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private Notification createNotification(final Site site, final Item item) {
 
-			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System.currentTimeMillis());
-			
+			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System
+					.currentTimeMillis());
+
 			final Uri link;
 			if (site.getAffiliationKey() == null) {
 				link = item.getLink();
 			} else {
-				link = item.getLink().buildUpon().appendQueryParameter(site.getAffiliationKey(), site.getAffiliationValue()).build();
+				link = item.getLink().buildUpon().appendQueryParameter(site.getAffiliationKey(),
+						site.getAffiliationValue()).build();
 			}
-			
-			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW, link), 0);
+
+			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW,
+					link), 0);
 
 			notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
 

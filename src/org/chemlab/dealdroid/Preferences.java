@@ -44,12 +44,14 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		super.onCreate(savedInstanceState);
 		
-		if (preferenceScreen == null) {
-			
+		if (preferenceScreen == null) {        
+			preferenceScreen = createPreferences();
+		}
+		
+		if (savedInstanceState == null) {
+			Log.i("BUNDLE", "BUNDLE IS NULL");
 			final Intent si = new Intent(DEALDROID_START);
 			sendBroadcast(si);
-        
-			preferenceScreen = createPreferences();
 		}
 		
 		setPreferenceScreen(preferenceScreen);
@@ -124,6 +126,9 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		final PreferenceScreen root = getPreferenceManager().createPreferenceScreen(this);
 		
 		root.setTitle(R.string.app_name);
+		
+		final PreferenceHeader header = new PreferenceHeader(this, "DealDroid");
+		root.addPreference(header);
 		
 		for (Site site : Site.values()) {
 			
