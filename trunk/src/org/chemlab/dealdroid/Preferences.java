@@ -122,14 +122,21 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		root.setTitle(R.string.app_name);
 		
-		final PreferenceHeader header = new PreferenceHeader(this, "DealDroid");
-		root.addPreference(header);
+		final PreferenceCategory dd = new PreferenceCategory(this);
+		dd.setTitle(R.string.app_name);
+		root.addPreference(dd);
+		
+		final PreferenceScreen sites = getPreferenceManager().createPreferenceScreen(this);
+		sites.setTitle(R.string.manage_sites);
+		sites.setSummary(R.string.manage_sites_summary);
+		
+		dd.addPreference(sites);
 		
 		for (Site site : Site.values()) {
 			
 			final PreferenceCategory category = new PreferenceCategory(this);
 			category.setTitle(site.getName() + " Options");
-			root.addPreference(category);
+			sites.addPreference(category);
 			
 			final CheckBoxPreference toggle = new CheckBoxPreference(this);
 			toggle.setKey(ENABLED + site.toString());
