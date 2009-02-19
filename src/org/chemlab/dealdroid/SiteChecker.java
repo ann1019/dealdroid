@@ -55,7 +55,7 @@ public class SiteChecker extends BroadcastReceiver {
 
 	private static final long UPDATE_INTERVAL = 180000;
 
-	private WakeLock wakeLock;
+	
 
 	/*
 	 * (non-Javadoc)
@@ -67,10 +67,6 @@ public class SiteChecker extends BroadcastReceiver {
 	public void onReceive(Context context, Intent intent) {
 
 		Log.d(this.getClass().getName(), "Intent: " + intent.getAction());
-
-		if (wakeLock == null) {
-			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-			wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
 
 			if (DEALDROID_ENABLE.equals(intent.getAction())) {
 				final Site site = Site.valueOf(intent.getExtras().getString("site"));
@@ -98,9 +94,7 @@ public class SiteChecker extends BroadcastReceiver {
 			} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
 				checkSites(context, Site.values());
 			}
-		} else {
-			Log.e(this.getClass().getSimpleName(), "Wakelock already active, exiting.");
-		}
+
 	}
 
 	/**
@@ -192,7 +186,7 @@ public class SiteChecker extends BroadcastReceiver {
 		private final Context context;
 		private final Database database;
 		private final SharedPreferences preferences;
-
+		private final WakeLock wakeLock;
 		private final HttpClient httpClient = new DefaultHttpClient();
 
 		private final Site site;
@@ -202,8 +196,11 @@ public class SiteChecker extends BroadcastReceiver {
 			this.site = site;
 			this.database = new Database(context);
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 4000);
+			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 10000);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 10000);
+			
+			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+			this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
 		}
 
 		/*
@@ -214,6 +211,7 @@ public class SiteChecker extends BroadcastReceiver {
 		@Override
 		public void run() {
 
+			// Get the WakeLock, open the Database, do our job and clean up.
 			if (wakeLock != null) {
 				wakeLock.acquire();
 			}
@@ -239,6 +237,8 @@ public class SiteChecker extends BroadcastReceiver {
 			try {
 
 				final HttpGet req = new HttpGet(site.getUrl().toURI());
+				
+				// Make sure we bypass caches
 				req.addHeader("Cache-Control", "no-cache");
 				req.addHeader("Pragma", "no-cache");
 
@@ -255,8 +255,7 @@ public class SiteChecker extends BroadcastReceiver {
 					notify(site, handler.getCurrentItem());
 
 				} else {
-					Log.e(this.getClass().getSimpleName(), "HTTP request failed: "
-							+ response.getStatusLine().toString());
+					Log.e(this.getClass().getSimpleName(), "HTTP request failed: " + response.getStatusLine().toString());
 				}
 
 			} catch (Exception e) {
