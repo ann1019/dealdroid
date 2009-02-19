@@ -13,6 +13,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.util.Log;
 
 /**
  * The preferences panel.
@@ -54,11 +55,34 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		setPreferenceScreen(preferenceScreen);
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#onDestroy()
+	 */
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see android.preference.PreferenceActivity#onStop()
+	 */
+	@Override
+	protected void onStop() {
+		super.onStop();
+		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
+	}
+
+
 	/* (non-Javadoc)
 	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+		
+		Log.d(this.getClass().getSimpleName(), "Pref changed: " + key);
 		
 		// If a site is toggled, just check right away
 		if (key != null) {
