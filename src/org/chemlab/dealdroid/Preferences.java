@@ -45,26 +45,18 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		super.onCreate(savedInstanceState);
 		
 		if (preferenceScreen == null) {
+			
 			final Intent si = new Intent(DEALDROID_START);
 			sendBroadcast(si);
         
-			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
 			preferenceScreen = createPreferences();
 		}
 		
 		setPreferenceScreen(preferenceScreen);
-	}
+		
+		Log.d(this.getClass().getName(), "onCreate");
 
-	
-	/* (non-Javadoc)
-	 * @see android.preference.PreferenceActivity#onDestroy()
-	 */
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
 	}
-
 
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onStop()
@@ -72,9 +64,19 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	protected void onStop() {
 		super.onStop();
+		Log.d(this.getClass().getName(), "onStop");
 		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(this);
 	}
 
+	/* (non-Javadoc)
+	 * @see android.app.Activity#onStart()
+	 */
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Log.d(this.getClass().getName(), "onStart");
+		getSharedPreferences(PREFS_NAME, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(this);
+	}
 
 	/* (non-Javadoc)
 	 * @see android.content.SharedPreferences.OnSharedPreferenceChangeListener#onSharedPreferenceChanged(android.content.SharedPreferences, java.lang.String)
