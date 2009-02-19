@@ -46,15 +46,7 @@ public class Database {
 	public void close() {
 		dbHelper.close();
 	}
-	
-	/**
-	 * @param site
-	 * @return a where clause for matching the id
-	 */
-	private String idMatch(Site site) {
-		return new StringBuilder(KEY_ID).append("='").append(site.name()).append("'").toString();
-	}
-	
+
 	/**
 	 * Deletes data for a site.
 	 * 
@@ -62,7 +54,7 @@ public class Database {
 	 * @return if any sites were deleted
 	 */
 	public boolean delete(Site site) {
-		return db.delete(STATE_TABLE, idMatch(site), null) > 0;
+		return db.delete(STATE_TABLE, KEY_ID + "=?", new String[] { site.name() }) > 0;
 	}
 
 	/**
@@ -104,7 +96,7 @@ public class Database {
 
 		boolean ret = false;
 		if (site != null && item != null && item.getTitle() != null) {
-			final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE }, idMatch(site), null, null, null, null);
+			final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE }, KEY_ID + "=?", new String[] { site.name() }, null, null, null);
 			
 			if (c.getCount() == 0) {
 				ret = true;
