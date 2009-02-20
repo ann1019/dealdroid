@@ -36,7 +36,7 @@ public enum Site {
 			BCFeedHandler.class, "avad", "14749"),
 			
 	STEEPANDCHEAP("Steep and Cheap", 
-			"Snow, Outdoors",
+			"Outdoor Gear",
 			"http://www.steepandcheap.com/docs/steepcheap/rssaff.xml", 
 			"http://www.steepandcheap.com",
 			R.drawable.icon_steepandcheep, 
