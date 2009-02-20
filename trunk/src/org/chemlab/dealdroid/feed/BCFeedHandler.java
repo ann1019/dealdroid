@@ -50,7 +50,7 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 			currentTag = ItemTag.TITLE;
 		} else if (tag.equals("buy_url")) {
 			currentTag = ItemTag.LINK;
-		} else if (tag.equals("long_escription")) {
+		} else if (tag.equals("long_description")) {
 			currentTag = ItemTag.DESCRIPTION;
 		} else if (tag.equals("retail_price")) {
 			currentTag = ItemTag.RETAIL_PRICE;

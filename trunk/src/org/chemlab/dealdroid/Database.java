@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 /**
+ * Encapsulates access to the SQLite database used for keeping
+ * the current application state.
+ * 
  * @author shade
  * @version $Id$
  */

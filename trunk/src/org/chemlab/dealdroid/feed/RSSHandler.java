@@ -52,19 +52,21 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
 		currentString = new StringBuilder();
-
-		if (localName.trim().equals("item")) {
+		
+		final String tag = localName.trim().toLowerCase();
+		
+		if (tag.equals("item")) {
 			inItem = true;
 			currentItem = new Item();
-		} else if (localName.trim().equals("title")) {
+		} else if (tag.equals("title")) {
 			currentTag = ItemTag.TITLE;
-		} else if (localName.trim().equals("link")) {
+		} else if (tag.equals("link")) {
 			currentTag = ItemTag.LINK;
-		} else if (localName.trim().equals("listDescription")) {
+		} else if (tag.equals("listDescription")) {
 			currentTag = ItemTag.DESCRIPTION;
-		} else if (localName.trim().equals("price")) {
+		} else if (tag.equals("price")) {
 			currentTag = ItemTag.PRICE;
-		} else if (localName.trim().equals("pubDate")) {
+		} else if (tag.equals("pubDate")) {
 			currentTag = ItemTag.PUBDATE;
 		} else {
 			currentTag = null;
