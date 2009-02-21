@@ -17,6 +17,9 @@ import android.os.ParcelFileDescriptor;
 import android.util.Log;
 
 /**
+ * A simple ContentProvider that takes a site template, fills some values
+ * from an Item object, and returns that reference using a content:// URI.
+ * 
  * @author shade
  * @version $Id$
  */
@@ -99,7 +102,6 @@ public class SiteContentProvider extends ContentProvider {
 	 */
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -108,14 +110,13 @@ public class SiteContentProvider extends ContentProvider {
 	 */
 	@Override
 	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
 		return 0;
 	}
 
 	/**
 	 * @param site
 	 * @param template
-	 * @return
+	 * @return the template with fields populated with the current item data
 	 */
 	private String populate(final Site site, final String template) {
 		
@@ -152,7 +153,7 @@ public class SiteContentProvider extends ContentProvider {
 	
 	/**
 	 * @param assetName
-	 * @return
+	 * @return the requested asset as a String
 	 */
 	private String readAsset(final String assetName) {
 		
