@@ -305,11 +305,15 @@ public class SiteChecker extends BroadcastReceiver {
 				link = item.getLink().buildUpon().appendQueryParameter(site.getAffiliationKey(),
 						site.getAffiliationValue()).build();
 			}
+			
+			final Intent i = new Intent(context, Viewer.class);
+			i.setData(link);
+			i.putExtra("site", site.name());
+			
+			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
 
-			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, new Intent(Intent.ACTION_VIEW,
-					link), 0);
-
-			notification.setLatestEventInfo(context, item.getTitle(), item.getPrice(), contentIntent);
+			final String priceInfo = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: " + item.getRetailPrice() + ")";
+			notification.setLatestEventInfo(context, item.getTitle(), priceInfo, contentIntent);
 
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 

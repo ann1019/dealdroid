@@ -16,7 +16,7 @@ import android.net.Uri;
 public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 
 	private enum ItemTag {
-		TITLE, LINK, DESCRIPTION, RETAIL_PRICE, SALE_PRICE;
+		TITLE, LINK, DESCRIPTION, RETAIL_PRICE, SALE_PRICE, IMAGE_LINK;
 	}
 	
 	private boolean inItem = false;
@@ -24,10 +24,6 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 	private ItemTag currentTag = null;
 
 	private final Item currentItem = new Item();
-
-	private String retailPrice;
-	
-	private String salePrice;
 	
 	private StringBuilder currentString;
 	
@@ -56,6 +52,8 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 			currentTag = ItemTag.RETAIL_PRICE;
 		} else if (tag.equals("sale_price")) {
 			currentTag = ItemTag.SALE_PRICE;
+		} else if (tag.equals("small_image_url")) {
+			currentTag = ItemTag.IMAGE_LINK;
 		} else {
 			currentTag = null;
 		}
@@ -77,11 +75,11 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 			
 			inItem = false;
 			
-			final double sp = Double.valueOf(salePrice);
-			final double rp = Double.valueOf(retailPrice);
+			final double sp = Double.valueOf(currentItem.getSalePrice());
+			final double rp = Double.valueOf(currentItem.getRetailPrice());
 			if (sp > 0 && rp > 0 && rp >= sp) {
 				final int discount = (int)(100 * ( 1 - (sp / rp)));		
-				currentItem.setPrice("Price: $" + salePrice + " (" + discount + "% Off! Regularly: $" + retailPrice + ")");	
+				currentItem.setSavings(String.valueOf(discount));
 			}
 			
 		} else if (currentTag != null) {
@@ -98,11 +96,14 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 			case DESCRIPTION:
 				currentItem.setDescription(chars);
 				break;
+			case IMAGE_LINK:
+				currentItem.setImageLink(Uri.parse(chars));
+				break;
 			case RETAIL_PRICE:
-				retailPrice = chars;
+				currentItem.setRetailPrice(chars);
 				break;
 			case SALE_PRICE:
-				salePrice = chars;
+				currentItem.setSalePrice(chars);
 				break;
 			}
 
