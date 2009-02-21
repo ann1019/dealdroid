@@ -106,7 +106,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 				currentItem.setDescription(chars);
 				break;
 			case PRICE:
-				currentItem.setPrice(chars);
+				currentItem.setSalePrice(chars);
 				break;
 			case PUBDATE:
 				try {
