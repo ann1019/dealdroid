@@ -88,6 +88,7 @@ public class Database {
 		} else {
 			item = null;
 		}
+		c.close();
 		return item;
 	}
 	
