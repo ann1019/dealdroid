@@ -19,6 +19,8 @@
 			</intent-filter>
 		</activity>
 		
+		
+		<!-- Quick viewer shown when clicking a notification -->
 		<activity android:name=".ItemViewer" android:label="@string/app_name" />
 		
 		
@@ -35,6 +37,8 @@
 			</intent-filter>
 		</receiver>
 		
+		
+		<!-- ContentProvider that renders templates for the current deals -->
 		<provider android:name=".SiteContentProvider"  android:authorities="org.chemlab.dealdroid" />  
 	</application>
 	
