@@ -64,9 +64,7 @@ public class SiteContentProvider extends ContentProvider {
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
 		
 		final Site site = Site.valueOf(uri.getPathSegments().get(0));
-		
-		Log.i(this.getClass().getName(), site.toString());
-				
+					
 		final Context c = getContext();
 		c.deleteFile("site.html");
 		
@@ -74,7 +72,7 @@ public class SiteContentProvider extends ContentProvider {
 		
 		try {
 
-			writer = new BufferedWriter(new OutputStreamWriter(c.openFileOutput("site.html", Context.MODE_PRIVATE)));
+			writer = new BufferedWriter(new OutputStreamWriter(c.openFileOutput("site.html", Context.MODE_PRIVATE)), 8192);
 			final String data = readAsset(site.name().toLowerCase() + ".html");
 			final String populated = populate(site, data);
 			writer.write(populated);
@@ -163,7 +161,7 @@ public class SiteContentProvider extends ContentProvider {
 		try {
 
 			final InputStream asset = this.getContext().getAssets().open(assetName);
-			reader = new BufferedReader(new InputStreamReader(asset));
+			reader = new BufferedReader(new InputStreamReader(asset), 8192);
 			
 			String line = null;
 			while ((line = reader.readLine()) != null) {

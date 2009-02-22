@@ -34,6 +34,11 @@ import android.util.Xml;
 import android.util.Xml.Encoding;
 
 /**
+ * BroadcastReceiver that deals with various Intents, such as updating sites,
+ * managing the alarms.  The actual checkers will run in separate threads, and
+ * take care of acquiring WakeLocks while running.  Notifications are sent when
+ * new items appear, and clicking on these notifications launches an ItemViewer.
+ * 
  * @author shade
  * @version $Id: DealDroidSiteChecker.java 15 2009-02-16 17:06:44Z steve.kondik$
  */
@@ -181,7 +186,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @author shade
 	 * 
 	 */
-	private class SiteCheckerThread extends Thread {
+	private static class SiteCheckerThread extends Thread {
 
 		private final Context context;
 		private final Database database;
@@ -306,7 +311,7 @@ public class SiteChecker extends BroadcastReceiver {
 						site.getAffiliationValue()).build();
 			}
 			
-			final Intent i = new Intent(context, Viewer.class);
+			final Intent i = new Intent(context, ItemViewer.class);
 			i.setData(link);
 			i.putExtra("site", site.name());
 			
