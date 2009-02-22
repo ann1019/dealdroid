@@ -9,14 +9,24 @@ import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isAnySiteEnabled;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.AllClientPNames;
+import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HttpContext;
 import org.chemlab.dealdroid.feed.FeedHandler;
 
 import android.app.AlarmManager;
@@ -193,7 +203,7 @@ public class SiteChecker extends BroadcastReceiver {
 		private final Database database;
 		private final SharedPreferences preferences;
 		private final WakeLock wakeLock;
-		private final HttpClient httpClient = new DefaultHttpClient();
+		private final DefaultHttpClient httpClient = new DefaultHttpClient();
 
 		private final Site site;
 
@@ -204,6 +214,7 @@ public class SiteChecker extends BroadcastReceiver {
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 10000);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 10000);
+			enableCompression(httpClient);
 			
 			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 			this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
@@ -331,5 +342,66 @@ public class SiteChecker extends BroadcastReceiver {
 			return notification;
 
 		}
+		
+		/**
+		 * Enables GZIP compression on the HttpClient.
+		 * 
+		 * @param httpClient
+		 */
+		private void enableCompression(final DefaultHttpClient httpClient) {
+
+			httpClient.addRequestInterceptor(new HttpRequestInterceptor() {
+
+				public void process(final HttpRequest request, final HttpContext context) throws HttpException,
+						IOException {
+					if (!request.containsHeader("Accept-Encoding")) {
+						request.addHeader("Accept-Encoding", "gzip");
+					}
+				}
+
+			});
+
+			httpClient.addResponseInterceptor(new HttpResponseInterceptor() {
+
+				public void process(final HttpResponse response, final HttpContext context) throws HttpException,
+						IOException {
+					HttpEntity entity = response.getEntity();
+					Header ceheader = entity.getContentEncoding();
+					if (ceheader != null) {
+						HeaderElement[] codecs = ceheader.getElements();
+						for (int i = 0; i < codecs.length; i++) {
+							if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+								response.setEntity(new GzipDecompressingEntity(response.getEntity()));
+								return;
+							}
+						}
+					}
+				}
+
+			});
+		}
+		
+		private static class GzipDecompressingEntity extends HttpEntityWrapper {
+
+			public GzipDecompressingEntity(final HttpEntity entity) {
+				super(entity);
+			}
+
+			@Override
+			public InputStream getContent() throws IOException, IllegalStateException {
+
+				// the wrapped entity's getContent() decides about repeatability
+				final InputStream wrappedin = wrappedEntity.getContent();
+				return new GZIPInputStream(wrappedin);
+			}
+
+			@Override
+			public long getContentLength() {
+				// length of ungzipped content is not known
+				return -1;
+			}
+
+		}
+
 	}
 }
