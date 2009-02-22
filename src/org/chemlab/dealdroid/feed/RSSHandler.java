@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -53,7 +54,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 		currentString = new StringBuilder();
 		
-		final String tag = localName.trim().toLowerCase();
+		final String tag = localName.trim().toLowerCase(Locale.getDefault());
 		
 		if (tag.equals("item")) {
 			inItem = true;
