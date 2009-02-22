@@ -1,5 +1,7 @@
 package org.chemlab.dealdroid.feed;
 
+import java.util.Locale;
+
 import org.chemlab.dealdroid.Item;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -38,7 +40,7 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 
 		currentString = new StringBuilder();
 		
-		final String tag = localName.trim().toLowerCase();
+		final String tag = localName.trim().toLowerCase(Locale.getDefault());
 		
 		if (tag.equals("product")) {
 			inItem = true;
@@ -69,7 +71,7 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 		
-		final String tag = localName.trim().toLowerCase();
+		final String tag = localName.trim().toLowerCase(Locale.getDefault());
 		
 		if (tag.equals("product")) {
 			

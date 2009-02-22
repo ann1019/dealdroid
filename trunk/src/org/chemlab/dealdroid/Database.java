@@ -99,7 +99,7 @@ public class Database {
 	 * @param item
 	 * @return if the state was updated
 	 */
-	public synchronized boolean updateStateIfNotCurrent(Site site, Item item) {
+	public boolean updateStateIfNotCurrent(Site site, Item item) {
 		db.beginTransaction();
 		boolean ret = false;
 		try {

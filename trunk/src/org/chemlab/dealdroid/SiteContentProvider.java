@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.util.Locale;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
@@ -64,7 +65,7 @@ public class SiteContentProvider extends ContentProvider {
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
 		
 		final Site site = Site.valueOf(uri.getPathSegments().get(0));
-		final String outName = site.name().toLowerCase() + ".html";
+		final String outName = site.name().toLowerCase(Locale.getDefault()) + ".html";
 		
 		final Context c = getContext();
 		c.deleteFile(outName);
