@@ -17,4 +17,6 @@
 <string name="app_url">http://dealdroid.googlecode.com</string>
 <string name="manage_sites">Manage sites &amp; feeds</string>
 <string name="manage_sites_summary">Configure which sites and feeds to check for new items.</string>
+<string name="update_interval">Update interval</string>
+<string name="update_interval_summary">Change how often to automatically check feeds for new items.</string>
 </resources>
