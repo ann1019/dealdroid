@@ -148,10 +148,9 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 			toggle.setKey(ENABLED + site.toString());
 			toggle.setTitle(R.string.enable_notifications);
 			toggle.setSummary("Category: " + site.getCategory() + " (" + site.getSite().toString() + ")");
-		//	toggle.setSummary(R.string.enable_notifications_summary);
 			
 			category.addPreference(toggle);
-				
+
 		}
 		
 		// Notification Prefs
