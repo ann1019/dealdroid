@@ -6,6 +6,8 @@ import java.net.URL;
 import org.chemlab.dealdroid.feed.BCFeedHandler;
 import org.chemlab.dealdroid.feed.FeedHandler;
 
+import android.net.Uri;
+
 /**
  * The various sites, RSS URLs, and associated icons.
  * 
@@ -144,4 +146,18 @@ public enum Site {
 		return category;
 	}
 
+	/**
+	 * @param uri
+	 * @return the uri with affiliation applied
+	 */
+	public Uri applyAffiliation(final Uri uri) {
+		
+		final Uri link;
+		if (getAffiliationKey() == null) {
+			link = uri;
+		} else {
+			link = uri.buildUpon().appendQueryParameter(getAffiliationKey(), getAffiliationValue()).build();
+		}
+		return link;
+	}
 }
