@@ -1,7 +1,10 @@
 package org.chemlab.dealdroid;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
 import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
+import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
+import static org.chemlab.dealdroid.Preferences.NOTIFY_VIBRATE;
 import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isAnySiteEnabled;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
@@ -57,10 +60,6 @@ public class SiteChecker extends BroadcastReceiver {
 	public static final String DEALDROID_ENABLE = "org.chemlab.dealdroid.DEALDROID_ENABLE";
 
 	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
-
-	private static final long UPDATE_INTERVAL = 180000;
-
-	
 
 	/*
 	 * (non-Javadoc)
@@ -144,9 +143,11 @@ public class SiteChecker extends BroadcastReceiver {
 	private synchronized void enable(final Context context) {
 		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
 
-		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP
-				: AlarmManager.ELAPSED_REALTIME;
-		getAlarmManager(context).setRepeating(mode, 0, UPDATE_INTERVAL, getSiteCheckerIntent(context));
+		final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.name));
+		
+		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
+		getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
 	}
 
 	/**
@@ -323,11 +324,11 @@ public class SiteChecker extends BroadcastReceiver {
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 
 			// Notification options
-			if (preferences.getBoolean(Preferences.NOTIFY_VIBRATE, false)) {
+			if (preferences.getBoolean(NOTIFY_VIBRATE, false)) {
 				notification.vibrate = new long[] { 100, 250, 100, 500 };
 			}
 
-			if (preferences.getBoolean(Preferences.NOTIFY_LED, false)) {
+			if (preferences.getBoolean(NOTIFY_LED, false)) {
 				notification.ledARGB = 0xFFFF5171;
 				notification.ledOnMS = 500;
 				notification.ledOffMS = 500;

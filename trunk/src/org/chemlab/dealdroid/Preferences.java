@@ -4,12 +4,17 @@ import static org.chemlab.dealdroid.SiteChecker.DEALDROID_DISABLE;
 import static org.chemlab.dealdroid.SiteChecker.DEALDROID_ENABLE;
 import static org.chemlab.dealdroid.SiteChecker.DEALDROID_RESTART;
 import static org.chemlab.dealdroid.SiteChecker.DEALDROID_START;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
@@ -33,9 +38,10 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	
 	public static final String KEEP_AWAKE = "keep_awake";
 	
+	public static final String CHECK_INTERVAL = "check_interval";
+	
 	private PreferenceScreen preferenceScreen;
-	
-	
+
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -102,7 +108,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 				
 				sendBroadcast(update);
 				
-			} else if (key.equals(KEEP_AWAKE)) {
+			} else if (key.equals(KEEP_AWAKE) || key.equals(CHECK_INTERVAL)) {
 				final Intent reschedule = new Intent(DEALDROID_RESTART);
 				sendBroadcast(reschedule);
 			}
@@ -171,9 +177,25 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		keepAwake.setSummary(R.string.keep_awake_summary);
 		keepAwake.setDefaultValue(true);
 		
+		final ListPreference interval = new ListPreference(this);
+		interval.setKey(CHECK_INTERVAL);
+		interval.setTitle(R.string.update_interval);
+		interval.setSummary(R.string.update_interval_summary);
+		
+		final List<String> intervals = new ArrayList<String>();
+		final List<String> iValues = new ArrayList<String>();
+		for (Interval i : Interval.values()) {
+			iValues.add(i.name());
+			intervals.add(i.getName());
+		}
+		interval.setEntries(intervals.toArray(new String[intervals.size()]));
+		interval.setEntryValues(iValues.toArray(new String[iValues.size()]));
+		interval.setDefaultValue(Interval.I_2_MINUTES);
+		
 		notify.addPreference(vibrate);
 		notify.addPreference(led);
 		notify.addPreference(keepAwake);
+		notify.addPreference(interval);
 		
 		// About Link
 		final PreferenceScreen about = getPreferenceManager().createPreferenceScreen(this);
