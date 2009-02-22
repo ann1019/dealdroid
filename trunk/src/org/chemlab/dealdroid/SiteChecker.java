@@ -74,40 +74,37 @@ public class SiteChecker extends BroadcastReceiver {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
-	 * android.content.Intent)
+	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
-		Log.d(this.getClass().getName(), "Intent: " + intent.getAction());
-
-			if (DEALDROID_ENABLE.equals(intent.getAction())) {
-				final Site site = Site.valueOf(intent.getExtras().getString("site"));
-				if (site != null) {
-					checkSites(context, site);
-				}
-
-			} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
-				final Site site = Site.valueOf(intent.getExtras().getString("site"));
-				if (site != null) {
-					disableSite(context, site);
-				}
-
-			} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
-				disable(context);
-				enable(context);
-
-			} else if (DEALDROID_STOP.equals(intent.getAction())) {
-				disable(context);
-
-			} else if (DEALDROID_RESTART.equals(intent.getAction())) {
-				disable(context);
-				enable(context);
-
-			} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
-				checkSites(context, Site.values());
+		if (DEALDROID_ENABLE.equals(intent.getAction())) {
+			final Site site = Site.valueOf(intent.getExtras().getString("site"));
+			if (site != null) {
+				checkSites(context, site);
 			}
+
+		} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
+			final Site site = Site.valueOf(intent.getExtras().getString("site"));
+			if (site != null) {
+				disableSite(context, site);
+			}
+
+		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
+			disable(context);
+			enable(context);
+
+		} else if (DEALDROID_STOP.equals(intent.getAction())) {
+			disable(context);
+
+		} else if (DEALDROID_RESTART.equals(intent.getAction())) {
+			disable(context);
+			enable(context);
+
+		} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
+			checkSites(context, Site.values());
+		}
 
 	}
 
@@ -115,7 +112,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param site
 	 */
 	private void disableSite(final Context context, final Site site) {
-		Log.i(this.getClass().getSimpleName(), "Deleting data for site: " + site.toString());
+		Log.d(this.getClass().getSimpleName(), "Deleting data for site: " + site.toString());
 		final Database db = new Database(context);
 		db.open();
 		db.delete(site);
@@ -286,7 +283,7 @@ public class SiteChecker extends BroadcastReceiver {
 		 * @param site
 		 * @param item
 		 */
-		private synchronized void notify(final Site site, final Item item) {
+		private void notify(final Site site, final Item item) {
 
 			if (item != null && item.getTitle() != null) {
 
@@ -387,6 +384,9 @@ public class SiteChecker extends BroadcastReceiver {
 				super(entity);
 			}
 
+			/* (non-Javadoc)
+			 * @see org.apache.http.entity.HttpEntityWrapper#getContent()
+			 */
 			@Override
 			public InputStream getContent() throws IOException, IllegalStateException {
 
@@ -395,6 +395,9 @@ public class SiteChecker extends BroadcastReceiver {
 				return new GZIPInputStream(wrappedin);
 			}
 
+			/* (non-Javadoc)
+			 * @see org.apache.http.entity.HttpEntityWrapper#getContentLength()
+			 */
 			@Override
 			public long getContentLength() {
 				// length of ungzipped content is not known
