@@ -19,7 +19,7 @@
 			</intent-filter>
 		</activity>
 		
-		<activity android:name=".Viewer" android:label="@string/app_name" />
+		<activity android:name=".ItemViewer" android:label="@string/app_name" />
 		
 		
 		<!-- The receiver invoked when the alarms fire -->

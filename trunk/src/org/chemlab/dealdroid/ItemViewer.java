@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.webkit.WebView;
 
 /**
- * @author shade
+ * A simple viewer to quickly view new items before launching
+ * the full browser.
  * 
+ * @author shade
+ * @version $Id$
  */
-public class Viewer extends Activity {
+public class ItemViewer extends Activity {
 
 	public static final String DEALDROID_VIEWER = "org.chemlab.dealdroid.VIEWER";
 
