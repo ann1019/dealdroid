@@ -317,7 +317,7 @@ public class SiteChecker extends BroadcastReceiver {
 			
 			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
 
-			final String priceInfo = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: " + item.getRetailPrice() + ")";
+			final String priceInfo = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
 			notification.setLatestEventInfo(context, item.getTitle(), priceInfo, contentIntent);
 
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
