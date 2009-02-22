@@ -301,16 +301,9 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private Notification createNotification(final Site site, final Item item) {
 
-			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System
-					.currentTimeMillis());
+			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System.currentTimeMillis());
 
-			final Uri link;
-			if (site.getAffiliationKey() == null) {
-				link = item.getLink();
-			} else {
-				link = item.getLink().buildUpon().appendQueryParameter(site.getAffiliationKey(),
-						site.getAffiliationValue()).build();
-			}
+			final Uri link = site.applyAffiliation(item.getLink());
 			
 			final Intent i = new Intent(context, ItemViewer.class);
 			i.setData(link);

@@ -128,12 +128,7 @@ public class SiteContentProvider extends ContentProvider {
 			final Item item = db.getCurrentItem(site);			
 			if (item != null) {
 				
-				final Uri link;
-				if (site.getAffiliationKey() == null) {
-					link = item.getLink();
-				} else {
-					link = item.getLink().buildUpon().appendQueryParameter(site.getAffiliationKey(), site.getAffiliationValue()).build();
-				}
+				final Uri link = site.applyAffiliation(item.getLink());
 				
 				p = p.replaceAll("\\{title\\}", item.getTitle());
 				p = p.replaceAll("\\{buy_url\\}", link.toString());
