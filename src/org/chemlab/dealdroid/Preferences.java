@@ -190,7 +190,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		}
 		interval.setEntries(intervals.toArray(new String[intervals.size()]));
 		interval.setEntryValues(iValues.toArray(new String[iValues.size()]));
-		interval.setDefaultValue(Interval.I_2_MINUTES);
+		interval.setDefaultValue(Interval.I_2_MINUTES.name());
 		
 		notify.addPreference(vibrate);
 		notify.addPreference(led);
