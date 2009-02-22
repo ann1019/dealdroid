@@ -64,16 +64,17 @@ public class SiteContentProvider extends ContentProvider {
 	public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
 		
 		final Site site = Site.valueOf(uri.getPathSegments().get(0));
-					
+		final String outName = site.name().toLowerCase() + ".html";
+		
 		final Context c = getContext();
-		c.deleteFile("site.html");
+		c.deleteFile(outName);
 		
 		BufferedWriter writer = null;
 		
 		try {
 
-			writer = new BufferedWriter(new OutputStreamWriter(c.openFileOutput("site.html", Context.MODE_PRIVATE)), 8192);
-			final String data = readAsset(site.name().toLowerCase() + ".html");
+			writer = new BufferedWriter(new OutputStreamWriter(c.openFileOutput(outName, Context.MODE_PRIVATE)), 8192);
+			final String data = readAsset(outName);
 			final String populated = populate(site, data);
 			writer.write(populated);
 			
@@ -92,7 +93,7 @@ public class SiteContentProvider extends ContentProvider {
 			}
 		}
 		
-		return ParcelFileDescriptor.open(c.getFileStreamPath("site.html"), ParcelFileDescriptor.MODE_READ_ONLY);
+		return ParcelFileDescriptor.open(c.getFileStreamPath(outName), ParcelFileDescriptor.MODE_READ_ONLY);
 	}
 
 	/* (non-Javadoc)
