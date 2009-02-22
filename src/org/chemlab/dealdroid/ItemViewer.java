@@ -13,8 +13,6 @@ import android.webkit.WebView;
  */
 public class ItemViewer extends Activity {
 
-	public static final String DEALDROID_VIEWER = "org.chemlab.dealdroid.VIEWER";
-
 	private WebView webview;
 
 	private Site currentSite;
