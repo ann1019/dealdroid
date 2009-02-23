@@ -272,7 +272,7 @@ public class SiteChecker extends BroadcastReceiver {
 					Log.e(this.getClass().getSimpleName(), "HTTP request failed: " + response.getStatusLine().toString());
 				}
 
-			} catch (Exception e) {
+			} catch (Throwable e) {
 
 				Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
 			}
