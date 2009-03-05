@@ -115,7 +115,10 @@ public class Database {
 				v.put(KEY_SALE_PRICE, item.getSalePrice());
 				v.put(KEY_SAVINGS, item.getSavings());
 				v.put(KEY_URL, item.getLink().toString());
-				v.put(KEY_IMAGE_URL, item.getImageLink().toString());
+				
+				if (item.getImageLink() != null) {
+					v.put(KEY_IMAGE_URL, item.getImageLink().toString());
+				}
 				
 				db.insert(STATE_TABLE, null, v);
 				ret = true;
@@ -169,7 +172,7 @@ public class Database {
 		 */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE dealdroid_state (id TEXT PRIMARY KEY, title TEXT NOT NULL, url TEXT NOT NULL, image_url TEXT NOT NULL, description TEXT NOT NULL, sale_price TEXT NOT NULL, retail_price TEXT NOT NULL, savings TEXT NOT NULL);");
+			db.execSQL("CREATE TABLE dealdroid_state (id TEXT PRIMARY KEY, title TEXT NOT NULL, url TEXT NOT NULL, image_url TEXT, description TEXT, sale_price TEXT, retail_price TEXT, savings TEXT);");
 		}
 
 		/*

@@ -63,11 +63,11 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 			currentTag = ItemTag.TITLE;
 		} else if (tag.equals("link")) {
 			currentTag = ItemTag.LINK;
-		} else if (tag.equals("listDescription")) {
+		} else if (tag.equals("listdescription")) {
 			currentTag = ItemTag.DESCRIPTION;
 		} else if (tag.equals("price")) {
 			currentTag = ItemTag.PRICE;
-		} else if (tag.equals("pubDate")) {
+		} else if (tag.equals("pubdate")) {
 			currentTag = ItemTag.PUBDATE;
 		} else {
 			currentTag = null;
@@ -83,7 +83,8 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	 */
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
-
+		
+		
 		if (currentItem != null && localName.trim().equals("item")) {
 			inItem = false;
 			if (currentItemDate != null) {
@@ -95,7 +96,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 		} else if (currentItem != null && currentTag != null) {
 
 			final String chars = currentString.toString().trim();
-
+						
 			switch (currentTag) {
 			case TITLE:
 				currentItem.setTitle(chars);
@@ -121,7 +122,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 			}
 
 		}
-
+				
 		currentTag = null;
 
 	}
