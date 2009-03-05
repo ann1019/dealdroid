@@ -5,6 +5,7 @@ import java.net.URL;
 
 import org.chemlab.dealdroid.feed.BCFeedHandler;
 import org.chemlab.dealdroid.feed.FeedHandler;
+import org.chemlab.dealdroid.feed.RSSHandler;
 
 import android.net.Uri;
 
@@ -56,7 +57,14 @@ public enum Site {
 			"http://www.whiskeymilitia.com/docs/wm/rssaff.xml", 
 			"http://www.whiskeymilitia.com",
 			R.drawable.icon_whiskeymilitia, 
-			BCFeedHandler.class, "avad", "14749", true);
+			BCFeedHandler.class, "avad", "14749", true),
+	
+	SLICKDEALS("SlickDeals",
+			"Various, Community-Driven",
+			"http://feeds.feedburner.com/SlickdealsnetFP?format=xml",
+			"http://www.slickdeals.net",
+			R.drawable.icon_slickdeals,
+			RSSHandler.class, null, null, false);
 	
 	private final String name;
 	

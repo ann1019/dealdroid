@@ -296,6 +296,8 @@ public class SiteChecker extends BroadcastReceiver {
 				} else {
 					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
 				}
+			} else if (item == null) {
+				Log.e(this.getClass().getName(), "Item was null!");
 			} else {
 				Log.e(this.getClass().getName(), "Incomplete item object, not notifying.");
 			}
@@ -319,9 +321,19 @@ public class SiteChecker extends BroadcastReceiver {
 			
 			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
 
-			final String priceInfo = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
-			notification.setLatestEventInfo(context, item.getTitle(), priceInfo, contentIntent);
-
+			final String description;
+			if (item.getSalePrice() != null && item.getSavings() != null) {
+				description = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
+			} else {
+				description = null;
+			}
+			
+			if (description == null) {
+				notification.setLatestEventInfo(context, site.getName(), item.getTitle(), contentIntent);
+			} else {
+				notification.setLatestEventInfo(context, item.getTitle(), description, contentIntent);
+			}
+			
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 
 			// Notification options
