@@ -7,6 +7,7 @@ import org.chemlab.dealdroid.feed.BCFeedHandler;
 import org.chemlab.dealdroid.feed.FeedHandler;
 
 import android.net.Uri;
+import android.util.Log;
 
 /**
  * The various sites, RSS URLs, and associated icons.
@@ -21,43 +22,49 @@ public enum Site {
 			"http://www.bonktown.com/docs/bonktown/rssaff.xml",
 			"http://www.bonktown.com",
 			R.drawable.icon_bonktown,
-			BCFeedHandler.class, "avad", "14749", false),
+			BCFeedHandler.class, "avad", "14749", false,
+			"http://www.avantlink.com/click.php?tt=dotd&ti=12021&pw=14749"),
 			
 	BROCIETY("Brociety",
 			"Snowboarding",
 			"http://www.brociety.com/docs/brociety/rssaff.xml",
 			"http://www.brociety.com",
 			R.drawable.icon_brociety,
-			BCFeedHandler.class, "avad", "14749", false),
+			BCFeedHandler.class, "avad", "14749", false,
+			"http://www.avantlink.com/click.php?tt=dotd&ti=13197&pw=14749"),
 			
 	CHAINLOVE("Chainlove", 
 			"Cycling",
 			"http://www.chainlove.com/docs/chainlove/rssaff.xml", 
 			"http://www.chainlove.com", 
 			R.drawable.icon_chainlove, 
-			BCFeedHandler.class, "avad", "14749", false),
+			BCFeedHandler.class, "avad", "14749", false,
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8761&pw=14749"),
 			
 	STEEPANDCHEAP("Steep and Cheap", 
 			"Outdoor Gear",
 			"http://www.steepandcheap.com/docs/steepcheap/rssaff.xml", 
 			"http://www.steepandcheap.com",
 			R.drawable.icon_steepandcheep, 
-			BCFeedHandler.class, "avad", "14749", true),
+			BCFeedHandler.class, "avad", "14749", true,
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8733&pw=14749"),
 			
 	TRAMDOCK("Tramdock", 
 			"Skiing",
 			"http://www.tramdock.com/docs/tramdock/rssaff.xml", 
 			"http://www.tramdock.com", 
 			R.drawable.icon_tramdock, 
-			BCFeedHandler.class, "avad", "14749", false),
+			BCFeedHandler.class, "avad", "14749", false,
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8773&pw=14749"),
 			
 	WHISKEYMILITIA("Whiskey Militia", 
 			"Snow, Skate, Surf",
 			"http://www.whiskeymilitia.com/docs/wm/rssaff.xml", 
 			"http://www.whiskeymilitia.com",
 			R.drawable.icon_whiskeymilitia, 
-			BCFeedHandler.class, "avad", "14749", true);
-	
+			BCFeedHandler.class, "avad", "14749", true,
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8801&pw=14749");
+
 	private final String name;
 	
 	private final String category;
@@ -76,7 +83,9 @@ public enum Site {
 	
 	private final boolean enabledByDefault;
 	
-	Site(String name, String category, String url, String site, int drawable, Class<? extends FeedHandler> handler, String affiliationKey, String affiliationValue, boolean enabledByDefault) {
+	private final URL clickThru;
+	
+	Site(String name, String category, String url, String site, int drawable, Class<? extends FeedHandler> handler, String affiliationKey, String affiliationValue, boolean enabledByDefault, String clickThru) {
 		try {
 			this.name = name;
 			this.category = category;
@@ -88,6 +97,8 @@ public enum Site {
 			this.affiliationValue = affiliationValue;
 			this.enabledByDefault = enabledByDefault;
 			
+			this.clickThru = clickThru == null ? null : new URL(clickThru);
+
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}
@@ -157,17 +168,29 @@ public enum Site {
 	}
 
 	/**
+	 * @return the clickThru
+	 */
+	public URL getClickThru() {
+		return clickThru;
+	}
+
+	/**
 	 * @param uri
 	 * @return the uri with affiliation applied
 	 */
 	public Uri applyAffiliation(final Uri uri) {
 		
 		final Uri link;
-		if (getAffiliationKey() == null) {
-			link = uri;
-		} else {
+		if (getClickThru() != null) {
+			link = Uri.parse(getClickThru().toString()).buildUpon().appendQueryParameter("url", uri.toString()).build();
+		} else if (getAffiliationKey() != null && getAffiliationValue() != null) {
 			link = uri.buildUpon().appendQueryParameter(getAffiliationKey(), getAffiliationValue()).build();
-		}
+		} else {
+			link = uri;
+		} 
+		
+		Log.d(this.getClass().getSimpleName(), "Uri: " + link.toString());
+		
 		return link;
 	}
 }
