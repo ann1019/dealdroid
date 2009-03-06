@@ -142,19 +142,19 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		dd.addPreference(sites);
 		
+		final PreferenceCategory feeds = new PreferenceCategory(this);
+		feeds.setTitle("Sites and Feeds");
+		sites.addPreference(feeds);
+		
 		for (Site site : Site.values()) {
-			
-			final PreferenceCategory category = new PreferenceCategory(this);
-			category.setTitle(site.getName() + " Options");
-			sites.addPreference(category);
-			
+
 			final CheckBoxPreference toggle = new CheckBoxPreference(this);
 			toggle.setKey(ENABLED + site.toString());
-			toggle.setTitle(R.string.enable_notifications);
+			toggle.setTitle(site.getName());
 			toggle.setSummary("Category: " + site.getCategory() + " (" + site.getSite().toString() + ")");
 			toggle.setDefaultValue(site.isEnabledByDefault());
 			
-			category.addPreference(toggle);
+			feeds.addPreference(toggle);
 
 		}
 		
