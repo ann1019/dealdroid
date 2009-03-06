@@ -1,4 +1,5 @@
 #summary DealDroid ChangeLog
 
 1.0.0 - Initial release to Android Market on (03/04/2009)
+
 1.0.1 - Add new icon and notification sound support (03/05/2009)
