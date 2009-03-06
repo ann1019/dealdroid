@@ -48,7 +48,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.util.Log;
 import android.util.Xml;
-import android.util.Xml.Encoding;
 
 /**
  * BroadcastReceiver that deals with various Intents, such as updating sites,
@@ -275,7 +274,7 @@ public class SiteChecker extends BroadcastReceiver {
 					final FeedHandler handler = site.getHandler().newInstance();
 
 					final InputStream in = response.getEntity().getContent();
-					Xml.parse(in, Encoding.UTF_8, handler);
+					Xml.parse(in, site.getEncoding(), handler);
 					in.close();
 
 					notify(site, handler.getCurrentItem());
@@ -338,6 +337,8 @@ public class SiteChecker extends BroadcastReceiver {
 				summary = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
 			} else if (item.getSalePrice() != null && item.getShortDescription() != null) {
 				summary = item.getSalePrice() + " - " + item.getShortDescription();
+			} else if (item.getSalePrice() != null) {
+				summary = "$" + item.getSalePrice() + " - " + site.getName();
 			} else {
 				summary = null;
 			}

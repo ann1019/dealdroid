@@ -90,6 +90,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 		if (inItem && currentItem != null) {
 			if (localName.trim().equals("item")) {
+							
 				inItem = false;
 				if (currentItemDate != null) {
 					final Item clone = (Item) currentItem.clone();
@@ -164,7 +165,34 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	 */
 	@Override
 	public Item getCurrentItem() {
-		return items.size() == 0 ? null : items.get(items.lastKey());
+		final Item ret = items.size() == 0 ? null : items.get(items.lastKey());
+		if (ret.getSalePrice() == null) {
+			ret.setSalePrice(searchDescriptionForPrice(currentItem));
+		}
+		return ret;
 	}
 
+	/**
+	 * @param item
+	 * @return
+	 */
+	private static String searchDescriptionForPrice(final Item item) {
+		
+		String price = null;
+		if (item.getDescription() != null) {
+
+			final String[] cleanDesc = item.getDescription().replaceAll("\\<.*?\\>", "").split("\\n"); 
+			for (String line : cleanDesc) {
+				if (line.startsWith("Price")) {
+					final String[] sp = line.split("\\$");
+					if (sp.length == 2) {
+						price = sp[1];
+						break;
+					}
+				}
+			}
+		}
+		
+		return price;
+	}
 }
