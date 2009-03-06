@@ -4,6 +4,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
 import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
+import static org.chemlab.dealdroid.Preferences.NOTIFY_RINGTONE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_VIBRATE;
 import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isAnySiteEnabled;
@@ -328,7 +329,12 @@ public class SiteChecker extends BroadcastReceiver {
 			if (preferences.getBoolean(NOTIFY_VIBRATE, false)) {
 				notification.vibrate = new long[] { 100, 250, 100, 500 };
 			}
-
+			
+			final String ringtone = preferences.getString(NOTIFY_RINGTONE, "");
+			if (!ringtone.equals("")) {
+				notification.sound = Uri.parse(ringtone);
+			}
+			
 			if (preferences.getBoolean(NOTIFY_LED, false)) {
 				notification.ledARGB = 0xFFFF5171;
 				notification.ledOnMS = 500;
