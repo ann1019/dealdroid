@@ -71,7 +71,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 			currentTag = ItemTag.PUBDATE;
 		} else if (tag.equals("thumnailimage")) {
 			currentTag = ItemTag.IMAGE_LINK;
-		} else if (tag.equals("teaser")) {
+		} else if (tag.equals("subtitle")) {
 			currentTag = ItemTag.SHORT_DESCRIPTION;
 		} else {
 			currentTag = null;
