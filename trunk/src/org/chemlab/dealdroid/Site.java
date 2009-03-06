@@ -59,6 +59,27 @@ public enum Site {
 			R.drawable.icon_whiskeymilitia, 
 			BCFeedHandler.class, "avad", "14749", true),
 	
+	WOOT("Woot",
+			"Anything and Everything",
+			"http://www.woot.com/salerss.aspx",
+			"http://www.woot.com",
+			R.drawable.icon_woot,
+			RSSHandler.class, null, null, false),
+	
+	WOOTSHIRT("Woot Shirt",
+			"T-Shirts",
+			"http://shirt.woot.com/salerss.aspx",
+			"http://shirt.woot.com",
+			R.drawable.icon_wootshirt,
+			RSSHandler.class, null, null, false),
+	
+	WOOTWINE("Woot Wine",
+			"Wine",
+			"http://wine.woot.com/salerss.aspx",
+			"http://wine.woot.com",
+			R.drawable.icon_wootwine,
+			RSSHandler.class, null, null, false),
+			
 	SLICKDEALS("SlickDeals",
 			"Various, Community-Driven",
 			"http://feeds.feedburner.com/SlickdealsnetFP?format=xml",

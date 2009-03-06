@@ -11,6 +11,9 @@ import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -255,7 +258,16 @@ public class SiteChecker extends BroadcastReceiver {
 				// Make sure we bypass caches
 				req.addHeader("Cache-Control", "no-cache");
 				req.addHeader("Pragma", "no-cache");
-
+				
+				// Be as nice as possible to the remote server
+				final Date lastModified = database.getLastUpdateTime(site);
+				if (lastModified != null) {
+					final DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
+					final String httpDate = formatter.format(lastModified);
+					Log.d(this.getClass().getSimpleName(), "HTTP-Date: " + httpDate);
+					req.addHeader("If-Modified-Since", httpDate);
+				}
+				
 				final HttpResponse response = httpClient.execute(req);
 
 				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -269,7 +281,7 @@ public class SiteChecker extends BroadcastReceiver {
 					notify(site, handler.getCurrentItem());
 
 				} else {
-					Log.e(this.getClass().getSimpleName(), "HTTP request failed: " + response.getStatusLine().toString());
+					Log.e(this.getClass().getSimpleName(), "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
 				}
 
 			} catch (Throwable e) {
@@ -321,17 +333,19 @@ public class SiteChecker extends BroadcastReceiver {
 			
 			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
 
-			final String description;
+			final String summary;
 			if (item.getSalePrice() != null && item.getSavings() != null) {
-				description = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
+				summary = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
+			} else if (item.getSalePrice() != null && item.getShortDescription() != null) {
+				summary = item.getSalePrice() + " - " + item.getShortDescription();
 			} else {
-				description = null;
+				summary = null;
 			}
 			
-			if (description == null) {
+			if (summary == null) {
 				notification.setLatestEventInfo(context, site.getName(), item.getTitle(), contentIntent);
 			} else {
-				notification.setLatestEventInfo(context, item.getTitle(), description, contentIntent);
+				notification.setLatestEventInfo(context, item.getTitle(), summary, contentIntent);
 			}
 			
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
@@ -375,13 +389,15 @@ public class SiteChecker extends BroadcastReceiver {
 				public void process(final HttpResponse response, final HttpContext context) throws HttpException,
 						IOException {
 					HttpEntity entity = response.getEntity();
-					Header ceheader = entity.getContentEncoding();
-					if (ceheader != null) {
-						HeaderElement[] codecs = ceheader.getElements();
-						for (int i = 0; i < codecs.length; i++) {
-							if (codecs[i].getName().equalsIgnoreCase("gzip")) {
-								response.setEntity(new GzipDecompressingEntity(response.getEntity()));
-								return;
+					if (entity != null) {
+						Header ceheader = entity.getContentEncoding();
+						if (ceheader != null) {
+							HeaderElement[] codecs = ceheader.getElements();
+							for (int i = 0; i < codecs.length; i++) {
+								if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+									response.setEntity(new GzipDecompressingEntity(response.getEntity()));
+									return;
+								}
 							}
 						}
 					}
