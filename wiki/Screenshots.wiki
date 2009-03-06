@@ -1,5 +1,5 @@
 #summary Screenshots
 
-|| http://n0rp.chemlab.org/dd/dealdroid1.png || http://n0rp.chemlab.org/dd/dealdroid2.png ||
-|| http://n0rp.chemlab.org/dd/dealdroid3.png || http://n0rp.chemlab.org/dd/dealdroid4.png ||
-|| http://n0rp.chemlab.org/dd/dealdroid5.png || http://n0rp.chemlab.org/dd/dealdroid6.png ||
+|| http://dealdroid.googlecode.com/svn/images/dealdroid1.png || http://dealdroid.googlecode.com/svn/images/dealdroid2.png ||
+|| http://dealdroid.googlecode.com/svn/images/dealdroid3.png || http://dealdroid.googlecode.com/svn/images/dealdroid4.png ||
+|| http://dealdroid.googlecode.com/svn/images/dealdroid5.png || http://dealdroid.googlecode.com/svn/images/dealdroid6.png ||
