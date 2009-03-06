@@ -204,8 +204,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		notify.addPreference(vibrate);
 		notify.addPreference(led);
-		notify.addPreference(ring);
 		notify.addPreference(keepAwake);
+		notify.addPreference(ring);
 		notify.addPreference(interval);
 		
 		// About Link
