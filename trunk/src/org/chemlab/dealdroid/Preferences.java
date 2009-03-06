@@ -11,6 +11,7 @@ import java.util.List;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
@@ -18,6 +19,7 @@ import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceCategory;
 import android.preference.PreferenceScreen;
+import android.preference.RingtonePreference;
 import android.util.Log;
 
 /**
@@ -35,6 +37,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	public static final String NOTIFY_VIBRATE = "notify_vibrate";
 	
 	public static final String NOTIFY_LED = "notify_lights";
+	
+	public static final String NOTIFY_RINGTONE = "notify_ringtone";
 	
 	public static final String KEEP_AWAKE = "keep_awake";
 	
@@ -171,6 +175,12 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		led.setSummary(R.string.notify_led_summary);
 		led.setDefaultValue(true);
 		
+		final RingtonePreference ring = new RingtonePreference(this);
+		ring.setKey(NOTIFY_RINGTONE);
+		ring.setTitle(R.string.notify_ringtone);
+		ring.setSummary(R.string.notify_ringtone_summary);
+		ring.setRingtoneType(RingtoneManager.TYPE_NOTIFICATION);
+		
 		final CheckBoxPreference keepAwake = new CheckBoxPreference(this);
 		keepAwake.setKey(KEEP_AWAKE);
 		keepAwake.setTitle(R.string.keep_awake);
@@ -194,6 +204,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		notify.addPreference(vibrate);
 		notify.addPreference(led);
+		notify.addPreference(ring);
 		notify.addPreference(keepAwake);
 		notify.addPreference(interval);
 		
