@@ -66,6 +66,13 @@ public enum Site {
 			R.drawable.icon_woot,
 			RSSHandler.class, null, null, false),
 	
+	WOOTSELLOUT("Woot Sellout",
+			"Anything and Everything",
+			"http://sellout.woot.com/salerss.aspx",
+			"http://sellout.woot.com",
+			R.drawable.icon_wootsellout,
+			RSSHandler.class, null, null, false),
+			
 	WOOTSHIRT("Woot Shirt",
 			"T-Shirts",
 			"http://shirt.woot.com/salerss.aspx",
