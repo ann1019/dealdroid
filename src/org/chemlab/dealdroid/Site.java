@@ -5,7 +5,6 @@ import java.net.URL;
 
 import org.chemlab.dealdroid.feed.BCFeedHandler;
 import org.chemlab.dealdroid.feed.FeedHandler;
-import org.chemlab.dealdroid.feed.RSSHandler;
 
 import android.net.Uri;
 
@@ -57,35 +56,7 @@ public enum Site {
 			"http://www.whiskeymilitia.com/docs/wm/rssaff.xml", 
 			"http://www.whiskeymilitia.com",
 			R.drawable.icon_whiskeymilitia, 
-			BCFeedHandler.class, "avad", "14749", true),
-	
-	WOOT("Woot",
-			"Anything and Everything",
-			"http://www.woot.com/salerss.aspx",
-			"http://www.woot.com",
-			R.drawable.icon_woot,
-			RSSHandler.class, null, null, false),
-	
-	WOOTSHIRT("Woot Shirt",
-			"T-Shirts",
-			"http://shirt.woot.com/salerss.aspx",
-			"http://shirt.woot.com",
-			R.drawable.icon_wootshirt,
-			RSSHandler.class, null, null, false),
-	
-	WOOTWINE("Woot Wine",
-			"Wine",
-			"http://wine.woot.com/salerss.aspx",
-			"http://wine.woot.com",
-			R.drawable.icon_wootwine,
-			RSSHandler.class, null, null, false),
-			
-	SLICKDEALS("SlickDeals",
-			"Various, Community-Driven",
-			"http://feeds.feedburner.com/SlickdealsnetFP?format=xml",
-			"http://www.slickdeals.net",
-			R.drawable.icon_slickdeals,
-			RSSHandler.class, null, null, false);
+			BCFeedHandler.class, "avad", "14749", true);
 	
 	private final String name;
 	
