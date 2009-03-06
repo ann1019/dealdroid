@@ -1,0 +1,3 @@
+#summary DealDroid ChangeLog
+
+1.0.0 - Initial release to Android Market on 03/04/2009
