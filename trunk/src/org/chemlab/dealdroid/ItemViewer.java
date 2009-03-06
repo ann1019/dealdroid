@@ -1,10 +1,12 @@
 package org.chemlab.dealdroid;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 
@@ -37,10 +39,46 @@ public class ItemViewer extends Activity {
 		currentSite = Site.valueOf(getIntent().getExtras().getString("site"));
 
 		webview = (WebView) findViewById(R.id.webview);
-		webview.loadUrl("content://org.chemlab.dealdroid/" + currentSite.name());
+		
+		// If we have a custom asset for the site, use it.  Otherwise just go to the page.
+		// Sorry, I am not doing custom assets unless there is an affiliation.
+		if (hasSiteAsset(currentSite)) {
+			webview.loadUrl("content://org.chemlab.dealdroid/" + currentSite.name());
+		} else {
+			
+			final Database db = new Database(this);
+			try {
+				db.open();
+				webview.loadUrl(currentSite.applyAffiliation(db.getCurrentItem(currentSite).getLink()).toString());
+			} finally {
+				db.close();
+			}
+		}
 
 	}
 
+	/**
+	 * Do we have a custom template for the site preview?
+	 * 
+	 * @param site
+	 * @return
+	 */
+	private boolean hasSiteAsset(final Site site) {
+		boolean ret = false;
+		final String siteAsset = site.name().toLowerCase() + ".html";
+		try {
+			for (String asset : this.getAssets().list("")) {
+				if (siteAsset.equals(asset)) {
+					ret = true;
+					break;
+				}
+			}
+		} catch (IOException e) {
+			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
+		}
+		return ret;
+	}
+	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
 	 */
