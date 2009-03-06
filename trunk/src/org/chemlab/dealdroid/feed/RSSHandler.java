@@ -183,8 +183,9 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 			final String[] cleanDesc = item.getDescription().replaceAll("\\<.*?\\>", "").split("\\n"); 
 			for (String line : cleanDesc) {
-				if (line.startsWith("Price")) {
-					final String[] sp = line.split("\\$");
+				final String[] spp = line.split("Price:");
+				if (spp.length == 2) {
+					final String[] sp = spp[1].split("\\$");
 					if (sp.length == 2) {
 						price = sp[1];
 						break;
