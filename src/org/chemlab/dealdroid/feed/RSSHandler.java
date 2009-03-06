@@ -39,8 +39,6 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 	private StringBuilder currentString;
 
-	private final DateFormat pubDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
-
 	private final SortedMap<Date, Item> items = new TreeMap<Date, Item>();
 
 	/*
@@ -124,6 +122,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 						break;
 					case PUBDATE:
 						try {
+							final DateFormat pubDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
 							currentItemDate = pubDateFormat.parse(chars);
 						} catch (ParseException e) {
 
