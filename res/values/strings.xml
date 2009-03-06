@@ -12,8 +12,6 @@
 <string name="notify_led_summary">Flash LED when new notifications are created.</string>
 <string name="notify_led">Flash LED</string>
 <string name="notify_vibrate_summary">Vibrate phone when new notifications are created.</string>
-<string name="notify_ringtone">Notification Ringtone</string>
-<string name="notify_ringtone_summary">Play a custom ringtone when new notifications are created.</string>
 <string name="keep_awake">Keep phone awake</string>
 <string name="keep_awake_summary">Allow the app to wake up the phone to search for updates.</string>
 <string name="app_url">http://dealdroid.googlecode.com</string>

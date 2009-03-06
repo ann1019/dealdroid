@@ -20,8 +20,6 @@ public class Item implements Cloneable {
 
 	private String description;
 
-	private String shortDescription;
-	
 	private Uri link;
 
 	private Uri imageLink;
@@ -40,14 +38,13 @@ public class Item implements Cloneable {
 	 * @param link
 	 * @param imageLink
 	 */
-	public Item(String title, String salePrice, String retailPrice, String savings, String description, String shortDescription, Uri link, Uri imageLink) {
+	public Item(String title, String salePrice, String retailPrice, String savings, String description, Uri link, Uri imageLink) {
 		super();
 		this.title = title;
 		this.salePrice = salePrice;
 		this.retailPrice = retailPrice;
 		this.savings = savings;
 		this.description = description;
-		this.shortDescription = shortDescription;
 		this.link = link;
 		this.imageLink = imageLink;
 	}
@@ -153,20 +150,6 @@ public class Item implements Cloneable {
 		this.imageLink = imageLink;
 	}
 
-	/**
-	 * @return the shortDescription
-	 */
-	public String getShortDescription() {
-		return shortDescription;
-	}
-
-	/**
-	 * @param shortDescription the shortDescription to set
-	 */
-	public void setShortDescription(String shortDescription) {
-		this.shortDescription = shortDescription;
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
@@ -180,7 +163,6 @@ public class Item implements Cloneable {
 		result = prime * result + ((retailPrice == null) ? 0 : retailPrice.hashCode());
 		result = prime * result + ((salePrice == null) ? 0 : salePrice.hashCode());
 		result = prime * result + ((savings == null) ? 0 : savings.hashCode());
-		result = prime * result + ((shortDescription == null) ? 0 : shortDescription.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		return result;
 	}
@@ -240,13 +222,6 @@ public class Item implements Cloneable {
 				return false;
 			}
 		} else if (!savings.equals(other.savings)) {
-			return false;
-		}
-		if (shortDescription == null) {
-			if (other.shortDescription != null) {
-				return false;
-			}
-		} else if (!shortDescription.equals(other.shortDescription)) {
 			return false;
 		}
 		if (title == null) {

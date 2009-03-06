@@ -26,7 +26,7 @@ import android.util.Log;
 public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 	private enum ItemTag {
-		TITLE, LINK, DESCRIPTION, PRICE, PUBDATE, IMAGE_LINK, SHORT_DESCRIPTION;
+		TITLE, LINK, DESCRIPTION, PRICE, PUBDATE;
 	}
 
 	private boolean inItem = false;
@@ -63,16 +63,12 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 			currentTag = ItemTag.TITLE;
 		} else if (tag.equals("link")) {
 			currentTag = ItemTag.LINK;
-		} else if (tag.equals("description")) {
+		} else if (tag.equals("listDescription")) {
 			currentTag = ItemTag.DESCRIPTION;
 		} else if (tag.equals("price")) {
 			currentTag = ItemTag.PRICE;
-		} else if (tag.equals("pubdate")) {
+		} else if (tag.equals("pubDate")) {
 			currentTag = ItemTag.PUBDATE;
-		} else if (tag.equals("thumnailimage")) {
-			currentTag = ItemTag.IMAGE_LINK;
-		} else if (tag.equals("teaser")) {
-			currentTag = ItemTag.SHORT_DESCRIPTION;
 		} else {
 			currentTag = null;
 		}
@@ -88,53 +84,44 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	@Override
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 
-		if (inItem && currentItem != null) {
-			if (localName.trim().equals("item")) {
-				inItem = false;
-				if (currentItemDate != null) {
-					final Item clone = (Item) currentItem.clone();
-					items.put((Date) currentItemDate.clone(), clone);
-					currentItemDate = null;
-				}
-
-			} else if (currentTag != null) {
-
-				final String chars = currentString.toString().trim();
-
-				if (chars != null) {
-					switch (currentTag) {
-					case TITLE:
-						currentItem.setTitle(chars);
-						break;
-					case LINK:
-						currentItem.setLink(Uri.parse(chars));
-						break;
-					case IMAGE_LINK:
-						currentItem.setImageLink(Uri.parse(chars));
-						break;
-					case DESCRIPTION:
-						currentItem.setDescription(chars);
-						break;
-					case PRICE:
-						currentItem.setSalePrice(chars);
-						break;
-					case SHORT_DESCRIPTION:
-						currentItem.setShortDescription(chars);
-						break;
-					case PUBDATE:
-						try {
-							currentItemDate = pubDateFormat.parse(chars);
-						} catch (ParseException e) {
-
-							// BC likes to just send "MDT" sometimes as the pubDate
-							Log.e(this.getClass().getSimpleName(), "[data: " + chars + "] " + e.getMessage(), e);
-						}
-						break;
-					}
-				}
-
+		if (currentItem != null && localName.trim().equals("item")) {
+			inItem = false;
+			if (currentItemDate != null) {
+				final Item clone = (Item) currentItem.clone();
+				items.put((Date) currentItemDate.clone(), clone);
+				currentItemDate = null;
 			}
+
+		} else if (currentItem != null && currentTag != null) {
+
+			final String chars = currentString.toString().trim();
+
+			switch (currentTag) {
+			case TITLE:
+				currentItem.setTitle(chars);
+				break;
+			case LINK:
+				currentItem.setLink(Uri.parse(chars));
+				break;
+			case DESCRIPTION:
+				currentItem.setDescription(chars);
+				break;
+			case PRICE:
+				currentItem.setSalePrice(chars);
+				break;
+			case PUBDATE:
+				try {
+					currentItemDate = pubDateFormat.parse(chars);
+				} catch (ParseException e) {
+
+					// BC likes to just send "MDT" sometimes as the pubDate
+					Log.e(this.getClass().getSimpleName(), e.getMessage());
+				}
+				break;
+			}
+
 		}
+
 		currentTag = null;
 
 	}

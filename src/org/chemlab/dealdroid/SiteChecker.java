@@ -4,7 +4,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
 import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
-import static org.chemlab.dealdroid.Preferences.NOTIFY_RINGTONE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_VIBRATE;
 import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.isAnySiteEnabled;
@@ -12,9 +11,6 @@ import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.Header;
@@ -259,16 +255,7 @@ public class SiteChecker extends BroadcastReceiver {
 				// Make sure we bypass caches
 				req.addHeader("Cache-Control", "no-cache");
 				req.addHeader("Pragma", "no-cache");
-				
-				// Be as nice as possible to the remote server
-				final Date lastModified = database.getLastUpdateTime(site);
-				if (lastModified != null) {
-					final DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
-					final String httpDate = formatter.format(lastModified);
-					Log.d(this.getClass().getSimpleName(), "HTTP-Date: " + httpDate);
-					req.addHeader("If-Modified-Since", httpDate);
-				}
-				
+
 				final HttpResponse response = httpClient.execute(req);
 
 				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
@@ -282,7 +269,7 @@ public class SiteChecker extends BroadcastReceiver {
 					notify(site, handler.getCurrentItem());
 
 				} else {
-					Log.e(this.getClass().getSimpleName(), "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
+					Log.e(this.getClass().getSimpleName(), "HTTP request failed: " + response.getStatusLine().toString());
 				}
 
 			} catch (Throwable e) {
@@ -309,8 +296,6 @@ public class SiteChecker extends BroadcastReceiver {
 				} else {
 					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
 				}
-			} else if (item == null) {
-				Log.e(this.getClass().getName(), "Item was null!");
 			} else {
 				Log.e(this.getClass().getName(), "Incomplete item object, not notifying.");
 			}
@@ -334,33 +319,16 @@ public class SiteChecker extends BroadcastReceiver {
 			
 			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
 
-			final String summary;
-			if (item.getSalePrice() != null && item.getSavings() != null) {
-				summary = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
-			} else if (item.getSalePrice() != null && item.getShortDescription() != null) {
-				summary = item.getSalePrice() + " - " + item.getShortDescription();
-			} else {
-				summary = null;
-			}
-			
-			if (summary == null) {
-				notification.setLatestEventInfo(context, site.getName(), item.getTitle(), contentIntent);
-			} else {
-				notification.setLatestEventInfo(context, item.getTitle(), summary, contentIntent);
-			}
-			
+			final String priceInfo = "$" + item.getSalePrice() + " (" + item.getSavings() + "% Off! Regularly: $" + item.getRetailPrice() + ")";
+			notification.setLatestEventInfo(context, item.getTitle(), priceInfo, contentIntent);
+
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 
 			// Notification options
 			if (preferences.getBoolean(NOTIFY_VIBRATE, false)) {
 				notification.vibrate = new long[] { 100, 250, 100, 500 };
 			}
-			
-			final String ringtone = preferences.getString(NOTIFY_RINGTONE, "");
-			if (!ringtone.equals("")) {
-				notification.sound = Uri.parse(ringtone);
-			}
-			
+
 			if (preferences.getBoolean(NOTIFY_LED, false)) {
 				notification.ledARGB = 0xFFFF5171;
 				notification.ledOnMS = 500;
@@ -395,15 +363,13 @@ public class SiteChecker extends BroadcastReceiver {
 				public void process(final HttpResponse response, final HttpContext context) throws HttpException,
 						IOException {
 					HttpEntity entity = response.getEntity();
-					if (entity != null) {
-						Header ceheader = entity.getContentEncoding();
-						if (ceheader != null) {
-							HeaderElement[] codecs = ceheader.getElements();
-							for (int i = 0; i < codecs.length; i++) {
-								if (codecs[i].getName().equalsIgnoreCase("gzip")) {
-									response.setEntity(new GzipDecompressingEntity(response.getEntity()));
-									return;
-								}
+					Header ceheader = entity.getContentEncoding();
+					if (ceheader != null) {
+						HeaderElement[] codecs = ceheader.getElements();
+						for (int i = 0; i < codecs.length; i++) {
+							if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+								response.setEntity(new GzipDecompressingEntity(response.getEntity()));
+								return;
 							}
 						}
 					}
