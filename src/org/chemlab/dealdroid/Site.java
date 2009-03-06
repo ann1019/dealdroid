@@ -8,7 +8,6 @@ import org.chemlab.dealdroid.feed.FeedHandler;
 import org.chemlab.dealdroid.feed.RSSHandler;
 
 import android.net.Uri;
-import android.util.Log;
 
 /**
  * The various sites, RSS URLs, and associated icons.
@@ -224,9 +223,7 @@ public enum Site {
 		} else {
 			link = uri;
 		} 
-		
-		Log.d(this.getClass().getSimpleName(), "Uri: " + link.toString());
-		
+				
 		return link;
 	}
 }

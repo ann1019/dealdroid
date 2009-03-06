@@ -265,7 +265,6 @@ public class SiteChecker extends BroadcastReceiver {
 				if (lastModified != null) {
 					final DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
 					final String httpDate = formatter.format(lastModified);
-					Log.d(this.getClass().getSimpleName(), "HTTP-Date: " + httpDate);
 					req.addHeader("If-Modified-Since", httpDate);
 				}
 				
