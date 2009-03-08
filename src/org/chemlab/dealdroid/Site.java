@@ -85,7 +85,7 @@ public enum Site {
 			"http://www.woot.com/salerss.aspx",
 			"http://www.woot.com",
 			R.drawable.icon_woot,
-			RSSHandler.class, null, null, false, null, Encoding.UTF_8),
+			RSSHandler.class, null, null, true, null, Encoding.UTF_8),
 	
 	WOOTSELLOUT("Woot Sellout",
 			"Anything and Everything",

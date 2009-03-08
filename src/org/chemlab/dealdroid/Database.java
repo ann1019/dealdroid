@@ -39,6 +39,8 @@ public class Database {
 	
 	private static final String KEY_TIMESTAMP = "timestamp";
 	
+	private static final String KEY_EXPIRATION = "expiration";
+	
 	private static final String DATABASE_NAME = "dealdroid.db";
 
 	private static final int DATABASE_VERSION = 1;
@@ -86,12 +88,16 @@ public class Database {
 	 */
 	public Item getCurrentItem(final Site site) {
 		
-		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE, KEY_SALE_PRICE, KEY_RETAIL_PRICE, KEY_SAVINGS, KEY_DESCRIPTION, KEY_SHORT_DESCRIPTION, KEY_URL, KEY_IMAGE_URL }, KEY_ID + "=?", new String[] { site.name() }, null, null, null);
+		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE, KEY_SALE_PRICE, KEY_RETAIL_PRICE, KEY_SAVINGS, KEY_DESCRIPTION, 
+				KEY_SHORT_DESCRIPTION, KEY_URL, KEY_IMAGE_URL, KEY_EXPIRATION, KEY_TIMESTAMP }, KEY_ID + "=?", new String[] { site.name() }, null, null, null);
 		final Item item;
 		if (c.getCount() == 1) {
 			c.moveToFirst();
 			item = new Item(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getString(6), 
-					c.getString(7) == null ? null : Uri.parse(c.getString(7)), c.getString(8) == null ? null : Uri.parse(c.getString(8)));
+					c.isNull(7) ? null : Uri.parse(c.getString(7)), 
+					c.isNull(8) ? null : Uri.parse(c.getString(8)),
+					c.isNull(9) ? null : new Date(c.getLong(9)),
+					c.isNull(10) ? null : new Date(c.getLong(10)));
 		} else {
 			item = null;
 		}
@@ -122,11 +128,15 @@ public class Database {
 				v.put(KEY_SALE_PRICE, item.getSalePrice());
 				v.put(KEY_SAVINGS, item.getSavings());
 				v.put(KEY_URL, item.getLink().toString());
-				v.put(KEY_TIMESTAMP, new Date().getTime());
+				v.put(KEY_TIMESTAMP, item.getTimestamp().getTime());
 				v.put(KEY_SHORT_DESCRIPTION, item.getShortDescription());
 				
 				if (item.getImageLink() != null) {
 					v.put(KEY_IMAGE_URL, item.getImageLink().toString());
+				}
+				
+				if (item.getExpiration() != null) {
+					v.put(KEY_EXPIRATION, item.getExpiration().getTime());
 				}
 				
 				db.insert(STATE_TABLE, null, v);
@@ -166,24 +176,6 @@ public class Database {
 		return ret;
 	}
 
-	/**
-	 * @param site
-	 * @return
-	 */
-	public Date getLastUpdateTime(final Site site) {
-		
-		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TIMESTAMP }, KEY_ID + "=?", new String[] { site.name() }, null, null, null);
-		final Date ret;
-		if (c.getCount() == 0) {
-			ret = null;
-		} else {
-			c.moveToFirst();
-			ret = new Date(c.getLong(1));
-		}
-		c.close();
-		return ret;
-	}
-	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
 		public DatabaseHelper(Context context) {
@@ -199,7 +191,7 @@ public class Database {
 		 */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE dealdroid_state (id TEXT PRIMARY KEY, title TEXT NOT NULL, url TEXT NOT NULL, image_url TEXT, description TEXT, short_description TEXT, sale_price TEXT, retail_price TEXT, savings TEXT, timestamp NUMBER NOT NULL);");
+			db.execSQL("CREATE TABLE dealdroid_state (id TEXT PRIMARY KEY, title TEXT NOT NULL, url TEXT NOT NULL, image_url TEXT, description TEXT, short_description TEXT, sale_price TEXT, retail_price TEXT, savings TEXT, timestamp NUMBER NOT NULL, expiration NUMBER);");
 		}
 
 		/*
