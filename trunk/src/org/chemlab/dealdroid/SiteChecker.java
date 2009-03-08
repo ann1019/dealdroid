@@ -7,7 +7,7 @@ import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_RINGTONE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_VIBRATE;
 import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
-import static org.chemlab.dealdroid.Preferences.isAnySiteEnabled;
+import static org.chemlab.dealdroid.Preferences.getNumSitesEnabled;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.io.IOException;
@@ -84,8 +84,13 @@ public class SiteChecker extends BroadcastReceiver {
 
 		if (DEALDROID_ENABLE.equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
+			
 			if (site != null) {
-				checkSites(context, site);
+				if (getNumSitesEnabled(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) == 1) {
+					enable(context);
+				} else {
+					checkSites(context, site);
+				}
 			}
 
 		} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
@@ -120,6 +125,10 @@ public class SiteChecker extends BroadcastReceiver {
 		db.open();
 		db.delete(site);
 		db.close();
+		if (getNumSitesEnabled(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) == 0) {
+			Log.d(this.getClass().getSimpleName(), "Checking for all sites disabled.  Disabling alarm..");
+			disable(context);
+		}
 	}
 
 	/**
@@ -135,15 +144,13 @@ public class SiteChecker extends BroadcastReceiver {
 		if (info != null && info.isAvailable()) {
 
 			final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-			if (isAnySiteEnabled(prefs)) {
-				for (Site site : sites) {
-					if (isEnabled(prefs, site)) {
-						final Thread checker = new SiteCheckerThread(context, site);
-						checker.setDaemon(true);
-						checker.start();
-					}
+			for (Site site : sites) {
+				if (isEnabled(prefs, site)) {
+					final Thread checker = new SiteCheckerThread(context, site);
+					checker.setDaemon(true);
+					checker.start();
 				}
-			}
+			}	
 		}
 	}
 
@@ -151,13 +158,18 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param context
 	 */
 	private synchronized void enable(final Context context) {
-		Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
-
-		final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-		final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.name));
 		
-		final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
-		getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
+		final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+		if (getNumSitesEnabled(prefs) > 0) {
+			Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
+
+			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.name));
+		
+			final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
+			getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
+		} else {
+			Log.i(this.getClass().getSimpleName(), "Not starting updater (no sites enabled)");
+		}
 	}
 
 	/**
