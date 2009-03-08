@@ -19,28 +19,41 @@ import android.util.Log;
  */
 public class Database {
 
-	private static final String KEY_ID = "id";
+	private enum Field {
+			
+		ID("TEXT PRIMARY KEY"),
+		TITLE("TEXT NOT NULL"), 
+		DESCRIPTION("TEXT"), 
+		SHORT_DESCRIPTION("TEXT"),
+		URL("TEXT NOT NULL"),
+		IMAGE_URL("TEXT"), 
+		RETAIL_PRICE("TEXT"), 
+		SALE_PRICE("TEXT"), 
+		SAVINGS("TEXT"), 
+		TIMESTAMP("NUMBER NOT NULL"), 
+		EXPIRATION("NUMBER");
+		
+		private final String modifier;
+		
+		Field(final String modifier) {
+			this.modifier = modifier;
+		}
+			
+		/**
+		 * @return
+		 */
+		public String key() {
+			return this.name().toLowerCase();
+		}
 
-	private static final String KEY_TITLE = "title";
-	
-	private static final String KEY_DESCRIPTION = "description";
-	
-	private static final String KEY_SHORT_DESCRIPTION = "short_description";
-	
-	private static final String KEY_URL = "url";
-	
-	private static final String KEY_IMAGE_URL = "image_url";
-	
-	private static final String KEY_RETAIL_PRICE = "retail_price";
-	
-	private static final String KEY_SALE_PRICE = "sale_price";
-	
-	private static final String KEY_SAVINGS = "savings";
-	
-	private static final String KEY_TIMESTAMP = "timestamp";
-	
-	private static final String KEY_EXPIRATION = "expiration";
-	
+		/**
+		 * @return the modifier
+		 */
+		public String getModifier() {
+			return modifier;
+		}
+	}
+		
 	private static final String DATABASE_NAME = "dealdroid.db";
 
 	private static final String STATE_TABLE = "dealdroid_state";
@@ -77,7 +90,7 @@ public class Database {
 	 * @return if any sites were deleted
 	 */
 	public boolean delete(Site site) {
-		return db.delete(STATE_TABLE, KEY_ID + "=?", new String[] { site.name() }) > 0;
+		return db.delete(STATE_TABLE, Field.ID.key() + "=?", new String[] { site.name() }) > 0;
 	}
 
 	/**
@@ -86,8 +99,11 @@ public class Database {
 	 */
 	public Item getCurrentItem(final Site site) {
 		
-		final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE, KEY_SALE_PRICE, KEY_RETAIL_PRICE, KEY_SAVINGS, KEY_DESCRIPTION, 
-				KEY_SHORT_DESCRIPTION, KEY_URL, KEY_IMAGE_URL, KEY_EXPIRATION, KEY_TIMESTAMP }, KEY_ID + "=?", new String[] { site.name() }, null, null, null);
+		final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key(), Field.SALE_PRICE.key(),
+				Field.RETAIL_PRICE.key(), Field.SAVINGS.key(), Field.DESCRIPTION.key(), 
+				Field.SHORT_DESCRIPTION.key(), Field.URL.key(), Field.IMAGE_URL.key(), Field.EXPIRATION.key(), Field.TIMESTAMP.key() }, 
+				Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
+		
 		final Item item;
 		if (c.getCount() == 1) {
 			c.moveToFirst();
@@ -119,22 +135,22 @@ public class Database {
 				delete(site);
 				
 				final ContentValues v = new ContentValues();
-				v.put(KEY_ID, site.name());
-				v.put(KEY_TITLE, item.getTitle());
-				v.put(KEY_DESCRIPTION, item.getDescription());
-				v.put(KEY_RETAIL_PRICE, item.getRetailPrice());
-				v.put(KEY_SALE_PRICE, item.getSalePrice());
-				v.put(KEY_SAVINGS, item.getSavings());
-				v.put(KEY_URL, item.getLink().toString());
-				v.put(KEY_TIMESTAMP, item.getTimestamp().getTime());
-				v.put(KEY_SHORT_DESCRIPTION, item.getShortDescription());
+				v.put(Field.ID.key(), site.name());
+				v.put(Field.TITLE.key(), item.getTitle());
+				v.put(Field.DESCRIPTION.key(), item.getDescription());
+				v.put(Field.RETAIL_PRICE.key(), item.getRetailPrice());
+				v.put(Field.SALE_PRICE.key(), item.getSalePrice());
+				v.put(Field.SAVINGS.key(), item.getSavings());
+				v.put(Field.URL.key(), item.getLink().toString());
+				v.put(Field.TIMESTAMP.key(), item.getTimestamp().getTime());
+				v.put(Field.SHORT_DESCRIPTION.key(), item.getShortDescription());
 				
 				if (item.getImageLink() != null) {
-					v.put(KEY_IMAGE_URL, item.getImageLink().toString());
+					v.put(Field.IMAGE_URL.key(), item.getImageLink().toString());
 				}
 				
 				if (item.getExpiration() != null) {
-					v.put(KEY_EXPIRATION, item.getExpiration().getTime());
+					v.put(Field.EXPIRATION.key(), item.getExpiration().getTime());
 				}
 				
 				db.insert(STATE_TABLE, null, v);
@@ -157,7 +173,7 @@ public class Database {
 
 		boolean ret = false;
 		if (site != null && item != null && item.getTitle() != null) {
-			final Cursor c = db.query(STATE_TABLE, new String[] { KEY_ID, KEY_TITLE }, KEY_ID + "=?", new String[] { site.name() }, null, null, null);
+			final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key() }, Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
 			
 			if (c.getCount() == 0) {
 				ret = true;
@@ -176,7 +192,7 @@ public class Database {
 
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
-		private static final int DATABASE_VERSION = 2;
+		private static final int DATABASE_VERSION = 3;
 		
 		public DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -191,7 +207,16 @@ public class Database {
 		 */
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE dealdroid_state (id TEXT PRIMARY KEY, title TEXT NOT NULL, url TEXT NOT NULL, image_url TEXT, description TEXT, short_description TEXT, sale_price TEXT, retail_price TEXT, savings TEXT, timestamp NUMBER NOT NULL, expiration NUMBER);");
+			final StringBuilder sb = new StringBuilder();
+			for (Field f : Field.values()) {
+				if (sb.length() > 0) {
+					sb.append(", ");
+				}
+				sb.append(f.key()). append(" ").append(f.getModifier());
+			}
+			
+			final StringBuilder createSQL = new StringBuilder("CREATE TABLE ").append(STATE_TABLE).append(" (").append(sb).append(");");
+			db.execSQL(createSQL.toString());
 		}
 
 		/*
@@ -205,7 +230,7 @@ public class Database {
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			if (newVersion > oldVersion) {
 				Log.i(this.getClass().getSimpleName(), "Upgrading database from version " + oldVersion + " to " + newVersion + "..");
-				db.execSQL("DROP TABLE dealdroid_state");
+				db.execSQL("DROP TABLE " + STATE_TABLE);
 				onCreate(db);
 			}
 		}
