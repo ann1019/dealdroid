@@ -142,15 +142,25 @@ public class SiteChecker extends BroadcastReceiver {
 		final NetworkInfo info = cm.getActiveNetworkInfo();
 
 		if (info != null && info.isAvailable()) {
-
-			final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-			for (Site site : sites) {
-				if (isEnabled(prefs, site)) {
-					final Thread checker = new SiteCheckerThread(context, site);
-					checker.setDaemon(true);
-					checker.start();
+			final Database db = new Database(context);
+			try {
+				db.open();
+				final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+				for (Site site : sites) {
+					if (isEnabled(prefs, site)) {
+						final Item oldItem = db.getCurrentItem(site);
+						if (oldItem != null && oldItem.getExpiration() != null && oldItem.getExpiration().after(new Date())) {
+							Log.d(this.getClass().getSimpleName(), "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().toString());
+						} else {
+							final Thread checker = new SiteCheckerThread(context, site, oldItem);
+							checker.setDaemon(true);
+							checker.start();
+						}
+					}
 				}
-			}	
+			} finally {
+				db.close();
+			}
 		}
 	}
 
@@ -216,12 +226,14 @@ public class SiteChecker extends BroadcastReceiver {
 		private final SharedPreferences preferences;
 		private final WakeLock wakeLock;
 		private final DefaultHttpClient httpClient = new DefaultHttpClient();
-
+		
 		private final Site site;
-
-		SiteCheckerThread(final Context context, final Site site) {
+		private final Item oldItem;
+		
+		SiteCheckerThread(final Context context, final Site site, final Item oldItem) {
 			this.context = context;
 			this.site = site;
+			this.oldItem = oldItem;
 			this.database = new Database(context);
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 10000);
@@ -272,11 +284,13 @@ public class SiteChecker extends BroadcastReceiver {
 				req.addHeader("Pragma", "no-cache");
 				
 				// Be as nice as possible to the remote server
-				final Date lastModified = database.getLastUpdateTime(site);
-				if (lastModified != null) {
-					final DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
-					final String httpDate = formatter.format(lastModified);
-					req.addHeader("If-Modified-Since", httpDate);
+				if (oldItem != null) {
+					final Date lastModified = oldItem.getTimestamp();
+					if (lastModified != null) {
+						final DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
+						final String httpDate = formatter.format(lastModified);
+						req.addHeader("If-Modified-Since", httpDate);
+					}
 				}
 				
 				final HttpResponse response = httpClient.execute(req);

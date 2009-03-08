@@ -3,6 +3,7 @@ package org.chemlab.dealdroid.feed;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.SortedMap;
@@ -26,7 +27,7 @@ import android.util.Log;
 public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 	private enum ItemTag {
-		TITLE, LINK, DESCRIPTION, PRICE, PUBDATE, IMAGE_LINK, SHORT_DESCRIPTION;
+		TITLE, LINK, DESCRIPTION, PRICE, PUBDATE, IMAGE_LINK, SHORT_DESCRIPTION, WOOTOFF;
 	}
 
 	private boolean inItem = false;
@@ -71,6 +72,8 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 			currentTag = ItemTag.IMAGE_LINK;
 		} else if (tag.equals("subtitle")) {
 			currentTag = ItemTag.SHORT_DESCRIPTION;
+		} else if (tag.equals("wootoff")) {
+			currentTag = ItemTag.WOOTOFF;
 		} else {
 			currentTag = null;
 		}
@@ -119,6 +122,14 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 						break;
 					case SHORT_DESCRIPTION:
 						currentItem.setShortDescription(chars);
+						break;
+					case WOOTOFF:
+						// if there is no woot-off, force an expiration
+						if (chars.toLowerCase().equals("false")) {
+							final Calendar c = Calendar.getInstance();
+							c.add(Calendar.HOUR_OF_DAY, 1);
+							currentItem.setExpiration(c.getTime());
+						}
 						break;
 					case PUBDATE:
 						try {

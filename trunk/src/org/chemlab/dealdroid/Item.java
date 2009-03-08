@@ -1,5 +1,7 @@
 package org.chemlab.dealdroid;
 
+import java.util.Date;
+
 import android.net.Uri;
 
 /**
@@ -13,19 +15,23 @@ public class Item implements Cloneable {
 	private String title;
 
 	private String salePrice;
-	
+
 	private String retailPrice;
-	
+
 	private String savings;
 
 	private String description;
 
 	private String shortDescription;
-	
+
 	private Uri link;
 
 	private Uri imageLink;
-	
+
+	private Date expiration;
+
+	private Date timestamp = new Date();
+
 	/**
 	 * 
 	 */
@@ -33,14 +39,20 @@ public class Item implements Cloneable {
 		super();
 	}
 
+
 	/**
 	 * @param title
-	 * @param price
+	 * @param salePrice
+	 * @param retailPrice
+	 * @param savings
 	 * @param description
+	 * @param shortDescription
 	 * @param link
 	 * @param imageLink
+	 * @param expiration
 	 */
-	public Item(String title, String salePrice, String retailPrice, String savings, String description, String shortDescription, Uri link, Uri imageLink) {
+	public Item(String title, String salePrice, String retailPrice, String savings, String description,
+			String shortDescription, Uri link, Uri imageLink, Date expiration) {
 		super();
 		this.title = title;
 		this.salePrice = salePrice;
@@ -50,6 +62,26 @@ public class Item implements Cloneable {
 		this.shortDescription = shortDescription;
 		this.link = link;
 		this.imageLink = imageLink;
+		this.expiration = expiration;
+	}
+
+
+	/**
+	 * @param title
+	 * @param salePrice
+	 * @param retailPrice
+	 * @param savings
+	 * @param description
+	 * @param shortDescription
+	 * @param link
+	 * @param imageLink
+	 * @param expiration
+	 * @param timestamp
+	 */
+	public Item(String title, String salePrice, String retailPrice, String savings, String description,
+			String shortDescription, Uri link, Uri imageLink, Date expiration, Date timestamp) {
+		this(title, salePrice, retailPrice, savings, description, shortDescription, link, imageLink, expiration);
+		this.timestamp = timestamp;
 	}
 
 	/**
@@ -75,7 +107,8 @@ public class Item implements Cloneable {
 	}
 
 	/**
-	 * @param salePrice the salePrice to set
+	 * @param salePrice
+	 *            the salePrice to set
 	 */
 	public void setSalePrice(String salePrice) {
 		this.salePrice = salePrice;
@@ -89,7 +122,8 @@ public class Item implements Cloneable {
 	}
 
 	/**
-	 * @param retailPrice the retailPrice to set
+	 * @param retailPrice
+	 *            the retailPrice to set
 	 */
 	public void setRetailPrice(String retailPrice) {
 		this.retailPrice = retailPrice;
@@ -103,7 +137,8 @@ public class Item implements Cloneable {
 	}
 
 	/**
-	 * @param savings the savings to set
+	 * @param savings
+	 *            the savings to set
 	 */
 	public void setSavings(String savings) {
 		this.savings = savings;
@@ -147,7 +182,8 @@ public class Item implements Cloneable {
 	}
 
 	/**
-	 * @param imageLink the imageLink to set
+	 * @param imageLink
+	 *            the imageLink to set
 	 */
 	public void setImageLink(Uri imageLink) {
 		this.imageLink = imageLink;
@@ -161,13 +197,45 @@ public class Item implements Cloneable {
 	}
 
 	/**
-	 * @param shortDescription the shortDescription to set
+	 * @param shortDescription
+	 *            the shortDescription to set
 	 */
 	public void setShortDescription(String shortDescription) {
 		this.shortDescription = shortDescription;
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * @return the expiration
+	 */
+	public Date getExpiration() {
+		return expiration;
+	}
+
+	/**
+	 * @param expiration
+	 *            the expiration to set
+	 */
+	public void setExpiration(Date expiration) {
+		this.expiration = expiration;
+	}
+
+	/**
+	 * @return the timestamp
+	 */
+	public Date getTimestamp() {
+		return timestamp;
+	}
+
+	/**
+	 * @param timestamp the timestamp to set
+	 */
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
@@ -185,7 +253,9 @@ public class Item implements Cloneable {
 		return result;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
@@ -259,7 +329,9 @@ public class Item implements Cloneable {
 		return true;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#clone()
 	 */
 	@Override
@@ -272,7 +344,7 @@ public class Item implements Cloneable {
 		} catch (CloneNotSupportedException e) {
 			throw new InternalError(e.toString());
 		}
-		
+
 		return clone;
 	}
 }
