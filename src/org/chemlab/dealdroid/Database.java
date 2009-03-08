@@ -43,8 +43,6 @@ public class Database {
 	
 	private static final String DATABASE_NAME = "dealdroid.db";
 
-	private static final int DATABASE_VERSION = 1;
-
 	private static final String STATE_TABLE = "dealdroid_state";
 
 	private final DatabaseHelper dbHelper;
@@ -178,6 +176,8 @@ public class Database {
 
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
+		private static final int DATABASE_VERSION = 2;
+		
 		public DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
@@ -204,6 +204,7 @@ public class Database {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			if (newVersion > oldVersion) {
+				Log.i(this.getClass().getSimpleName(), "Upgrading database from version " + oldVersion + " to " + newVersion + "..");
 				db.execSQL("DROP TABLE dealdroid_state");
 				onCreate(db);
 			}
