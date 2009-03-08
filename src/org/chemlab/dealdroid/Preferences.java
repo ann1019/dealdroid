@@ -228,17 +228,16 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	
 	/**
 	 * @param preferences
-	 * @return if any site is enabled
+	 * @return the number of sites enabled
 	 */
-	public static boolean isAnySiteEnabled(final SharedPreferences preferences) {
-		boolean ret = false;
+	public static int getNumSitesEnabled(final SharedPreferences preferences) {
+		int si = 0;
 		for (Site site : Site.values()) {
 			if (isEnabled(preferences, site)) {
-				ret = true;
-				break;
+				si++;
 			}
 		}
-		return ret;
+		return si;
 	}
 
 }
