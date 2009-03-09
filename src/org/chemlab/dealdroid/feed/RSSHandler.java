@@ -5,8 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.chemlab.dealdroid.Item;
 import org.chemlab.dealdroid.Utils;
@@ -41,10 +39,6 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	private StringBuilder currentString;
 
 	private final TreeMap<Date, Item> items = new TreeMap<Date, Item>();
-
-	private static final String PRICE_REGEX = "Price.*\\$(\\d+\\.\\d+)";
-	
-	private static final String REPLACE_HTML_REGEX = "\\<.*?\\>";
 	
 	/*
 	 * (non-Javadoc)
@@ -178,35 +172,11 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	public Item getCurrentItem() {
 		final Item ret = items.size() == 0 ? null : items.get(items.lastKey());
 		if (ret != null && ret.getSalePrice() == null) {
-			ret.setSalePrice(searchDescriptionForPrice(currentItem));
+			ret.setSalePrice(Utils.searchForPrice(currentItem.getDescription()));
 		}
 		return ret;
 	}
 
-	/**
-	 * @param item
-	 * @return
-	 */
-	private static String searchDescriptionForPrice(final Item item) {
-		
-		String price = null;
-		if (item.getDescription() != null) {
-
-			final String cleanDesc = item.getDescription().replaceAll(REPLACE_HTML_REGEX, "");
-			if (cleanDesc != null) {
-				final Pattern p = Pattern.compile(PRICE_REGEX, Pattern.MULTILINE);
-				final Matcher m = p.matcher(cleanDesc);
-				if (m.find()) {
-					final String spp = m.group().trim();
-					final String[] sp = spp.split("\\$");
-					if (sp.length == 2) {
-						price = sp[1];
-					}
-				}
-			}
-		}
-		
-		return price;
-	}
+	
 	
 }
