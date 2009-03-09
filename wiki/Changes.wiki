@@ -1,5 +1,7 @@
 #summary DealDroid ChangeLog
 
+1.1.4 - Fix stupid bug that caused repeated notifications. (03/09/2009)
+
 1.1.3 - Code audit, make sure all SQLite cursors are finalized. (03/09/2009)
 
 1.1.2 - Really fix sellout.woot support. (03/08/2009)
