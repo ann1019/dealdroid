@@ -229,9 +229,16 @@ public class Database {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			if (newVersion > oldVersion) {
-				Log.i(this.getClass().getSimpleName(), "Upgrading database from version " + oldVersion + " to " + newVersion + "..");
-				db.execSQL("DROP TABLE " + STATE_TABLE);
-				onCreate(db);
+				try {
+					db.beginTransaction();
+				
+					Log.i(this.getClass().getSimpleName(), "Upgrading database from version " + oldVersion + " to " + newVersion + "..");
+					db.execSQL("DROP TABLE " + STATE_TABLE);
+					onCreate(db);
+					db.setTransactionSuccessful();
+				} finally {
+					db.endTransaction();
+				}
 			}
 		}
 
