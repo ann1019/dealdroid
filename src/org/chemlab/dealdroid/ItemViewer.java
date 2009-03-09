@@ -3,6 +3,7 @@ package org.chemlab.dealdroid;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -67,7 +68,7 @@ public class ItemViewer extends Activity {
 	 */
 	private boolean hasSiteAsset(final Site site) {
 		boolean ret = false;
-		final String siteAsset = site.name().toLowerCase() + ".html";
+		final String siteAsset = site.name().toLowerCase(Locale.getDefault()) + ".html";
 		try {
 			for (String asset : this.getAssets().list("")) {
 				if (siteAsset.equals(asset)) {

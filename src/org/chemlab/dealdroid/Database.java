@@ -1,6 +1,7 @@
 package org.chemlab.dealdroid;
 
 import java.util.Date;
+import java.util.Locale;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -43,7 +44,7 @@ public class Database {
 		 * @return
 		 */
 		public String key() {
-			return this.name().toLowerCase();
+			return this.name().toLowerCase(Locale.getDefault());
 		}
 
 		/**
@@ -60,7 +61,7 @@ public class Database {
 
 	private final DatabaseHelper dbHelper;
 
-	private SQLiteDatabase db;
+	private SQLiteDatabase db = null;
 
 	/**
 	 * @param context
@@ -80,9 +81,19 @@ public class Database {
 	 * Closes the database.
 	 */
 	public void close() {
+		checkDatabaseOpen();
 		dbHelper.close();
 	}
 
+	/**
+	 * 
+	 */
+	private void checkDatabaseOpen() {
+		if (db == null) {
+			throw new IllegalStateException("Database not open, call open() first.");
+		}
+	}
+	
 	/**
 	 * Deletes data for a site.
 	 * 
@@ -90,6 +101,7 @@ public class Database {
 	 * @return if any sites were deleted
 	 */
 	public boolean delete(Site site) {
+		checkDatabaseOpen();
 		return db.delete(STATE_TABLE, Field.ID.key() + "=?", new String[] { site.name() }) > 0;
 	}
 
@@ -98,7 +110,7 @@ public class Database {
 	 * @return
 	 */
 	public Item getCurrentItem(final Site site) {
-		
+		checkDatabaseOpen();
 		final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key(), Field.SALE_PRICE.key(),
 				Field.RETAIL_PRICE.key(), Field.SAVINGS.key(), Field.DESCRIPTION.key(), 
 				Field.SHORT_DESCRIPTION.key(), Field.URL.key(), Field.IMAGE_URL.key(), Field.EXPIRATION.key(), Field.TIMESTAMP.key() }, 
@@ -127,6 +139,7 @@ public class Database {
 	 * @return if the state was updated
 	 */
 	public boolean updateStateIfNotCurrent(Site site, Item item) {
+		checkDatabaseOpen();
 		db.beginTransaction();
 		boolean ret = false;
 		try {
@@ -170,7 +183,7 @@ public class Database {
 	 * @return true if this is a new item
 	 */
 	private boolean isItemNew(Site site, Item item) {
-
+		checkDatabaseOpen();
 		boolean ret = false;
 		if (site != null && item != null && item.getTitle() != null) {
 			final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key() }, Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
