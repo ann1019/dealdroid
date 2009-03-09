@@ -117,17 +117,21 @@ public class Database {
 				Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
 		
 		final Item item;
-		if (c.getCount() == 1) {
-			c.moveToFirst();
-			item = new Item(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getString(6), 
+		try {
+			
+			if (c.getCount() == 1) {
+				c.moveToFirst();
+				item = new Item(c.getString(1), c.getString(2), c.getString(3), c.getString(4), c.getString(5), c.getString(6), 
 					c.isNull(7) ? null : Uri.parse(c.getString(7)), 
 					c.isNull(8) ? null : Uri.parse(c.getString(8)),
 					c.isNull(9) ? null : new Date(c.getLong(9)),
 					c.isNull(10) ? null : new Date(c.getLong(10)));
-		} else {
-			item = null;
+			} else {
+				item = null;
+			}
+		} finally {
+			c.close();
 		}
-		c.close();
 		return item;
 	}
 	
@@ -187,18 +191,19 @@ public class Database {
 		boolean ret = false;
 		if (site != null && item != null && item.getTitle() != null) {
 			final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key() }, Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
-			
-			if (c.getCount() == 0) {
-				ret = true;
-			} else {
-				c.moveToFirst();
-				ret ^= item.getTitle().equals(c.getString(1));
-				if (ret) {
-					Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
+			try {
+				if (c.getCount() == 0) {
+					ret = true;
+				} else {
+					c.moveToFirst();
+					ret ^= item.getTitle().equals(c.getString(1));
+					if (ret) {
+						Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
+					}
 				}
+			} finally {
+				c.close();
 			}
-		
-			c.close();
 		}
 		return ret;
 	}
