@@ -12,8 +12,6 @@ import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 
@@ -290,9 +288,7 @@ public class SiteChecker extends BroadcastReceiver {
 				if (oldItem != null) {
 					final Date lastModified = oldItem.getTimestamp();
 					if (lastModified != null) {
-						final DateFormat formatter = new SimpleDateFormat("E, dd MMM yyyy HH:mm:ss Z");
-						final String httpDate = formatter.format(lastModified);
-						req.addHeader("If-Modified-Since", httpDate);
+						req.addHeader("If-Modified-Since", Utils.formatRFC822Date(lastModified));
 					}
 				}
 				
@@ -443,6 +439,9 @@ public class SiteChecker extends BroadcastReceiver {
 	
 	static class GzipRequestInterceptor implements HttpRequestInterceptor {
 
+		/* (non-Javadoc)
+		 * @see org.apache.http.HttpRequestInterceptor#process(org.apache.http.HttpRequest, org.apache.http.protocol.HttpContext)
+		 */
 		@Override
 		public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
 			if (!request.containsHeader("Accept-Encoding")) {
@@ -453,6 +452,9 @@ public class SiteChecker extends BroadcastReceiver {
 	
 	static class GzipResponseInterceptor implements HttpResponseInterceptor {
 
+		/* (non-Javadoc)
+		 * @see org.apache.http.HttpResponseInterceptor#process(org.apache.http.HttpResponse, org.apache.http.protocol.HttpContext)
+		 */
 		@Override
 		public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
 			HttpEntity entity = response.getEntity();

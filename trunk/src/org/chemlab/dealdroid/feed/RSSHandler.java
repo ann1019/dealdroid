@@ -1,8 +1,6 @@
 package org.chemlab.dealdroid.feed;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -11,6 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.chemlab.dealdroid.Item;
+import org.chemlab.dealdroid.Utils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -138,8 +137,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 						break;
 					case PUBDATE:
 						try {
-							final DateFormat pubDateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
-							currentItemDate = pubDateFormat.parse(chars);
+							currentItemDate = Utils.parseRFC822Date(chars);
 						} catch (ParseException e) {
 
 							// BC likes to just send "MDT" sometimes as the pubDate
