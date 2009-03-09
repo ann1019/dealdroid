@@ -24,7 +24,7 @@ public enum Site {
 			"http://www.bonktown.com",
 			R.drawable.icon_bonktown,
 			BCFeedHandler.class, "avad", "14749", false,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=12021&pw=14749", Encoding.UTF_8),
+			"http://www.avantlink.com/click.php?tt=dotd&ti=12021&pw=14749", Encoding.UTF_8, false),
 			
 	BROCIETY("Brociety",
 			"Snowboarding",
@@ -32,7 +32,7 @@ public enum Site {
 			"http://www.brociety.com",
 			R.drawable.icon_brociety,
 			BCFeedHandler.class, "avad", "14749", false,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=13197&pw=14749", Encoding.UTF_8),
+			"http://www.avantlink.com/click.php?tt=dotd&ti=13197&pw=14749", Encoding.UTF_8, false),
 			
 	CHAINLOVE("Chainlove", 
 			"Cycling",
@@ -40,7 +40,7 @@ public enum Site {
 			"http://www.chainlove.com", 
 			R.drawable.icon_chainlove, 
 			BCFeedHandler.class, "avad", "14749", false,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=8761&pw=14749", Encoding.UTF_8),
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8761&pw=14749", Encoding.UTF_8, false),
 			
 	STEEPANDCHEAP("Steep and Cheap", 
 			"Outdoor Gear",
@@ -48,7 +48,7 @@ public enum Site {
 			"http://www.steepandcheap.com",
 			R.drawable.icon_steepandcheep, 
 			BCFeedHandler.class, "avad", "14749", true,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=8733&pw=14749", Encoding.UTF_8),
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8733&pw=14749", Encoding.UTF_8, false),
 			
 	TRAMDOCK("Tramdock", 
 			"Skiing",
@@ -56,7 +56,7 @@ public enum Site {
 			"http://www.tramdock.com", 
 			R.drawable.icon_tramdock, 
 			BCFeedHandler.class, "avad", "14749", false,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=8773&pw=14749", Encoding.UTF_8),
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8773&pw=14749", Encoding.UTF_8, false),
 			
 	WHISKEYMILITIA("Whiskey Militia", 
 			"Snow, Skate, Surf",
@@ -64,49 +64,49 @@ public enum Site {
 			"http://www.whiskeymilitia.com",
 			R.drawable.icon_whiskeymilitia, 
 			BCFeedHandler.class, "avad", "14749", true,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=8801&pw=14749", Encoding.UTF_8),
+			"http://www.avantlink.com/click.php?tt=dotd&ti=8801&pw=14749", Encoding.UTF_8, false),
 	
 	SLICKDEALS("SlickDeals",
 			"Various, Community-Driven",
 			"http://feeds.feedburner.com/SlickdealsnetFP?format=xml",
 			"http://www.slickdeals.net",
 			R.drawable.icon_slickdeals,
-			RSSHandler.class, null, null, false, null, Encoding.UTF_8),
+			RSSHandler.class, null, null, false, null, Encoding.UTF_8, false),
 					
 	THINGFLING("ThingFling",
 			"Electronics",
 			"http://feed.thingfling.com/ThingflingRssFeed?format=xml",
 			"http://www.thingfling.com",
 			R.drawable.icon_thingfling,
-			RSSHandler.class, null, null, false, null, Encoding.ISO_8859_1),
+			RSSHandler.class, null, null, false, null, Encoding.ISO_8859_1, false),
 	
 	WOOT("Woot",
 			"Anything and Everything",
 			"http://www.woot.com/salerss.aspx",
 			"http://www.woot.com",
 			R.drawable.icon_woot,
-			RSSHandler.class, null, null, true, null, Encoding.UTF_8),
+			RSSHandler.class, null, null, true, null, Encoding.UTF_8, false),
 	
 	WOOTSELLOUT("Woot Sellout",
 			"Anything and Everything",
 			"http://sellout.woot.com/salerss.aspx",
 			"http://shopping.yahoo.com/#woot",
 			R.drawable.icon_wootsellout,
-			RSSHandler.class, null, null, false, null, Encoding.UTF_8),
+			RSSHandler.class, null, null, false, null, Encoding.UTF_8, true),
 			
 	WOOTSHIRT("Woot Shirt",
 			"T-Shirts",
 			"http://shirt.woot.com/salerss.aspx",
 			"http://shirt.woot.com",
 			R.drawable.icon_wootshirt,
-			RSSHandler.class, null, null, false, null, Encoding.UTF_8),
+			RSSHandler.class, null, null, false, null, Encoding.UTF_8, false),
 	
 	WOOTWINE("Woot Wine",
 			"Wine",
 			"http://wine.woot.com/salerss.aspx",
 			"http://wine.woot.com",
 			R.drawable.icon_wootwine,
-			RSSHandler.class, null, null, false, null, Encoding.UTF_8);
+			RSSHandler.class, null, null, false, null, Encoding.UTF_8, false);
 			
 	
 	private final String name;
@@ -131,7 +131,10 @@ public enum Site {
 	
 	private final Encoding encoding;
 	
-	Site(String name, String category, String url, String site, int drawable, Class<? extends FeedHandler> handler, String affiliationKey, String affiliationValue, boolean enabledByDefault, String clickThru, Encoding encoding) {
+	private boolean forceUrl;
+	
+	Site(String name, String category, String url, String site, int drawable, Class<? extends FeedHandler> handler, String affiliationKey, String affiliationValue, 
+			boolean enabledByDefault, String clickThru, Encoding encoding, boolean forceUrl) {
 		try {
 			this.name = name;
 			this.category = category;
@@ -144,6 +147,7 @@ public enum Site {
 			this.enabledByDefault = enabledByDefault;
 			this.clickThru = clickThru == null ? null : new URL(clickThru);
 			this.encoding = encoding;
+			this.forceUrl = forceUrl;
 			
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
@@ -225,6 +229,20 @@ public enum Site {
 	 */
 	public Encoding getEncoding() {
 		return encoding;
+	}
+
+	/**
+	 * @return the forceUrl
+	 */
+	public boolean isForceUrl() {
+		return forceUrl;
+	}
+
+	/**
+	 * @param forceUrl the forceUrl to set
+	 */
+	public void setForceUrl(boolean forceUrl) {
+		this.forceUrl = forceUrl;
 	}
 
 	/**

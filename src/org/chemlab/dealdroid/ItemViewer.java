@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Activity;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -49,7 +50,8 @@ public class ItemViewer extends Activity {
 			final Database db = new Database(this);
 			try {
 				db.open();
-				webview.loadUrl(currentSite.applyAffiliation(db.getCurrentItem(currentSite).getLink()).toString());
+				final Uri uri = currentSite.isForceUrl() ? Uri.parse(currentSite.getSite().toExternalForm()) : db.getCurrentItem(currentSite).getLink();
+				webview.loadUrl(currentSite.applyAffiliation(uri).toString());
 			} finally {
 				db.close();
 			}
