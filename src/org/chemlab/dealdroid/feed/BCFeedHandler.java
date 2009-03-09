@@ -124,7 +124,7 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 
 		if (inItem && currentTag != null) {
 
-			final String chars = (new String(ch).substring(start, start + length));
+			final String chars = new String(ch).substring(start, start + length);
 						
 			if (chars.length() > 0) {
 				currentString.append(chars);

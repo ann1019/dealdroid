@@ -150,7 +150,7 @@ public enum Site {
 			this.forceUrl = forceUrl;
 			
 		} catch (MalformedURLException e) {
-			throw new RuntimeException(e);
+			throw new IllegalArgumentException(e);
 		}
 	}
 

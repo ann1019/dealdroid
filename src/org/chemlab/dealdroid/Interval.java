@@ -15,7 +15,7 @@ public enum Interval {
 
 	final int millis;
 
-	Interval(String name, int millis) {
+	Interval(final String name, final int millis) {
 		this.name = name;
 		this.millis = millis;
 	}
