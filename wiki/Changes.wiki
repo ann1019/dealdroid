@@ -1,6 +1,6 @@
 #summary DealDroid ChangeLog
 
-1.1.0 - Add new sites (Woot, ThingFling, SlickDeals), use conditional GETs and expirations, lots of code polish, nicer preferences.
+1.1.0 - Add new sites ([http://www.woot.com Woot], [http://thingfling.com ThingFling], [http://www.slickdeals.net SlickDeals]), use conditional GETs and expirations, lots of code polish, nicer preferences.
 
 1.0.2 - Cosmetic stuff, affiliation fix. (03/06/2009)
 
