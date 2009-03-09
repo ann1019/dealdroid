@@ -413,7 +413,7 @@ public class SiteChecker extends BroadcastReceiver {
 		httpClient.addResponseInterceptor(new GzipResponseInterceptor());
 	}
 	
-	private static class GzipDecompressingEntity extends HttpEntityWrapper {
+	static class GzipDecompressingEntity extends HttpEntityWrapper {
 
 		public GzipDecompressingEntity(final HttpEntity entity) {
 			super(entity);
@@ -441,7 +441,7 @@ public class SiteChecker extends BroadcastReceiver {
 
 	}
 	
-	private static class GzipRequestInterceptor implements HttpRequestInterceptor {
+	static class GzipRequestInterceptor implements HttpRequestInterceptor {
 
 		@Override
 		public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
@@ -451,7 +451,7 @@ public class SiteChecker extends BroadcastReceiver {
 		}
 	}
 	
-	private static class GzipResponseInterceptor implements HttpResponseInterceptor {
+	static class GzipResponseInterceptor implements HttpResponseInterceptor {
 
 		@Override
 		public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {

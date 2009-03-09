@@ -94,7 +94,7 @@ public class SiteContentProvider extends ContentProvider {
 
 		} catch (IOException e) {
 
-			throw new RuntimeException(e);
+			throw new IllegalStateException(e);
 
 		} finally {
 
@@ -103,7 +103,7 @@ public class SiteContentProvider extends ContentProvider {
 					writer.close();
 				}
 			} catch (IOException e) {
-				throw new RuntimeException(e);
+				throw new IllegalStateException(e);
 			}
 		}
 

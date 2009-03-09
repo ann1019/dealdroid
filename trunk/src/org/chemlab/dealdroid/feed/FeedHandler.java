@@ -12,6 +12,6 @@ import org.xml.sax.ContentHandler;
  */
 public interface FeedHandler extends ContentHandler {
 	
-	public Item getCurrentItem();
+	Item getCurrentItem();
 	
 }

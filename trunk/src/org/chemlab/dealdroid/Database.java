@@ -66,7 +66,7 @@ public class Database {
 	/**
 	 * @param context
 	 */
-	public Database(Context context) {
+	public Database(final Context context) {
 		this.dbHelper = new DatabaseHelper(context);
 	}
 
@@ -100,7 +100,7 @@ public class Database {
 	 * @param site
 	 * @return if any sites were deleted
 	 */
-	public boolean delete(Site site) {
+	public boolean delete(final Site site) {
 		checkDatabaseOpen();
 		return db.delete(STATE_TABLE, Field.ID.key() + "=?", new String[] { site.name() }) > 0;
 	}
@@ -138,7 +138,7 @@ public class Database {
 	 * @param item
 	 * @return if the state was updated
 	 */
-	public boolean updateStateIfNotCurrent(Site site, Item item) {
+	public boolean updateStateIfNotCurrent(final Site site, final Item item) {
 		checkDatabaseOpen();
 		db.beginTransaction();
 		boolean ret = false;
@@ -182,7 +182,7 @@ public class Database {
 	 * @param item
 	 * @return true if this is a new item
 	 */
-	private boolean isItemNew(Site site, Item item) {
+	private boolean isItemNew(final Site site, final Item item) {
 		checkDatabaseOpen();
 		boolean ret = false;
 		if (site != null && item != null && item.getTitle() != null) {
@@ -192,7 +192,7 @@ public class Database {
 				ret = true;
 			} else {
 				c.moveToFirst();
-				ret = !item.getTitle().equals(c.getString(1));
+				ret ^= item.getTitle().equals(c.getString(1));
 				if (ret) {
 					Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
 				}
@@ -207,7 +207,7 @@ public class Database {
 
 		private static final int DATABASE_VERSION = 3;
 		
-		public DatabaseHelper(Context context) {
+		public DatabaseHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
 
@@ -219,7 +219,7 @@ public class Database {
 		 * .sqlite.SQLiteDatabase)
 		 */
 		@Override
-		public void onCreate(SQLiteDatabase db) {
+		public void onCreate(final SQLiteDatabase db) {
 			final StringBuilder sb = new StringBuilder();
 			for (Field f : Field.values()) {
 				if (sb.length() > 0) {
@@ -240,7 +240,7 @@ public class Database {
 		 * .sqlite.SQLiteDatabase, int, int)
 		 */
 		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+		public void onUpgrade(final SQLiteDatabase db, final int oldVersion, final int newVersion) {
 			if (newVersion > oldVersion) {
 				try {
 					db.beginTransaction();
