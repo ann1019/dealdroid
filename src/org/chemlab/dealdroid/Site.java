@@ -90,7 +90,7 @@ public enum Site {
 	WOOTSELLOUT("Woot Sellout",
 			"Anything and Everything",
 			"http://sellout.woot.com/salerss.aspx",
-			"http://sellout.woot.com",
+			"http://shopping.yahoo.com/#woot",
 			R.drawable.icon_wootsellout,
 			RSSHandler.class, null, null, false, null, Encoding.UTF_8),
 			
