@@ -1,0 +1,94 @@
+<html>
+    <head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style type="text/css">
+        <!--
+		.tramdock_promo_wrapper300 {
+            border: 1px solid #ccc;
+            background: #fff url(http://content.backcountry.com/images/promos/td300x250_01.jpg) no-repeat left bottom;
+            height: 240px;
+            overflow: hidden;
+            padding-top: 10px;
+            position: relative;
+            text-align: center;
+            width: 300px;
+            color: #000;
+        } 
+		.tramdock_promo_wrapper300 * {
+            margin: 0;
+            padding: 0;
+        } 
+		.tramdock_promo_wrapper300 h2 {
+            display: none;
+        } 
+		.tramdock_promo_wrapper300 table {
+            color: #575757;
+            font: bold 13px Arial, Helvetica, sans-serif;
+            height: 90px;
+            float: right;
+            text-align: left;
+            text-transform: uppercase;
+            width: 170px;
+        } 
+		.tramdock_promo_wrapper300 table td.title {
+            vertical-align: bottom;
+            padding-bottom: 5px;
+        } 
+		.tramdock_promo_wrapper300 span.promo_p strong {
+            font-size: 16px;
+        } 
+		.tramdock_promo_wrapper300 span.savings {
+            color: #00A1C7;
+        } 
+		.tramdock_promo_wrapper300 img.product {
+            border: 0;
+            float: left;
+            margin: 15px 0 5px 5px;
+        } 
+		.tramdock_promo_wrapper300 a {
+            border: 0;
+            text-decoration: none;
+        } 
+		.tramdock_promo_wrapper300 a.button {
+            background: url(http://content.backcountry.com/images/promos/td300x250_02.gif) no-repeat;
+            display: block;
+            float: right;
+            height: 48px;
+            position: absolute;
+            right: 70px;
+            top: 125px;
+            text-indent: -10000px;
+            width: 101px;
+        }
+		.description p {
+			font-size: 11px;
+			color: #111111;
+		}
+		-->
+        </style>
+    </head>
+    <body>
+        <div class="tramdock_promo_wrapper300">
+            <h2>Tramdock</h2>
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="title">
+                        <span class="promo_p"><strong>{title}</strong></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="promo_p"><span>${price}</span>
+                            <br/>
+                            <span class="savings">{savings}% Off Savings</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <a href="{buy_url}" title="{title}"><img src="{image_url}" alt="{title}" height="100" width="100" class="product" /></a>
+            <br/>
+            <a href="{buy_url}" title="Get it" class="button">Get it</a>
+        </div>
+		<div class="description"><p>{description}</p></div>
+    </body>
+</html>
