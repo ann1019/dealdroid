@@ -190,7 +190,7 @@ public class Database {
 		checkDatabaseOpen();
 		boolean ret = false;
 		if (site != null && item != null && item.getTitle() != null) {
-			final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key() }, Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
+			final Cursor c = db.query(STATE_TABLE, new String[] { Field.ID.key(), Field.TITLE.key(), Field.EXPIRATION.key() }, Field.ID.key() + "=?", new String[] { site.name() }, null, null, null);
 			try {
 				if (c.getCount() == 0) {
 					ret = true;
@@ -199,6 +199,8 @@ public class Database {
 					ret = !item.getTitle().equals(c.getString(1));
 					if (ret) {
 						Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
+					} else if (!c.isNull(2) && item.getExpiration() != null) {
+						updateExpiration(site, c.getLong(2));
 					}
 				}
 			} finally {
@@ -208,6 +210,17 @@ public class Database {
 		return ret;
 	}
 
+	/**
+	 * @param site
+	 * @param expiration
+	 */
+	private void updateExpiration(final Site site, final long expiration) {
+		checkDatabaseOpen();
+		final ContentValues v = new ContentValues();
+		v.put(Field.EXPIRATION.key(), expiration);
+		db.update(STATE_TABLE, v, Field.ID.key() + "=?", new String[] { site.name() } );
+	}
+	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
 		private static final int DATABASE_VERSION = 3;
