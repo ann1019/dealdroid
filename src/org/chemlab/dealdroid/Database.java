@@ -196,7 +196,7 @@ public class Database {
 					ret = true;
 				} else {
 					c.moveToFirst();
-					ret ^= item.getTitle().equals(c.getString(1));
+					ret = !item.getTitle().equals(c.getString(1));
 					if (ret) {
 						Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
 					}
