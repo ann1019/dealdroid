@@ -122,9 +122,12 @@ public class SiteChecker extends BroadcastReceiver {
 	private void disableSite(final Context context, final Site site) {
 		Log.d(this.getClass().getSimpleName(), "Deleting data for site: " + site.toString());
 		final Database db = new Database(context);
-		db.open();
-		db.delete(site);
-		db.close();
+		try {
+			db.open();
+			db.delete(site);
+		} finally {
+			db.close();
+		}
 		if (getNumSitesEnabled(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) == 0) {
 			Log.d(this.getClass().getSimpleName(), "Checking for all sites disabled.  Disabling alarm..");
 			disable(context);
@@ -398,73 +401,73 @@ public class SiteChecker extends BroadcastReceiver {
 
 		}
 		
-		/**
-		 * Enables GZIP compression on the HttpClient.
-		 * 
-		 * @param httpClient
+	}
+	
+	/**
+	 * Enables GZIP compression on the HttpClient.
+	 * 
+	 * @param httpClient
+	 */
+	private static void enableCompression(final DefaultHttpClient httpClient) {
+		httpClient.addRequestInterceptor(new GzipRequestInterceptor());
+		httpClient.addResponseInterceptor(new GzipResponseInterceptor());
+	}
+	
+	private static class GzipDecompressingEntity extends HttpEntityWrapper {
+
+		public GzipDecompressingEntity(final HttpEntity entity) {
+			super(entity);
+		}
+
+		/* (non-Javadoc)
+		 * @see org.apache.http.entity.HttpEntityWrapper#getContent()
 		 */
-		private void enableCompression(final DefaultHttpClient httpClient) {
+		@Override
+		public InputStream getContent() throws IOException, IllegalStateException {
 
-			httpClient.addRequestInterceptor(new HttpRequestInterceptor() {
+			// the wrapped entity's getContent() decides about repeatability
+			final InputStream wrappedin = wrappedEntity.getContent();
+			return new GZIPInputStream(wrappedin);
+		}
 
-				public void process(final HttpRequest request, final HttpContext context) throws HttpException,
-						IOException {
-					if (!request.containsHeader("Accept-Encoding")) {
-						request.addHeader("Accept-Encoding", "gzip");
-					}
-				}
+		/* (non-Javadoc)
+		 * @see org.apache.http.entity.HttpEntityWrapper#getContentLength()
+		 */
+		@Override
+		public long getContentLength() {
+			// length of ungzipped content is not known
+			return -1;
+		}
 
-			});
+	}
+	
+	private static class GzipRequestInterceptor implements HttpRequestInterceptor {
 
-			httpClient.addResponseInterceptor(new HttpResponseInterceptor() {
+		@Override
+		public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
+			if (!request.containsHeader("Accept-Encoding")) {
+				request.addHeader("Accept-Encoding", "gzip");
+			}			
+		}
+	}
+	
+	private static class GzipResponseInterceptor implements HttpResponseInterceptor {
 
-				public void process(final HttpResponse response, final HttpContext context) throws HttpException,
-						IOException {
-					HttpEntity entity = response.getEntity();
-					if (entity != null) {
-						Header ceheader = entity.getContentEncoding();
-						if (ceheader != null) {
-							HeaderElement[] codecs = ceheader.getElements();
-							for (int i = 0; i < codecs.length; i++) {
-								if (codecs[i].getName().equalsIgnoreCase("gzip")) {
-									response.setEntity(new GzipDecompressingEntity(response.getEntity()));
-									return;
-								}
-							}
+		@Override
+		public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
+			HttpEntity entity = response.getEntity();
+			if (entity != null) {
+				Header ceheader = entity.getContentEncoding();
+				if (ceheader != null) {
+					HeaderElement[] codecs = ceheader.getElements();
+					for (int i = 0; i < codecs.length; i++) {
+						if (codecs[i].getName().equalsIgnoreCase("gzip")) {
+							response.setEntity(new GzipDecompressingEntity(response.getEntity()));
+							return;
 						}
 					}
 				}
-
-			});
+			}
 		}
-		
-		private static class GzipDecompressingEntity extends HttpEntityWrapper {
-
-			public GzipDecompressingEntity(final HttpEntity entity) {
-				super(entity);
-			}
-
-			/* (non-Javadoc)
-			 * @see org.apache.http.entity.HttpEntityWrapper#getContent()
-			 */
-			@Override
-			public InputStream getContent() throws IOException, IllegalStateException {
-
-				// the wrapped entity's getContent() decides about repeatability
-				final InputStream wrappedin = wrappedEntity.getContent();
-				return new GZIPInputStream(wrappedin);
-			}
-
-			/* (non-Javadoc)
-			 * @see org.apache.http.entity.HttpEntityWrapper#getContentLength()
-			 */
-			@Override
-			public long getContentLength() {
-				// length of ungzipped content is not known
-				return -1;
-			}
-
-		}
-
 	}
 }

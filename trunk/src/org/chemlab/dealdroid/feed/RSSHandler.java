@@ -125,7 +125,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 						break;
 					case WOOTOFF:
 						// if there is no woot-off, force an expiration
-						if (chars.toLowerCase().equals("false")) {
+						if (chars.toLowerCase(Locale.getDefault()).equals("false")) {
 							final Calendar c = Calendar.getInstance();
 							c.add(Calendar.HOUR_OF_DAY, 1);
 							currentItem.setExpiration(c.getTime());
@@ -176,7 +176,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	@Override
 	public Item getCurrentItem() {
 		final Item ret = items.size() == 0 ? null : items.get(items.lastKey());
-		if (ret.getSalePrice() == null) {
+		if (ret != null && ret.getSalePrice() == null) {
 			ret.setSalePrice(searchDescriptionForPrice(currentItem));
 		}
 		return ret;

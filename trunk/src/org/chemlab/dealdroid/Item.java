@@ -62,7 +62,9 @@ public class Item implements Cloneable {
 		this.shortDescription = shortDescription;
 		this.link = link;
 		this.imageLink = imageLink;
-		this.expiration = expiration;
+		if (expiration != null) {
+			this.expiration = (Date)expiration.clone();
+		}
 	}
 
 
@@ -81,7 +83,9 @@ public class Item implements Cloneable {
 	public Item(String title, String salePrice, String retailPrice, String savings, String description,
 			String shortDescription, Uri link, Uri imageLink, Date expiration, Date timestamp) {
 		this(title, salePrice, retailPrice, savings, description, shortDescription, link, imageLink, expiration);
-		this.timestamp = timestamp;
+		if (this.timestamp != null) {
+			this.timestamp = (Date)timestamp.clone();
+		}
 	}
 
 	/**
@@ -208,7 +212,7 @@ public class Item implements Cloneable {
 	 * @return the expiration
 	 */
 	public Date getExpiration() {
-		return expiration;
+		return expiration == null ? null : (Date)expiration.clone();
 	}
 
 	/**
@@ -216,21 +220,21 @@ public class Item implements Cloneable {
 	 *            the expiration to set
 	 */
 	public void setExpiration(Date expiration) {
-		this.expiration = expiration;
+		this.expiration = expiration == null ? null : (Date)expiration.clone();
 	}
 
 	/**
 	 * @return the timestamp
 	 */
 	public Date getTimestamp() {
-		return timestamp;
+		return timestamp == null ? null : (Date)timestamp.clone();
 	}
 
 	/**
 	 * @param timestamp the timestamp to set
 	 */
 	public void setTimestamp(Date timestamp) {
-		this.timestamp = timestamp;
+		this.timestamp = timestamp == null ? null : (Date)timestamp.clone();
 	}
 
 	/*
