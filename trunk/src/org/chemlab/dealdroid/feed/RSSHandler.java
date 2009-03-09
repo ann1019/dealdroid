@@ -6,8 +6,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.chemlab.dealdroid.Item;
 import org.xml.sax.Attributes;
@@ -40,8 +41,12 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 	private StringBuilder currentString;
 
-	private final SortedMap<Date, Item> items = new TreeMap<Date, Item>();
+	private final TreeMap<Date, Item> items = new TreeMap<Date, Item>();
 
+	private static final String PRICE_REGEX = "Price.*\\$(\\d+\\.\\d+)";
+	
+	private static final String REPLACE_HTML_REGEX = "\\<.*?\\>";
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -159,9 +164,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	public void characters(char[] ch, int start, int length) throws SAXException {
 
 		if (inItem && currentTag != null) {
-
-			final String chars = (new String(ch).substring(start, start + length));
-
+			final String chars = new String(ch).substring(start, start + length);
 			if (chars.length() > 0) {
 				currentString.append(chars);
 			}
@@ -191,14 +194,15 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 		String price = null;
 		if (item.getDescription() != null) {
 
-			final String[] cleanDesc = item.getDescription().replaceAll("\\<.*?\\>", "").split("\\n"); 
-			for (String line : cleanDesc) {
-				final String[] spp = line.split("Price:");
-				if (spp.length == 2) {
-					final String[] sp = spp[1].split("\\$");
+			final String cleanDesc = item.getDescription().replaceAll(REPLACE_HTML_REGEX, "");
+			if (cleanDesc != null) {
+				final Pattern p = Pattern.compile(PRICE_REGEX, Pattern.MULTILINE);
+				final Matcher m = p.matcher(cleanDesc);
+				if (m.find()) {
+					final String spp = m.group().trim();
+					final String[] sp = spp.split("\\$");
 					if (sp.length == 2) {
 						price = sp[1];
-						break;
 					}
 				}
 			}
@@ -206,4 +210,5 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 		
 		return price;
 	}
+	
 }
