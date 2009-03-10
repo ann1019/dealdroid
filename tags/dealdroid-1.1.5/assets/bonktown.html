@@ -1,0 +1,98 @@
+<html>
+    <head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style type="text/css">
+        <!-- 
+		.bonktown_promo_wrapper300 {
+            border: 1px solid #ccc;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+            text-align: center;
+            width: 300px;
+            color: #000;
+            background: #fff url(http://content.backcountry.com/images/promos/bt300x250_03.gif) bottom left repeat-x;
+        } 
+		.bonktown_promo_wrapper300 * {
+            margin: 0;
+            padding: 0;
+        } 
+		.bonktown_promo_wrapper300 span.promo_h2 {
+            display: block;
+            background: url(http://content.backcountry.com/images/promos/bt300x250_01.jpg) no-repeat;
+            height: 80px;
+            text-indent: -10000px;
+        } 
+		.bonktown_promo_wrapper300 table {
+            font: bold 12px arial, sans-serif;
+            height: 90px;
+            float: right;
+            position: relative;
+            top: -10px;
+            text-align: left;
+            text-transform: uppercase;
+            width: 185px;
+        } 
+		.bonktown_promo_wrapper300 table td.title {
+        } 
+		.bonktown_promo_wrapper300 span.promo_p strong {
+            font-size: 14px;
+        } 
+		.bonktown_promo_wrapper300 .promo_price {
+            color: #00668C;
+            font-size: 16px;
+            line-height: 1.5em;
+        } 
+		.bonktown_promo_wrapper300 span.savings {
+            color: #000;
+            font-size: 11px;
+        } 
+		.bonktown_promo_wrapper300 img.product {
+            border: 0;
+            float: left;
+            margin: 0 0 20px 5px;
+        } 
+		.bonktown_promo_wrapper300 a {
+            border: 0;
+            text-decoration: none;
+        } 
+		.bonktown_promo_wrapper300 a.button {
+            background: url(http://content.backcountry.com/images/promos/bt300x250_02.gif) no-repeat;
+            display: block;
+            float: left;
+            height: 38px;
+            text-indent: -10000px;
+            width: 134px;
+        }
+		.description p {
+			font-size: 11px;
+			color: #111111;
+		}
+        -->
+        </style>
+    </head>
+    <body>
+        <div class="bonktown_promo_wrapper300">
+            <span class="promo_h2">bonktown</span>
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="title">
+                        <span class="promo_p"><strong>{title}</strong></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="promo_p"><span class="promo_price">${price}</span>
+                            <br/>
+                            <span class="savings">{savings} %Off Savings</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <a href="{buy_url}" title="{title}" target="_blank"><img src="{image_url}" alt="{title}" height="100" width="100" class="product" /></a>
+            <br/>
+            <a href="{buy_url}" title="Get it" class="button" target="_blank">Get it</a>
+        </div>
+		<div class="description"><p>{description}</p></div>
+    </body>
+</html>
