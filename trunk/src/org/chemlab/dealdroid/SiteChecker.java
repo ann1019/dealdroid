@@ -151,10 +151,11 @@ public class SiteChecker extends BroadcastReceiver {
 					if (isEnabled(prefs, site)) {
 						final Item oldItem = db.getCurrentItem(site);
 						if (oldItem != null && oldItem.getExpiration() != null && oldItem.getExpiration().after(new Date())) {
-							Log.d(this.getClass().getSimpleName(), "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().toString());
+							Log.d(this.getClass().getSimpleName(), "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().getTime());
 						} else {
 							final Thread checker = new SiteCheckerThread(context, site, oldItem);
 							checker.setDaemon(true);
+							checker.setName("DealDroid-" + site.name());
 							checker.start();
 						}
 					}
