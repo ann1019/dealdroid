@@ -199,8 +199,8 @@ public class Database {
 					ret = !item.getTitle().equals(c.getString(1));
 					if (ret) {
 						Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
-					} else if (!c.isNull(2) && item.getExpiration() != null) {
-						updateExpiration(site, c.getLong(2));
+					} else if (item.getExpiration() != null) {
+						updateExpiration(site, item.getExpiration().getTime());
 					}
 				}
 			} finally {
@@ -219,6 +219,7 @@ public class Database {
 		final ContentValues v = new ContentValues();
 		v.put(Field.EXPIRATION.key(), expiration);
 		db.update(STATE_TABLE, v, Field.ID.key() + "=?", new String[] { site.name() } );
+		Log.d(this.getClass().getSimpleName(), "Updated expiration for " + site.name() + " to " + new Date(expiration).toString());
 	}
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
