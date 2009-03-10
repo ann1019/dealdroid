@@ -23,6 +23,8 @@ public class ItemViewer extends Activity {
 
 	private WebView webview;
 	
+	private final String LOG_TAG = this.getClass().getSimpleName();
+	
 	private final List<Integer> keyBuffer = new ArrayList<Integer>(4);
 	
 	/*
@@ -75,7 +77,7 @@ public class ItemViewer extends Activity {
 				}
 			}
 		} catch (IOException e) {
-			Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
+			Log.e(LOG_TAG, e.getMessage(), e);
 		}
 		return ret;
 	}
