@@ -26,6 +26,8 @@ import android.util.Log;
  */
 public class SiteContentProvider extends ContentProvider {
 
+	private final String LOG_TAG = this.getClass().getSimpleName();
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -204,14 +206,14 @@ public class SiteContentProvider extends ContentProvider {
 
 		} catch (IOException e) {
 
-			Log.e(this.getClass().getName(), e.getMessage(), e);
+			Log.e(LOG_TAG, e.getMessage(), e);
 
 		} finally {
 			if (reader != null) {
 				try {
 					reader.close();
 				} catch (IOException ex) {
-					Log.e(this.getClass().getSimpleName(), ex.getMessage(), ex);
+					Log.e(LOG_TAG, ex.getMessage(), ex);
 				}
 			}
 		}

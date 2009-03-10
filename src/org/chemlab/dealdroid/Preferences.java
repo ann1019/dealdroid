@@ -46,6 +46,8 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	
 	private PreferenceScreen preferenceScreen;
 
+	private final String LOG_TAG = this.getClass().getSimpleName();
+	
 	/* (non-Javadoc)
 	 * @see android.preference.PreferenceActivity#onCreate(android.os.Bundle)
 	 */
@@ -91,7 +93,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
 		
-		Log.d(this.getClass().getSimpleName(), "Pref changed: " + key);
+		Log.d(LOG_TAG, "Pref changed: " + key);
 		
 		// If a site is toggled, just check right away
 		if (key != null) {

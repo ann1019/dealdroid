@@ -58,7 +58,9 @@ public class Database {
 	private static final String DATABASE_NAME = "dealdroid.db";
 
 	private static final String STATE_TABLE = "dealdroid_state";
-
+	
+	private final String LOG_TAG = this.getClass().getSimpleName();
+	
 	private final DatabaseHelper dbHelper;
 
 	private SQLiteDatabase db = null;
@@ -198,7 +200,7 @@ public class Database {
 					c.moveToFirst();
 					ret = !item.getTitle().equals(c.getString(1));
 					if (ret) {
-						Log.d(this.getClass().getSimpleName(), "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
+						Log.d(LOG_TAG, "New item found!  Old: [" + c.getString(1) + "], New: [" + item.getTitle() + "]");
 					} else if (item.getExpiration() != null) {
 						updateExpiration(site, item.getExpiration().getTime());
 					}
@@ -219,12 +221,14 @@ public class Database {
 		final ContentValues v = new ContentValues();
 		v.put(Field.EXPIRATION.key(), expiration);
 		db.update(STATE_TABLE, v, Field.ID.key() + "=?", new String[] { site.name() } );
-		Log.d(this.getClass().getSimpleName(), "Updated expiration for " + site.name() + " to " + new Date(expiration).toString());
+		Log.d(LOG_TAG, "Updated expiration for " + site.name() + " to " + new Date(expiration).toString());
 	}
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
 		private static final int DATABASE_VERSION = 3;
+		
+		private final String LOG_TAG = this.getClass().getSimpleName();
 		
 		public DatabaseHelper(final Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -264,7 +268,7 @@ public class Database {
 				try {
 					db.beginTransaction();
 				
-					Log.i(this.getClass().getSimpleName(), "Upgrading database from version " + oldVersion + " to " + newVersion + "..");
+					Log.i(LOG_TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + "..");
 					db.execSQL("DROP TABLE " + STATE_TABLE);
 					onCreate(db);
 					db.setTransactionSuccessful();

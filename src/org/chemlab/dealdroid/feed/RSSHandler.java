@@ -28,6 +28,8 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 		TITLE, LINK, DESCRIPTION, PRICE, PUBDATE, IMAGE_LINK, SHORT_DESCRIPTION, WOOTOFF;
 	}
 
+	private final String LOG_TAG = this.getClass().getSimpleName();
+	
 	private boolean inItem = false;
 
 	private ItemTag currentTag = null;
@@ -135,7 +137,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 						} catch (ParseException e) {
 
 							// BC likes to just send "MDT" sometimes as the pubDate
-							Log.e(this.getClass().getSimpleName(), "[data: " + chars + "] " + e.getMessage(), e);
+							Log.e(LOG_TAG, "[data: " + chars + "] " + e.getMessage(), e);
 						}
 						break;
 					}

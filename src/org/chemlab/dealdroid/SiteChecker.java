@@ -72,6 +72,8 @@ public class SiteChecker extends BroadcastReceiver {
 
 	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
 
+	private final String LOG_TAG = this.getClass().getSimpleName();
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -118,7 +120,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param site
 	 */
 	private void disableSite(final Context context, final Site site) {
-		Log.d(this.getClass().getSimpleName(), "Deleting data for site: " + site.toString());
+		Log.d(LOG_TAG, "Deleting data for site: " + site.name());
 		final Database db = new Database(context);
 		try {
 			db.open();
@@ -127,7 +129,7 @@ public class SiteChecker extends BroadcastReceiver {
 			db.close();
 		}
 		if (getNumSitesEnabled(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) == 0) {
-			Log.d(this.getClass().getSimpleName(), "Checking for all sites disabled.  Disabling alarm..");
+			Log.d(LOG_TAG, "Checking for all sites disabled.  Disabling alarm..");
 			disable(context);
 		}
 	}
@@ -151,7 +153,7 @@ public class SiteChecker extends BroadcastReceiver {
 					if (isEnabled(prefs, site)) {
 						final Item oldItem = db.getCurrentItem(site);
 						if (oldItem != null && oldItem.getExpiration() != null && oldItem.getExpiration().after(new Date())) {
-							Log.d(this.getClass().getSimpleName(), "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().getTime());
+							Log.d(LOG_TAG, "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().getTime());
 						} else {
 							final Thread checker = new SiteCheckerThread(context, site, oldItem);
 							checker.setDaemon(true);
@@ -173,14 +175,14 @@ public class SiteChecker extends BroadcastReceiver {
 		
 		final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 		if (getNumSitesEnabled(prefs) > 0) {
-			Log.i(this.getClass().getSimpleName(), "Starting DealDroid updater..");
+			Log.i(LOG_TAG, "Starting DealDroid updater..");
 
 			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.name));
 		
 			final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
 			getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
 		} else {
-			Log.i(this.getClass().getSimpleName(), "Not starting updater (no sites enabled)");
+			Log.i(LOG_TAG, "Not starting updater (no sites enabled)");
 		}
 	}
 
@@ -188,7 +190,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param context
 	 */
 	private synchronized void disable(final Context context) {
-		Log.i(this.getClass().getSimpleName(), "Stopping DealDroid updater..");
+		Log.i(LOG_TAG, "Stopping DealDroid updater..");
 		getAlarmManager(context).cancel(getSiteCheckerIntent(context));
 	}
 
@@ -231,6 +233,8 @@ public class SiteChecker extends BroadcastReceiver {
 		
 		private final Site site;
 		private final Item oldItem;
+		
+		private final String LOG_TAG = this.getClass().getSimpleName();
 		
 		SiteCheckerThread(final Context context, final Site site, final Item oldItem) {
 			this.context = context;
@@ -275,7 +279,7 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private void checkSites() {
 
-			Log.d(this.getClass().getSimpleName(), "Handling " + site);
+			Log.d(LOG_TAG, "Handling " + site);
 
 			try {
 
@@ -306,12 +310,12 @@ public class SiteChecker extends BroadcastReceiver {
 					notify(site, handler.getCurrentItem());
 
 				} else {
-					Log.e(this.getClass().getSimpleName(), "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
+					Log.e(LOG_TAG, "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
 				}
 
 			} catch (Throwable e) {
 
-				Log.e(this.getClass().getSimpleName(), e.getMessage(), e);
+				Log.e(LOG_TAG, e.getMessage(), e);
 			}
 
 		}
@@ -326,17 +330,17 @@ public class SiteChecker extends BroadcastReceiver {
 
 				if (database.updateStateIfNotCurrent(site, item)) {
 
-					Log.i(this.getClass().getSimpleName(), "Creating new notification for " + site.name());
+					Log.i(LOG_TAG, "Creating new notification for " + site.name());
 					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
 							createNotification(site, item));
 
 				} else {
-					Log.d(this.getClass().getSimpleName(), "Not creating notification.");
+					Log.d(LOG_TAG, "Not creating notification.");
 				}
 			} else if (item == null) {
-				Log.e(this.getClass().getName(), "Item was null!");
+				Log.e(LOG_TAG, "Item was null!");
 			} else {
-				Log.e(this.getClass().getName(), "Incomplete item object, not notifying.");
+				Log.e(LOG_TAG, "Incomplete item object, not notifying.");
 			}
 		}
 
