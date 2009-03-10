@@ -18,7 +18,29 @@ import android.net.Uri;
 public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 
 	private enum ItemTag {
-		TITLE, LINK, DESCRIPTION, RETAIL_PRICE, SALE_PRICE, IMAGE_LINK;
+		TITLE("product_name"), 
+		LINK("buy_url"), 
+		DESCRIPTION("long_description"), 
+		RETAIL_PRICE("retail_price"), 
+		SALE_PRICE("sale_price"), 
+		IMAGE_LINK("small_image_url");
+		
+		final String[] tags;
+
+		ItemTag(String... tags) {
+			this.tags = tags;
+		}
+
+		public boolean matches(final String text) {
+			boolean ret = false;
+			for (String tag : tags) {
+				if (tag.equals(text)) {
+					ret = true;
+					break;
+				}
+			}
+			return ret;
+		}
 	}
 	
 	private boolean inItem = false;
@@ -43,21 +65,18 @@ public class BCFeedHandler extends DefaultHandler implements FeedHandler {
 		final String tag = localName.trim().toLowerCase(Locale.getDefault());
 		
 		if (tag.equals("product")) {
+			
 			inItem = true;
-		} else if (tag.equals("product_name")) {
-			currentTag = ItemTag.TITLE;
-		} else if (tag.equals("buy_url")) {
-			currentTag = ItemTag.LINK;
-		} else if (tag.equals("long_description")) {
-			currentTag = ItemTag.DESCRIPTION;
-		} else if (tag.equals("retail_price")) {
-			currentTag = ItemTag.RETAIL_PRICE;
-		} else if (tag.equals("sale_price")) {
-			currentTag = ItemTag.SALE_PRICE;
-		} else if (tag.equals("small_image_url")) {
-			currentTag = ItemTag.IMAGE_LINK;
+			
 		} else {
+			
 			currentTag = null;
+			for (ItemTag itemTag : ItemTag.values()) {
+				if (itemTag.matches(tag)) {
+					currentTag = itemTag;
+					break;
+				}
+			}
 		}
 
 	}
