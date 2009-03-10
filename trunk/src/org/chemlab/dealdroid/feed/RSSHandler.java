@@ -25,7 +25,32 @@ import android.util.Log;
 public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 	private enum ItemTag {
-		TITLE, LINK, DESCRIPTION, PRICE, PUBDATE, IMAGE_LINK, SHORT_DESCRIPTION, WOOTOFF;
+		
+		TITLE("title"), 
+		LINK("link"), 
+		DESCRIPTION("description"), 
+		PRICE("price"), 
+		PUBDATE("pubdate"), 
+		IMAGE_LINK("thumbnailimage"), 
+		SHORT_DESCRIPTION("subtitle"), 
+		WOOTOFF("wootoff");
+		
+		final String[] tags;
+
+		ItemTag(String... tags) {
+			this.tags = tags;
+		}
+
+		public boolean matches(final String text) {
+			boolean ret = false;
+			for (String tag : tags) {
+				if (tag.equals(text)) {
+					ret = true;
+					break;
+				}
+			}
+			return ret;
+		}
 	}
 
 	private final String LOG_TAG = this.getClass().getSimpleName();
@@ -56,28 +81,20 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 		final String tag = localName.trim().toLowerCase(Locale.getDefault());
 		
 		if (tag.equals("item")) {
+			
 			inItem = true;
 			currentItem = new Item();
-		} else if (tag.equals("title")) {
-			currentTag = ItemTag.TITLE;
-		} else if (tag.equals("link")) {
-			currentTag = ItemTag.LINK;
-		} else if (tag.equals("description")) {
-			currentTag = ItemTag.DESCRIPTION;
-		} else if (tag.equals("price")) {
-			currentTag = ItemTag.PRICE;
-		} else if (tag.equals("pubdate")) {
-			currentTag = ItemTag.PUBDATE;
-		} else if (tag.equals("thumnailimage")) {
-			currentTag = ItemTag.IMAGE_LINK;
-		} else if (tag.equals("subtitle")) {
-			currentTag = ItemTag.SHORT_DESCRIPTION;
-		} else if (tag.equals("wootoff")) {
-			currentTag = ItemTag.WOOTOFF;
+			
 		} else {
+			
 			currentTag = null;
+			for (ItemTag itemTag : ItemTag.values()) {
+				if (itemTag.matches(tag)) {
+					currentTag = itemTag;
+					break;
+				}
+			}
 		}
-
 	}
 
 	/*
