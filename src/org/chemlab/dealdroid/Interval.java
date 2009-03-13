@@ -11,9 +11,9 @@ public enum Interval {
 	I_5_MINUTES("5 Minutes", 300000), 
 	I_10_MINUTES("10 Minutes", 60000);
 
-	final String name;
+	private final String name;
 
-	final int millis;
+	private final int millis;
 
 	Interval(final String name, final int millis) {
 		this.name = name;

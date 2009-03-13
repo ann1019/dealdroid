@@ -1,6 +1,13 @@
 package org.chemlab.dealdroid;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
+import static org.chemlab.dealdroid.Intents.BOOT_INTENT;
+import static org.chemlab.dealdroid.Intents.DEALDROID_DISABLE;
+import static org.chemlab.dealdroid.Intents.DEALDROID_ENABLE;
+import static org.chemlab.dealdroid.Intents.DEALDROID_RESTART;
+import static org.chemlab.dealdroid.Intents.DEALDROID_START;
+import static org.chemlab.dealdroid.Intents.DEALDROID_STOP;
+import static org.chemlab.dealdroid.Intents.DEALDROID_UPDATE;
 import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
 import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
@@ -10,25 +17,14 @@ import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
 import static org.chemlab.dealdroid.Preferences.getNumSitesEnabled;
 import static org.chemlab.dealdroid.Preferences.isEnabled;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
-import java.util.zip.GZIPInputStream;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpException;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpRequestInterceptor;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.AllClientPNames;
-import org.apache.http.entity.HttpEntityWrapper;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HttpContext;
 import org.chemlab.dealdroid.feed.FeedHandler;
 
 import android.app.AlarmManager;
@@ -58,20 +54,6 @@ import android.util.Xml;
  */
 public class SiteChecker extends BroadcastReceiver {
 
-	public static final String BOOT_INTENT = "android.intent.action.BOOT_COMPLETED";
-
-	public static final String DEALDROID_START = "org.chemlab.dealdroid.DEALDROID_START";
-
-	public static final String DEALDROID_STOP = "org.chemlab.dealdroid.DEALDROID_STOP";
-
-	public static final String DEALDROID_RESTART = "org.chemlab.dealdroid.DEALDROID_RESTART";
-
-	public static final String DEALDROID_UPDATE = "org.chemlab.dealdroid.DEALDROID_UPDATE";
-
-	public static final String DEALDROID_ENABLE = "org.chemlab.dealdroid.DEALDROID_ENABLE";
-
-	public static final String DEALDROID_DISABLE = "org.chemlab.dealdroid.DEALDROID_DISABLE";
-
 	private final String LOG_TAG = this.getClass().getSimpleName();
 	
 	/*
@@ -82,7 +64,7 @@ public class SiteChecker extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
-		if (DEALDROID_ENABLE.equals(intent.getAction())) {
+		if (DEALDROID_ENABLE.getAction().equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 			
 			if (site != null) {
@@ -93,24 +75,24 @@ public class SiteChecker extends BroadcastReceiver {
 				}
 			}
 
-		} else if (DEALDROID_DISABLE.equals(intent.getAction())) {
+		} else if (DEALDROID_DISABLE.getAction().equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 			if (site != null) {
 				disableSite(context, site);
 			}
 
-		} else if (BOOT_INTENT.equals(intent.getAction()) || DEALDROID_START.equals(intent.getAction())) {
+		} else if (BOOT_INTENT.getAction().equals(intent.getAction()) || DEALDROID_START.getAction().equals(intent.getAction())) {
 			disable(context);
 			enable(context);
 
-		} else if (DEALDROID_STOP.equals(intent.getAction())) {
+		} else if (DEALDROID_STOP.getAction().equals(intent.getAction())) {
 			disable(context);
 
-		} else if (DEALDROID_RESTART.equals(intent.getAction())) {
+		} else if (DEALDROID_RESTART.getAction().equals(intent.getAction())) {
 			disable(context);
 			enable(context);
 
-		} else if (DEALDROID_UPDATE.equals(intent.getAction())) {
+		} else if (DEALDROID_UPDATE.getAction().equals(intent.getAction())) {
 			checkSites(context, Site.values());
 		}
 
@@ -177,7 +159,7 @@ public class SiteChecker extends BroadcastReceiver {
 		if (getNumSitesEnabled(prefs) > 0) {
 			Log.i(LOG_TAG, "Starting DealDroid updater..");
 
-			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.name));
+			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.getName()));
 		
 			final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
 			getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
@@ -207,7 +189,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @return
 	 */
 	private static PendingIntent getSiteCheckerIntent(final Context context) {
-		return PendingIntent.getBroadcast(context, 0, new Intent(SiteChecker.DEALDROID_UPDATE), 0);
+		return PendingIntent.getBroadcast(context, 0, new Intent(DEALDROID_UPDATE.getAction()), 0);
 	}
 
 	/**
@@ -244,7 +226,8 @@ public class SiteChecker extends BroadcastReceiver {
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 10000);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 10000);
-			enableCompression(httpClient);
+			
+			HttpClientGzipSupport.enableCompression(httpClient);
 			
 			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 			this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
@@ -404,77 +387,6 @@ public class SiteChecker extends BroadcastReceiver {
 		
 	}
 	
-	/**
-	 * Enables GZIP compression on the HttpClient.
-	 * 
-	 * @param httpClient
-	 */
-	private static void enableCompression(final DefaultHttpClient httpClient) {
-		httpClient.addRequestInterceptor(new GzipRequestInterceptor());
-		httpClient.addResponseInterceptor(new GzipResponseInterceptor());
-	}
 	
-	static class GzipDecompressingEntity extends HttpEntityWrapper {
-
-		public GzipDecompressingEntity(final HttpEntity entity) {
-			super(entity);
-		}
-
-		/* (non-Javadoc)
-		 * @see org.apache.http.entity.HttpEntityWrapper#getContent()
-		 */
-		@Override
-		public InputStream getContent() throws IOException, IllegalStateException {
-
-			// the wrapped entity's getContent() decides about repeatability
-			final InputStream wrappedin = wrappedEntity.getContent();
-			return new GZIPInputStream(wrappedin);
-		}
-
-		/* (non-Javadoc)
-		 * @see org.apache.http.entity.HttpEntityWrapper#getContentLength()
-		 */
-		@Override
-		public long getContentLength() {
-			// length of ungzipped content is not known
-			return -1;
-		}
-
-	}
 	
-	static class GzipRequestInterceptor implements HttpRequestInterceptor {
-
-		/* (non-Javadoc)
-		 * @see org.apache.http.HttpRequestInterceptor#process(org.apache.http.HttpRequest, org.apache.http.protocol.HttpContext)
-		 */
-		@Override
-		public void process(HttpRequest request, HttpContext context) throws HttpException, IOException {
-			if (!request.containsHeader("Accept-Encoding")) {
-				request.addHeader("Accept-Encoding", "gzip");
-			}			
-		}
-	}
-	
-	static class GzipResponseInterceptor implements HttpResponseInterceptor {
-
-		/* (non-Javadoc)
-		 * @see org.apache.http.HttpResponseInterceptor#process(org.apache.http.HttpResponse, org.apache.http.protocol.HttpContext)
-		 */
-		@Override
-		public void process(HttpResponse response, HttpContext context) throws HttpException, IOException {
-			HttpEntity entity = response.getEntity();
-			if (entity != null) {
-				Header ceheader = entity.getContentEncoding();
-				if (ceheader != null) {
-					HeaderElement[] codecs = ceheader.getElements();
-					for (int i = 0; i < codecs.length; i++) {
-						if (codecs[i].getName().equalsIgnoreCase("gzip")) {
-							response.setEntity(new GzipDecompressingEntity(response.getEntity()));
-							return;
-						}
-					}
-				}
-			}
-		}
-	}
 }
