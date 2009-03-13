@@ -1,9 +1,9 @@
 package org.chemlab.dealdroid;
 
-import static org.chemlab.dealdroid.SiteChecker.DEALDROID_DISABLE;
-import static org.chemlab.dealdroid.SiteChecker.DEALDROID_ENABLE;
-import static org.chemlab.dealdroid.SiteChecker.DEALDROID_RESTART;
-import static org.chemlab.dealdroid.SiteChecker.DEALDROID_START;
+import static org.chemlab.dealdroid.Intents.DEALDROID_DISABLE;
+import static org.chemlab.dealdroid.Intents.DEALDROID_ENABLE;
+import static org.chemlab.dealdroid.Intents.DEALDROID_RESTART;
+import static org.chemlab.dealdroid.Intents.DEALDROID_START;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +61,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		}
 		
 		if (savedInstanceState == null) {
-			final Intent si = new Intent(DEALDROID_START);
+			final Intent si = new Intent(DEALDROID_START.getIntent());
 			sendBroadcast(si);
 		}
 		
@@ -102,20 +102,13 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 				
 				final Site site = Site.valueOf(key.substring(ENABLED.length()));
 				
-				final String intent;
-				if (sharedPreferences.getBoolean(key, false)) {
-					intent = DEALDROID_ENABLE;
-				} else {
-					intent = DEALDROID_DISABLE;
-				}
+				final Intent intent = sharedPreferences.getBoolean(key, false) ? DEALDROID_ENABLE.getIntent() : DEALDROID_DISABLE.getIntent();
+				intent.putExtra("site", site.toString());
 				
-				final Intent update = new Intent(intent);
-				update.putExtra("site", site.toString());
-				
-				sendBroadcast(update);
+				sendBroadcast(intent);
 				
 			} else if (key.equals(KEEP_AWAKE) || key.equals(CHECK_INTERVAL)) {
-				final Intent reschedule = new Intent(DEALDROID_RESTART);
+				final Intent reschedule = DEALDROID_RESTART.getIntent();
 				sendBroadcast(reschedule);
 			}
 		}
