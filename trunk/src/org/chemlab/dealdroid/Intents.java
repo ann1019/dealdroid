@@ -3,6 +3,8 @@ package org.chemlab.dealdroid;
 import android.content.Intent;
 
 /**
+ * The various intents used by the application.
+ * 
  * @author shade
  * @version $Id$
  */
