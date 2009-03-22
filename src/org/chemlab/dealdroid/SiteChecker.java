@@ -339,7 +339,14 @@ public class SiteChecker extends BroadcastReceiver {
 
 			final Uri link = site.applyAffiliation(item.getLink());
 			
-			final Intent i = new Intent(context, ItemViewer.class);
+			final Intent i;
+			
+			// Use the built-in ItemViewer if we have a template for it..
+			if (Utils.hasSiteAsset(context, site)) {
+				i = new Intent(context, ItemViewer.class);
+			} else {
+				i = new Intent(Intent.ACTION_VIEW);
+			}
 			i.setData(link);
 			i.putExtra("site", site.name());
 			

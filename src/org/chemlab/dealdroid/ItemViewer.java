@@ -1,14 +1,11 @@
 package org.chemlab.dealdroid;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.webkit.WebView;
 
@@ -22,9 +19,7 @@ import android.webkit.WebView;
 public class ItemViewer extends Activity {
 
 	private WebView webview;
-	
-	private final String LOG_TAG = this.getClass().getSimpleName();
-	
+		
 	private final List<Integer> keyBuffer = new ArrayList<Integer>(4);
 	
 	/*
@@ -44,7 +39,7 @@ public class ItemViewer extends Activity {
 		
 		// If we have a custom asset for the site, use it.  Otherwise just go to the page.
 		// Sorry, I am not doing custom assets unless there is an affiliation.
-		if (hasSiteAsset(site)) {
+		if (Utils.hasSiteAsset(this, site)) {
 			webview.loadUrl("content://org.chemlab.dealdroid/" + site.name());
 		} else {
 			
@@ -60,28 +55,6 @@ public class ItemViewer extends Activity {
 
 	}
 
-	/**
-	 * Do we have a custom template for the site preview?
-	 * 
-	 * @param site
-	 * @return
-	 */
-	private boolean hasSiteAsset(final Site site) {
-		boolean ret = false;
-		final String siteAsset = site.name().toLowerCase(Locale.getDefault()) + ".html";
-		try {
-			for (String asset : this.getAssets().list("")) {
-				if (siteAsset.equals(asset)) {
-					ret = true;
-					break;
-				}
-			}
-		} catch (IOException e) {
-			Log.e(LOG_TAG, e.getMessage(), e);
-		}
-		return ret;
-	}
-	
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onKeyDown(int, android.view.KeyEvent)
 	 */
