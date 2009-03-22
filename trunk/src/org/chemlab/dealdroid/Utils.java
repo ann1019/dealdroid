@@ -1,18 +1,25 @@
 package org.chemlab.dealdroid;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import android.content.Context;
+import android.util.Log;
 
 /**
  * @author shade
  * @version $Id$
  */
 public class Utils {
-
+	
+	private static final String LOG_TAG = "DealDroidUtils";
+	
 	private static final String RFC822_DATE_FORMAT = "EEE, d MMM yyyy HH:mm:ss Z";
 
 	private static final String PRICE_REGEX = "Price.*\\$(\\d+\\.\\d+)";
@@ -65,5 +72,27 @@ public class Utils {
 		}
 
 		return price;
+	}
+	
+	/**
+	 * Do we have a custom template for the site preview?
+	 * 
+	 * @param site
+	 * @return
+	 */
+	public static boolean hasSiteAsset(final Context context, final Site site) {
+		boolean ret = false;
+		final String siteAsset = site.name().toLowerCase(Locale.getDefault()) + ".html";
+		try {
+			for (String asset : context.getAssets().list("")) {
+				if (siteAsset.equals(asset)) {
+					ret = true;
+					break;
+				}
+			}
+		} catch (IOException e) {
+			Log.e(LOG_TAG, e.getMessage(), e);
+		}
+		return ret;
 	}
 }
