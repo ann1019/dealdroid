@@ -19,6 +19,8 @@ import static org.chemlab.dealdroid.Preferences.isEnabled;
 
 import java.io.InputStream;
 import java.util.Date;
+import java.util.EnumMap;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -45,8 +47,8 @@ import android.util.Xml;
 
 /**
  * BroadcastReceiver that deals with various Intents, such as updating sites,
- * managing the alarms.  The actual checkers will run in separate threads, and
- * take care of acquiring WakeLocks while running.  Notifications are sent when
+ * managing the alarms. The actual checkers will run in separate threads, and
+ * take care of acquiring WakeLocks while running. Notifications are sent when
  * new items appear, and clicking on these notifications launches an ItemViewer.
  * 
  * @author shade
@@ -55,18 +57,19 @@ import android.util.Xml;
 public class SiteChecker extends BroadcastReceiver {
 
 	private final String LOG_TAG = this.getClass().getSimpleName();
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context, android.content.Intent)
+	 * @see android.content.BroadcastReceiver#onReceive(android.content.Context,
+	 * android.content.Intent)
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
 
 		if (DEALDROID_ENABLE.getAction().equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
-			
+
 			if (site != null) {
 				if (getNumSitesEnabled(context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) == 1) {
 					enable(context);
@@ -81,7 +84,8 @@ public class SiteChecker extends BroadcastReceiver {
 				disableSite(context, site);
 			}
 
-		} else if (BOOT_INTENT.getAction().equals(intent.getAction()) || DEALDROID_START.getAction().equals(intent.getAction())) {
+		} else if (BOOT_INTENT.getAction().equals(intent.getAction())
+				|| DEALDROID_START.getAction().equals(intent.getAction())) {
 			disable(context);
 			enable(context);
 
@@ -128,24 +132,29 @@ public class SiteChecker extends BroadcastReceiver {
 
 		if (info != null && info.isAvailable()) {
 			final Database db = new Database(context);
+			final Map<Site, Item> sitesToCheck = new EnumMap<Site, Item>(Site.class);
+
 			try {
 				db.open();
 				final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 				for (Site site : sites) {
 					if (isEnabled(prefs, site)) {
 						final Item oldItem = db.getCurrentItem(site);
-						if (oldItem != null && oldItem.getExpiration() != null && oldItem.getExpiration().after(new Date())) {
+						if (oldItem == null || oldItem.getExpiration() == null || oldItem.getExpiration().before(new Date())) {
 							Log.d(LOG_TAG, "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().getTime() + ")");
 						} else {
-							final Thread checker = new SiteCheckerThread(context, site, oldItem);
-							checker.setDaemon(true);
-							checker.setName("DealDroid-" + site.name());
-							checker.start();
+							sitesToCheck.put(site, oldItem);
+
 						}
 					}
 				}
 			} finally {
 				db.close();
+			}
+			if (sitesToCheck.size() > 0) {
+				final Thread checker = new SiteCheckerThread(context, sitesToCheck);
+				checker.setDaemon(true);
+				checker.start();
 			}
 		}
 	}
@@ -154,13 +163,13 @@ public class SiteChecker extends BroadcastReceiver {
 	 * @param context
 	 */
 	private synchronized void enable(final Context context) {
-		
+
 		final SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 		if (getNumSitesEnabled(prefs) > 0) {
 			Log.i(LOG_TAG, "Starting DealDroid updater..");
 
 			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.getName()));
-		
+
 			final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
 			getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
 		} else {
@@ -212,23 +221,21 @@ public class SiteChecker extends BroadcastReceiver {
 		private final SharedPreferences preferences;
 		private final WakeLock wakeLock;
 		private final DefaultHttpClient httpClient = new DefaultHttpClient();
-		
-		private final Site site;
-		private final Item oldItem;
-		
+
+		private final Map<Site, Item> sitesToCheck;
+
 		private final String LOG_TAG = this.getClass().getSimpleName();
-		
-		SiteCheckerThread(final Context context, final Site site, final Item oldItem) {
+
+		SiteCheckerThread(final Context context, final Map<Site, Item> sitesToCheck) {
 			this.context = context;
-			this.site = site;
-			this.oldItem = oldItem;
+			this.sitesToCheck = sitesToCheck;
 			this.database = new Database(context);
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 10000);
-			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 10000);
-			
+			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 5000);
+			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 5000);
+
 			HttpClientGzipSupport.enableCompression(httpClient);
-			
+
 			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 			this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");
 		}
@@ -262,43 +269,49 @@ public class SiteChecker extends BroadcastReceiver {
 		 */
 		private void checkSites() {
 
-			Log.d(LOG_TAG, "Handling " + site);
+			Log.d(LOG_TAG, "Updating sites: " + sitesToCheck.keySet().toString());
+			
+			for (Map.Entry<Site, Item> entry : sitesToCheck.entrySet()) {
 
-			try {
+				final Site site = entry.getKey();
+				final Item oldItem = entry.getValue();
 
-				final HttpGet req = new HttpGet(site.getUrl().toURI());
-				
-				// Make sure we bypass caches
-				req.addHeader("Cache-Control", "no-cache");
-				req.addHeader("Pragma", "no-cache");
-				
-				// Be as nice as possible to the remote server
-				if (oldItem != null) {
-					final Date lastModified = oldItem.getTimestamp();
-					if (lastModified != null) {
-						req.addHeader("If-Modified-Since", Utils.formatRFC822Date(lastModified));
+				try {
+
+					final HttpGet req = new HttpGet(site.getUrl().toURI());
+
+					// Make sure we bypass caches
+					req.addHeader("Cache-Control", "no-cache");
+					req.addHeader("Pragma", "no-cache");
+
+					// Be as nice as possible to the remote server
+					if (oldItem != null) {
+						final Date lastModified = oldItem.getTimestamp();
+						if (lastModified != null) {
+							req.addHeader("If-Modified-Since", Utils.formatRFC822Date(lastModified));
+						}
 					}
+
+					final HttpResponse response = httpClient.execute(req);
+
+					if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+
+						final FeedHandler handler = site.getHandler().newInstance();
+
+						final InputStream in = response.getEntity().getContent();
+						Xml.parse(in, site.getEncoding(), handler);
+						in.close();
+
+						notify(site, handler.getCurrentItem());
+
+					} else {
+						Log.e(LOG_TAG, "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
+					}
+
+				} catch (Throwable e) {
+
+					Log.e(LOG_TAG, e.getMessage(), e);
 				}
-				
-				final HttpResponse response = httpClient.execute(req);
-
-				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-
-					final FeedHandler handler = site.getHandler().newInstance();
-
-					final InputStream in = response.getEntity().getContent();
-					Xml.parse(in, site.getEncoding(), handler);
-					in.close();
-
-					notify(site, handler.getCurrentItem());
-
-				} else {
-					Log.e(LOG_TAG, "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
-				}
-
-			} catch (Throwable e) {
-
-				Log.e(LOG_TAG, e.getMessage(), e);
 			}
 
 		}
@@ -314,12 +327,10 @@ public class SiteChecker extends BroadcastReceiver {
 				if (database.updateStateIfNotCurrent(site, item)) {
 
 					Log.i(LOG_TAG, "Creating new notification for " + site.name());
-					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(),
-							createNotification(site, item));
+					((NotificationManager) context.getSystemService(NOTIFICATION_SERVICE)).notify(site.ordinal(), createNotification(site, item));
 
-				} else {
-					Log.d(LOG_TAG, "Not creating notification.");
-				}
+				} 
+				
 			} else if (item == null) {
 				Log.e(LOG_TAG, "Item was null!");
 			} else {
@@ -338,9 +349,9 @@ public class SiteChecker extends BroadcastReceiver {
 			final Notification notification = new Notification(site.getDrawable(), item.getTitle(), System.currentTimeMillis());
 
 			final Uri link = site.applyAffiliation(item.getLink());
-			
+
 			final Intent i;
-			
+
 			// Use the built-in ItemViewer if we have a template for it..
 			if (Utils.hasSiteAsset(context, site)) {
 				i = new Intent(context, ItemViewer.class);
@@ -349,7 +360,7 @@ public class SiteChecker extends BroadcastReceiver {
 			}
 			i.setData(link);
 			i.putExtra("site", site.name());
-			
+
 			final PendingIntent contentIntent = PendingIntent.getActivity(context, 0, i, 0);
 
 			final String summary;
@@ -362,25 +373,25 @@ public class SiteChecker extends BroadcastReceiver {
 			} else {
 				summary = null;
 			}
-			
+
 			if (summary == null) {
 				notification.setLatestEventInfo(context, site.getName(), item.getTitle(), contentIntent);
 			} else {
 				notification.setLatestEventInfo(context, item.getTitle(), summary, contentIntent);
 			}
-			
+
 			notification.flags = notification.flags | Notification.FLAG_AUTO_CANCEL;
 
 			// Notification options
 			if (preferences.getBoolean(NOTIFY_VIBRATE, false)) {
 				notification.vibrate = new long[] { 100, 250, 100, 500 };
 			}
-			
+
 			final String ringtone = preferences.getString(NOTIFY_RINGTONE, "");
 			if (!ringtone.equals("")) {
 				notification.sound = Uri.parse(ringtone);
 			}
-			
+
 			if (preferences.getBoolean(NOTIFY_LED, false)) {
 				notification.ledARGB = 0xFFFF5171;
 				notification.ledOnMS = 500;
@@ -391,9 +402,7 @@ public class SiteChecker extends BroadcastReceiver {
 			return notification;
 
 		}
-		
+
 	}
-	
-	
-	
+
 }
