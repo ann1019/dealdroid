@@ -299,7 +299,7 @@ public class SiteChecker extends BroadcastReceiver {
 
 						notify(site, handler.getCurrentItem());
 
-					} else {
+					} else if (response.getStatusLine().getStatusCode() != 304) {
 						Log.e(LOG_TAG, "HTTP request for " + site.name() + " failed: " + response.getStatusLine().toString());
 					}
 
