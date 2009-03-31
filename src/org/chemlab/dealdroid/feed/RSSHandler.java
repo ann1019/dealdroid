@@ -190,7 +190,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	public Item getCurrentItem() {
 		final Item ret = items.size() == 0 ? null : items.get(items.lastKey());
 		if (ret != null && ret.getSalePrice() == null) {
-			ret.setSalePrice(Utils.searchForPrice(currentItem.getDescription()));
+			ret.setSalePrice(Utils.searchForPrice(ret.getDescription()));
 		}
 		return ret;
 	}
