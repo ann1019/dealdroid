@@ -3,7 +3,6 @@ package org.chemlab.dealdroid.feed;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.TreeMap;
 
 import org.chemlab.dealdroid.Item;
@@ -44,7 +43,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 		public boolean matches(final String text) {
 			boolean ret = false;
 			for (String tag : tags) {
-				if (tag.equals(text)) {
+				if (tag.equalsIgnoreCase(text)) {
 					ret = true;
 					break;
 				}
@@ -78,9 +77,9 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 
 		currentString = new StringBuilder();
 		
-		final String tag = localName.trim().toLowerCase(Locale.getDefault());
+		final String tag = localName.trim();
 		
-		if (tag.equals("item")) {
+		if (tag.equalsIgnoreCase("item")) {
 			
 			inItem = true;
 			currentItem = new Item();
@@ -107,7 +106,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 	public void endElement(String uri, String localName, String qName) throws SAXException {
 
 		if (inItem && currentItem != null) {
-			if (localName.trim().equals("item")) {
+			if (localName.trim().equalsIgnoreCase("item")) {
 							
 				inItem = false;
 				if (currentItemDate != null) {
@@ -142,7 +141,7 @@ public class RSSHandler extends DefaultHandler implements FeedHandler {
 						break;
 					case WOOTOFF:
 						// if there is no woot-off, force an expiration
-						if (chars.toLowerCase(Locale.getDefault()).equals("false")) {
+						if (chars.equalsIgnoreCase("false")) {
 							final Calendar c = Calendar.getInstance();
 							c.add(Calendar.HOUR_OF_DAY, 1);
 							currentItem.setExpiration(c.getTime());

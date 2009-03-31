@@ -66,7 +66,7 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-
+				
 		if (DEALDROID_ENABLE.getAction().equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 
@@ -99,7 +99,7 @@ public class SiteChecker extends BroadcastReceiver {
 		} else if (DEALDROID_UPDATE.getAction().equals(intent.getAction())) {
 			checkSites(context, Site.values());
 		}
-
+		
 	}
 
 	/**
@@ -141,10 +141,7 @@ public class SiteChecker extends BroadcastReceiver {
 					if (isEnabled(prefs, site)) {
 						final Item oldItem = db.getCurrentItem(site);
 						if (oldItem == null || oldItem.getExpiration() == null || oldItem.getExpiration().before(new Date())) {
-							Log.d(LOG_TAG, "Skipping update for " + site.name() + " (expiration: " + oldItem.getExpiration().getTime() + ")");
-						} else {
 							sitesToCheck.put(site, oldItem);
-
 						}
 					}
 				}
@@ -233,8 +230,6 @@ public class SiteChecker extends BroadcastReceiver {
 			this.preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.CONNECTION_TIMEOUT, 5000);
 			this.httpClient.getParams().setIntParameter(AllClientPNames.SO_TIMEOUT, 5000);
-
-			HttpClientGzipSupport.enableCompression(httpClient);
 
 			final PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
 			this.wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DealDroid");

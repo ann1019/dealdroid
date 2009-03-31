@@ -26,6 +26,8 @@ public class Utils {
 
 	private static final String REPLACE_HTML_REGEX = "\\<.*?\\>";
 
+	private static final DateFormat formatter = new SimpleDateFormat(RFC822_DATE_FORMAT);
+	
 	/**
 	 * Parses an RFC822 formatted date string.
 	 * 
@@ -34,8 +36,7 @@ public class Utils {
 	 * @throws ParseException
 	 */
 	public static Date parseRFC822Date(final String date) throws ParseException {
-		final DateFormat f = new SimpleDateFormat(RFC822_DATE_FORMAT);
-		return f.parse(date);
+		return formatter.parse(date);
 	}
 
 	/**
@@ -45,8 +46,7 @@ public class Utils {
 	 * @return the Date object formatted according to RFC822
 	 */
 	public static String formatRFC822Date(final Date date) {
-		final DateFormat f = new SimpleDateFormat(RFC822_DATE_FORMAT);
-		return f.format(date);
+		return formatter.format(date);
 	}
 
 	/**
