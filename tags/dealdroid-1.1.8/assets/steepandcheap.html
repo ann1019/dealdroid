@@ -1,0 +1,91 @@
+<html>
+    <head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style type="text/css">
+        <!-- 
+		.sac_promo_wrapper300 {
+            border: 1px solid #ccc;
+            background: #FFF url(http://content.backcountry.com/images/promos/sac300x250_02.gif) repeat-x left bottom;
+            height: 250px;
+            position: relative;
+            width: 300px;
+            color: #000;
+        } 
+		.sac_promo_wrapper300 * {
+            margin: 0;
+            padding: 0;
+        } 
+		.sac_promo_wrapper300 span.promo_h2 {
+            display: block;
+            background: url(http://content.backcountry.com/images/promos/sac300x250_01.jpg) no-repeat center top;
+            height: 99px;
+            text-indent: -10000px;
+        } 
+		.sac_promo_wrapper300 table {
+            color: #626262;
+            float: right;
+            font: bold 12px Arial, Helvetica, sans-serif;
+            height: 110px;
+            position: relative;
+            text-transform: uppercase;
+            top: -25px;
+            width: 175px;
+        } 
+		.sac_promo_wrapper300 table td.title {
+            vertical-align: bottom;
+        } 
+		.sac_promo_wrapper300 span.promo_p strong {
+            font-size: 15px;
+        } .sac_promo_wrapper300 span.savings {
+            color: #13AF34;
+        } 
+		.sac_promo_wrapper300 img.product {
+            border: 0;
+            float: left;
+            margin-left: 10px;
+        } 
+		.sac_promo_wrapper300 a {
+            border: 0;
+            text-decoration: none;
+        } 
+		.sac_promo_wrapper300 a.button {
+            background: url(http://content.backcountry.com/images/promos/sac300x250_03.gif) no-repeat left top;
+            display: block;
+            float: right;
+            height: 31px;
+            position: relative;
+            left: 90px;
+            text-indent: -10000px;
+            width: 91px;
+        }
+		.description p {
+			font-size: 11px;
+			color: #111111;
+		}
+        -->
+        </style>
+        <body>
+            <div class="sac_promo_wrapper300">
+                <span class="promo_h2">Steep and Cheap</span>
+                <table border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td class="title">
+                            <span class="promo_p"><strong>{title}</strong></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span class="promo_p"><span>${price}</span>
+                                <br/>
+                                <span class="savings">{savings}% Off Savings</span>
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+                <a href="{buy_url}" title="{title}"><img src="{image_url}" alt="{title}" height="100" width="100" class="product" /></a>
+                <br/>
+                <a href="{buy_url}" title="Get it" class="button">Get it</a>
+            </div>
+			<div class="description"><p>{description}</p></div>
+        </body>
+    </html>
