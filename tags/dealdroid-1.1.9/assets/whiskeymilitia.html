@@ -1,0 +1,93 @@
+<html>
+    <head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <style type="text/css">
+        <!--
+		.wm_promo_wrapper300 {
+            background: #fff url(http://content.backcountry.com/images/promos/wm300x250_01.gif) no-repeat left bottom;
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+            text-align: center;
+            width: 300px;
+            color: #000;
+        } 
+		.wm_promo_wrapper300 * {
+            margin: 0 auto;
+            padding: 0;
+        } 
+		.wm_promo_wrapper300 span.promo_h2 {
+            display: block;
+            background: url(http://content.backcountry.com/images/promos/wm300x250_02.gif) no-repeat;
+            height: 72px;
+            margin: 18px 0 0 19px;
+            text-indent: -10000px;
+            width: 248px;
+        } 
+		.wm_promo_wrapper300 table {
+            font: bold 12px Arial, Helvetica, sans-serif;
+            height: 70px;
+            margin: 5px 15px 0 0;
+            text-align: left;
+            text-transform: uppercase;
+            width: 165px;
+        } 
+		.wm_promo_wrapper300 table td.title {
+            vertical-align: bottom;
+            padding-bottom: 5px;
+        } 
+		.wm_promo_wrapper300 span.promo_p strong {
+            font-size: 14px;
+        } 
+		.wm_promo_wrapper300 span.savings {
+            color: #FE059F;
+        } 
+		.wm_promo_wrapper300 img.product {
+            border: 0;
+            float: left;
+            margin: 5px 0 0 15px;
+        } 
+		.wm_promo_wrapper300 a {
+            border: 0;
+            text-decoration: none;
+        } 
+		.wm_promo_wrapper300 a.button {
+            display: block;
+            height: 45px;
+            position: absolute;
+            left: 140px;
+            top: 195px;
+            text-indent: -10000px;
+            width: 107px;
+        }
+		.description p {
+			font-size: 11px;
+			color: #111111;
+		}
+        -->
+        </style>
+    </head>
+    <body>
+        <div class="wm_promo_wrapper300">
+            <span class="promo_h2">Whiskey Militia</span>
+            <a href="{buy_url}" title="{title}"><img src="{image_url}" alt="{title}" height="100" width="100" class="product" /></a>
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="title">
+                        <span class="promo_p"><strong>{title}</strong></span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="promo_p"><span>${price}</span>
+                            <br/>
+                            <span class="savings">{savings}% Off Savings</span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+            <a href="{buy_url}" title="Get it" class="button">Get it</a>
+        </div>
+		<div class="description"><p>{description}</p></div>
+    </body>
+</html>
