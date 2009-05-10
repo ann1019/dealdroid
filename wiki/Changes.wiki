@@ -1,5 +1,7 @@
 #summary DealDroid ChangeLog
 
+1.1.8 - Fix "10 minute" update interval which was equal to 1 minute.  Oops.  Also add more update intervals (30 minutes, 1 hour).
+
 1.1.7 - Lots of optimization.  Fix price extractor for feeds that don't provide it (ThingFling).  Resize icons to fit in status bar.  Don't use the ItemViewer unless we have a template.
 
 1.1.6 - Mostly code cleanups and refactoring.  Should have less chance of broadcast reciever causing ANR.  (03/13/2009)
