@@ -1,5 +1,7 @@
 #summary DealDroid ChangeLog
 
+1.1.10 - Add option to completely disable automatic updates.  Much requested feature so users can turn the app off while sleeping/working/whatever.
+
 1.1.9 - Add minSdkVersion for Market.
 
 1.1.8 - Fix "10 minute" update interval which was equal to 1 minute.  Oops.  Also add more update intervals (30 minutes, 1 hour).
