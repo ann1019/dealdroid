@@ -8,6 +8,7 @@ import static org.chemlab.dealdroid.Intents.DEALDROID_RESTART;
 import static org.chemlab.dealdroid.Intents.DEALDROID_START;
 import static org.chemlab.dealdroid.Intents.DEALDROID_STOP;
 import static org.chemlab.dealdroid.Intents.DEALDROID_UPDATE;
+import static org.chemlab.dealdroid.Preferences.APP_ENABLED;
 import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
 import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
@@ -66,7 +67,9 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	@Override
 	public void onReceive(Context context, Intent intent) {
-				
+		
+		final boolean enabled = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(APP_ENABLED, true);
+		
 		if (DEALDROID_ENABLE.getAction().equals(intent.getAction())) {
 			final Site site = Site.valueOf(intent.getExtras().getString("site"));
 
@@ -84,15 +87,14 @@ public class SiteChecker extends BroadcastReceiver {
 				disableSite(context, site);
 			}
 
-		} else if (BOOT_INTENT.getAction().equals(intent.getAction())
-				|| DEALDROID_START.getAction().equals(intent.getAction())) {
+		} else if (enabled && BOOT_INTENT.getAction().equals(intent.getAction())) {
 			disable(context);
 			enable(context);
 
 		} else if (DEALDROID_STOP.getAction().equals(intent.getAction())) {
 			disable(context);
 
-		} else if (DEALDROID_RESTART.getAction().equals(intent.getAction())) {
+		} else if (DEALDROID_RESTART.getAction().equals(intent.getAction()) || DEALDROID_START.getAction().equals(intent.getAction())) {
 			disable(context);
 			enable(context);
 
