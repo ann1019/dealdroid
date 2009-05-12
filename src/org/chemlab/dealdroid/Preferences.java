@@ -4,10 +4,12 @@ import static org.chemlab.dealdroid.Intents.DEALDROID_DISABLE;
 import static org.chemlab.dealdroid.Intents.DEALDROID_ENABLE;
 import static org.chemlab.dealdroid.Intents.DEALDROID_RESTART;
 import static org.chemlab.dealdroid.Intents.DEALDROID_START;
+import static org.chemlab.dealdroid.Intents.DEALDROID_STOP;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -32,7 +34,9 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 	public static final String PREFS_NAME = "org.chemlab.dealdroid_preferences";
 	
-	public static final String ENABLED = "enabled_";
+	public static final String APP_ENABLED = "app_enabled";
+	
+	public static final String SITE_ENABLED = "enabled_";
 	
 	public static final String NOTIFY_VIBRATE = "notify_vibrate";
 	
@@ -56,11 +60,13 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		
 		super.onCreate(savedInstanceState);
 		
+		final boolean enabled = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getBoolean(APP_ENABLED, true);
+		
 		if (preferenceScreen == null) {        
 			preferenceScreen = createPreferences();
 		}
 		
-		if (savedInstanceState == null) {
+		if (savedInstanceState == null && enabled) {
 			final Intent si = new Intent(DEALDROID_START.getIntent());
 			sendBroadcast(si);
 		}
@@ -92,24 +98,33 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	 */
 	@Override
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-		
+
 		Log.d(LOG_TAG, "Pref changed: " + key);
-		
+
 		// If a site is toggled, just check right away
 		if (key != null) {
-			
-			if (key.startsWith(ENABLED)) {
-				
-				final Site site = Site.valueOf(key.substring(ENABLED.length()));
-				
+
+			final boolean enabled = sharedPreferences.getBoolean(APP_ENABLED, true);
+
+			if (key.startsWith(SITE_ENABLED)) {
+
+				final Site site = Site.valueOf(key.substring(SITE_ENABLED.length()));
+
 				final Intent intent = sharedPreferences.getBoolean(key, false) ? DEALDROID_ENABLE.getIntent() : DEALDROID_DISABLE.getIntent();
 				intent.putExtra("site", site.toString());
-				
+
 				sendBroadcast(intent);
-				
-			} else if (key.equals(KEEP_AWAKE) || key.equals(CHECK_INTERVAL)) {
+
+			} else if (enabled && (key.equals(KEEP_AWAKE) || key.equals(CHECK_INTERVAL))) {
+					
 				final Intent reschedule = DEALDROID_RESTART.getIntent();
 				sendBroadcast(reschedule);
+				
+			} else if (key.equals(APP_ENABLED)) {
+
+				final Intent toggle = enabled ? DEALDROID_START.getIntent() : DEALDROID_STOP.getIntent();
+				sendBroadcast(toggle);
+
 			}
 		}
 	}
@@ -131,6 +146,13 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		dd.setTitle(R.string.app_name);
 		root.addPreference(dd);
 		
+		final CheckBoxPreference enabled = new CheckBoxPreference(this);
+		enabled.setKey(APP_ENABLED);
+		enabled.setTitle(R.string.auto_check);
+		enabled.setSummary(R.string.auto_check_summary);
+		enabled.setDefaultValue(true);
+		dd.addPreference(enabled);
+		
 		final PreferenceScreen sites = getPreferenceManager().createPreferenceScreen(this);
 		sites.setTitle(R.string.manage_sites);
 		sites.setSummary(R.string.manage_sites_summary);
@@ -138,13 +160,13 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		dd.addPreference(sites);
 		
 		final PreferenceCategory feeds = new PreferenceCategory(this);
-		feeds.setTitle("Sites and Feeds");
+		feeds.setTitle(R.string.sites_and_feeds);
 		sites.addPreference(feeds);
 		
 		for (Site site : Site.values()) {
 
 			final CheckBoxPreference toggle = new CheckBoxPreference(this);
-			toggle.setKey(ENABLED + site.toString());
+			toggle.setKey(SITE_ENABLED + site.toString());
 			toggle.setTitle(site.getName());
 			toggle.setSummary("Category: " + site.getCategory() + " (" + site.getSite().toString() + ")");
 			toggle.setDefaultValue(site.isEnabledByDefault());
@@ -180,7 +202,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		keepAwake.setKey(KEEP_AWAKE);
 		keepAwake.setTitle(R.string.keep_awake);
 		keepAwake.setSummary(R.string.keep_awake_summary);
-		keepAwake.setDefaultValue(true);
+		keepAwake.setDefaultValue(false);
 		
 		final ListPreference interval = new ListPreference(this);
 		interval.setKey(CHECK_INTERVAL);
@@ -218,7 +240,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	 * @return if the site is enabled 
 	 */
 	public static boolean isEnabled(final SharedPreferences preferences, final Site site) {
-		return preferences.getBoolean(ENABLED + site.toString(), false);
+		return preferences.getBoolean(SITE_ENABLED + site.toString(), false);
 	}
 	
 	/**

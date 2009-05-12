@@ -8,6 +8,9 @@
 <string name="about">About DealDroid</string>
 <string name="notification_options">Notification Options</string>
 
+<string name="auto_check">Automatically update</string>
+<string name="auto_check_summary">Check for updates automatically in the background.</string>
+<string name="sites_and_feeds">Sites and feeds</string>
 <string name="notify_vibrate">Vibrate phone</string>
 <string name="notify_led_summary">Flash LED when new notifications are created.</string>
 <string name="notify_led">Flash LED</string>
