@@ -157,9 +157,8 @@ public class SiteContentProvider extends ContentProvider {
 			}
 			
 			final Uri link = site.applyAffiliation(item.getLink());
-			
 			p = p.replaceAll("\\{title\\}", item.getTitle());
-			p = p.replaceAll("\\{buy_url\\}", link.toString());			
+			p = p.replaceAll("\\{buy_url\\}", link.toString().replace("steepcheap%2Findex.html", ""));			
 			p = p.replaceAll("\\{description\\}", item.getDescription());
 			
 			if (item.getShortDescription() != null) {
