@@ -26,14 +26,6 @@ public enum Site {
 			BCFeedHandler.class, "avad", "14749", false,
 			"http://www.avantlink.com/click.php?tt=dotd&ti=12021&pw=14749", Encoding.UTF_8, false),
 			
-	BROCIETY("Brociety",
-			"Snowboarding",
-			"http://www.brociety.com/docs/brociety/rssaff.xml",
-			"http://www.brociety.com",
-			R.drawable.icon_brociety,
-			BCFeedHandler.class, "avad", "14749", false,
-			"http://www.avantlink.com/click.php?tt=dotd&ti=13197&pw=14749", Encoding.UTF_8, false),
-			
 	CHAINLOVE("Chainlove", 
 			"Cycling",
 			"http://www.chainlove.com/docs/chainlove/rssaff.xml", 

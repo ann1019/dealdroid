@@ -43,9 +43,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 	public static final String NOTIFY_LED = "notify_lights";
 	
 	public static final String NOTIFY_RINGTONE = "notify_ringtone";
-	
-	public static final String KEEP_AWAKE = "keep_awake";
-	
+		
 	public static final String CHECK_INTERVAL = "check_interval";
 	
 	private PreferenceScreen preferenceScreen;
@@ -115,7 +113,7 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 
 				sendBroadcast(intent);
 
-			} else if (enabled && (key.equals(KEEP_AWAKE) || key.equals(CHECK_INTERVAL))) {
+			} else if (enabled && (key.equals(CHECK_INTERVAL))) {
 					
 				final Intent reschedule = DEALDROID_RESTART.getIntent();
 				sendBroadcast(reschedule);
@@ -198,12 +196,6 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		ring.setSummary(R.string.notify_ringtone_summary);
 		ring.setRingtoneType(RingtoneManager.TYPE_NOTIFICATION);
 		
-		final CheckBoxPreference keepAwake = new CheckBoxPreference(this);
-		keepAwake.setKey(KEEP_AWAKE);
-		keepAwake.setTitle(R.string.keep_awake);
-		keepAwake.setSummary(R.string.keep_awake_summary);
-		keepAwake.setDefaultValue(false);
-		
 		final ListPreference interval = new ListPreference(this);
 		interval.setKey(CHECK_INTERVAL);
 		interval.setTitle(R.string.update_interval);
@@ -217,11 +209,10 @@ public class Preferences extends PreferenceActivity implements OnSharedPreferenc
 		}
 		interval.setEntries(intervals.toArray(new String[intervals.size()]));
 		interval.setEntryValues(iValues.toArray(new String[iValues.size()]));
-		interval.setDefaultValue(Interval.I_2_MINUTES.name());
+		interval.setDefaultValue(Interval.I_10_MINUTES.name());
 		
 		notify.addPreference(vibrate);
 		notify.addPreference(led);
-		notify.addPreference(keepAwake);
 		notify.addPreference(ring);
 		notify.addPreference(interval);
 		

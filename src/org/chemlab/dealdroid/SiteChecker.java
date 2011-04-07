@@ -10,7 +10,6 @@ import static org.chemlab.dealdroid.Intents.DEALDROID_STOP;
 import static org.chemlab.dealdroid.Intents.DEALDROID_UPDATE;
 import static org.chemlab.dealdroid.Preferences.APP_ENABLED;
 import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
-import static org.chemlab.dealdroid.Preferences.KEEP_AWAKE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_RINGTONE;
 import static org.chemlab.dealdroid.Preferences.NOTIFY_VIBRATE;
@@ -57,7 +56,7 @@ import android.util.Xml;
  */
 public class SiteChecker extends BroadcastReceiver {
 
-	private final String LOG_TAG = this.getClass().getSimpleName();
+	private static final String LOG_TAG = "DealDroid";
 
 	/*
 	 * (non-Javadoc)
@@ -167,10 +166,8 @@ public class SiteChecker extends BroadcastReceiver {
 		if (getNumSitesEnabled(prefs) > 0) {
 			Log.i(LOG_TAG, "Starting DealDroid updater..");
 
-			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_2_MINUTES.getName()));
-
-			final int mode = shouldKeepPhoneAwake(context) ? AlarmManager.ELAPSED_REALTIME_WAKEUP : AlarmManager.ELAPSED_REALTIME;
-			getAlarmManager(context).setRepeating(mode, 0, interval.getMillis(), getSiteCheckerIntent(context));
+			final Interval interval = Interval.valueOf(prefs.getString(CHECK_INTERVAL, Interval.I_10_MINUTES.getName()));
+			getAlarmManager(context).setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, 0, interval.getMillis(), getSiteCheckerIntent(context));
 		} else {
 			Log.i(LOG_TAG, "Not starting updater (no sites enabled)");
 		}
@@ -198,15 +195,6 @@ public class SiteChecker extends BroadcastReceiver {
 	 */
 	private static PendingIntent getSiteCheckerIntent(final Context context) {
 		return PendingIntent.getBroadcast(context, 0, new Intent(DEALDROID_UPDATE.getAction()), 0);
-	}
-
-	/**
-	 * @param context
-	 * @return
-	 */
-	private static boolean shouldKeepPhoneAwake(final Context context) {
-		final SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-		return preferences.getBoolean(KEEP_AWAKE, false);
 	}
 
 	/**

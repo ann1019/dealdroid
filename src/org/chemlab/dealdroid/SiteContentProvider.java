@@ -26,7 +26,7 @@ import android.util.Log;
  */
 public class SiteContentProvider extends ContentProvider {
 
-	private final String LOG_TAG = this.getClass().getSimpleName();
+	private static final String LOG_TAG = "DealDroid";
 	
 	/*
 	 * (non-Javadoc)
