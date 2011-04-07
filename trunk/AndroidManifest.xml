@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.chemlab.dealdroid" android:versionCode="15"
-	android:versionName="1.1.11">
+	package="org.chemlab.dealdroid" android:versionCode="16" android:versionName="1.1.12">
 	
-	<uses-sdk android:minSdkVersion="1" /> 
+	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/> 
 	
 	<uses-permission android:name="android.permission.INTERNET" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

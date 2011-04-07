@@ -3,25 +3,23 @@
     
     <string name="app_name">DealDroid</string>
 
-<string name="enable_notifications">Enable notifications</string>
-<string name="enable_notifications_summary">Show a notification when new items are available from this source.</string>
-<string name="about">About DealDroid</string>
-<string name="notification_options">Notification Options</string>
+    <string name="enable_notifications">Enable notifications</string>
+    <string name="enable_notifications_summary">Show a notification when new items are available from this source.</string>
+    <string name="about">About DealDroid</string>
+    <string name="notification_options">Notification Options</string>
 
-<string name="auto_check">Automatically update</string>
-<string name="auto_check_summary">Check for updates automatically in the background.</string>
-<string name="sites_and_feeds">Sites and feeds</string>
-<string name="notify_vibrate">Vibrate phone</string>
-<string name="notify_led_summary">Flash LED when new notifications are created.</string>
-<string name="notify_led">Flash LED</string>
-<string name="notify_vibrate_summary">Vibrate phone when new notifications are created.</string>
-<string name="notify_ringtone">Notification ringtone</string>
-<string name="notify_ringtone_summary">Play a custom ringtone when new notifications are created.</string>
-<string name="keep_awake">Keep phone awake</string>
-<string name="keep_awake_summary">Allow the app to wake up the phone to search for updates.</string>
-<string name="app_url">http://dealdroid.googlecode.com</string>
-<string name="manage_sites">Manage sites &amp; feeds</string>
-<string name="manage_sites_summary">Configure which sites and feeds to check for new items.</string>
-<string name="update_interval">Update interval</string>
-<string name="update_interval_summary">Change how often to automatically check feeds for new items.</string>
+    <string name="auto_check">Automatically update</string>
+    <string name="auto_check_summary">Check for updates automatically in the background.</string>
+    <string name="sites_and_feeds">Sites and feeds</string>
+    <string name="notify_vibrate">Vibrate phone</string>
+    <string name="notify_led_summary">Flash LED when new notifications are created.</string>
+    <string name="notify_led">Flash LED</string>
+    <string name="notify_vibrate_summary">Vibrate phone when new notifications are created.</string>
+    <string name="notify_ringtone">Notification ringtone</string>
+    <string name="notify_ringtone_summary">Play a custom ringtone when new notifications are created.</string>
+    <string name="app_url">http://dealdroid.googlecode.com</string>
+    <string name="manage_sites">Manage sites &amp; feeds</string>
+    <string name="manage_sites_summary">Configure which sites and feeds to check for new items.</string>
+    <string name="update_interval">Update interval</string>
+    <string name="update_interval_summary">Change how often to automatically check feeds for new items.</string>
 </resources>
