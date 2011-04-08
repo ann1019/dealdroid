@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.chemlab.dealdroid" android:versionCode="16" android:versionName="1.1.12">
+	android:versionCode="16" android:versionName="1.1.12" package="org.chemlab.dealdroidapp">
 	
 	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="4"/> 
 	
@@ -22,25 +22,25 @@
 		
 		
 		<!-- Quick viewer shown when clicking a notification -->
-		<activity android:name=".ItemViewer" android:label="@string/app_name" />
+		<activity android:name="org.chemlab.dealdroidapp.ItemViewer" android:label="@string/app_name" />
 		
 		
 		<!-- The receiver invoked when the alarms fire -->
-		<receiver android:name=".SiteChecker" android:enabled="true" android:exported="false" android:label="SiteChecker">
+		<receiver android:name="org.chemlab.dealdroidapp.SiteChecker" android:enabled="true" android:exported="false" android:label="SiteChecker">
 			<intent-filter>
 				<action android:name="android.intent.action.BOOT_COMPLETED" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_START" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_STOP" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_RESTART" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_ENABLE" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_DISABLE" />
-				<action android:name="org.chemlab.dealdroid.DEALDROID_UPDATE" />
+				<action android:name="org.chemlab.dealdroidapp.DEALDROID_START" />
+				<action android:name="org.chemlab.dealdroidapp.DEALDROID_STOP" />
+				<action android:name="org.chemlab.dealdroidapp.DEALDROID_RESTART" />
+				<action android:name="org.chemlab.dealdroidapp.DEALDROID_ENABLE" />
+				<action android:name="org.chemlab.dealdroidapp.DEALDROID_DISABLE" />
+				<action android:name="org.chemlab.dealdroidapp.DEALDROID_UPDATE" />
 			</intent-filter>
 		</receiver>
 		
 		
 		<!-- ContentProvider that renders templates for the current deals -->
-		<provider android:name=".SiteContentProvider"  android:authorities="org.chemlab.dealdroid" />  
+		<provider android:name="org.chemlab.dealdroidapp.SiteContentProvider"  android:authorities="org.chemlab.dealdroidapp" />  
 	</application>
 	
 </manifest> 

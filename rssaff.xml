@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Product>
+  <SKU>KEN0451</SKU>
+  <Manufacturer_Id></Manufacturer_Id>
+  <Brand>KEEN</Brand>
+  <Product_Name>KEEN Snowmass Mid Boot - Women's</Product_Name>
+  <Short_Description><![CDATA[What might seem like a fun day of skiing to you actually feels like an eternity in hell to your cold, sore feet. Good thing you can slide them into the soft, warm, and waterproof Keen Women's Snowmass Mid Boots after you get off the hill.]]></Short_Description>
+  <Long_Description><![CDATA[What might seem like a fun day of skiing to you actually feels like an eternity in hell to your cold, sore feet. Good thing you can slide them into the soft, warm, and waterproof Keen Women's Snowmass Mid Boots after you get off the hill.]]></Long_Description>
+  <Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/DASHDESE.jpg</Small_Image_URL>
+  <Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/DASHDESE.jpg</Medium_Image_URL>
+  <Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/DASHDESE.jpg</Large_Image_URL>
+  <Retail_Price>109.95</Retail_Price>
+  <Sale_Price>51.99</Sale_Price>
+  <Keywords>KEEN, Snowmass Mid Boot - Women's, </Keywords>
+  <Variants>
+    <Variant>
+      <Variant_SKU>KEN0451-SLBKRU-S65</Variant_SKU>
+      <Variant_Description>Slate Black / Rust, 6.5</Variant_Description>
+      <Variant_QOH>4</Variant_QOH>
+      <Variant_Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/SLBKRU.jpg</Variant_Small_Image_URL>
+      <Variant_Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/SLBKRU.jpg</Variant_Medium_Image_URL>
+      <Variant_Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/SLBKRU.jpg</Variant_Large_Image_URL>
+    </Variant>
+    <Variant>
+      <Variant_SKU>KEN0451-SLBKRU-S7</Variant_SKU>
+      <Variant_Description>Slate Black / Rust, 7.0</Variant_Description>
+      <Variant_QOH>1</Variant_QOH>
+      <Variant_Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/SLBKRU.jpg</Variant_Small_Image_URL>
+      <Variant_Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/SLBKRU.jpg</Variant_Medium_Image_URL>
+      <Variant_Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/SLBKRU.jpg</Variant_Large_Image_URL>
+    </Variant>
+    <Variant>
+      <Variant_SKU>KEN0451-SLBKRU-S75</Variant_SKU>
+      <Variant_Description>Slate Black / Rust, 7.5</Variant_Description>
+      <Variant_QOH>5</Variant_QOH>
+      <Variant_Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/SLBKRU.jpg</Variant_Small_Image_URL>
+      <Variant_Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/SLBKRU.jpg</Variant_Medium_Image_URL>
+      <Variant_Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/SLBKRU.jpg</Variant_Large_Image_URL>
+    </Variant>
+    <Variant>
+      <Variant_SKU>KEN0451-SLBKRU-S8</Variant_SKU>
+      <Variant_Description>Slate Black / Rust, 8.0</Variant_Description>
+      <Variant_QOH>10</Variant_QOH>
+      <Variant_Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/SLBKRU.jpg</Variant_Small_Image_URL>
+      <Variant_Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/SLBKRU.jpg</Variant_Medium_Image_URL>
+      <Variant_Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/SLBKRU.jpg</Variant_Large_Image_URL>
+    </Variant>
+    <Variant>
+      <Variant_SKU>KEN0451-SLBKRU-S85</Variant_SKU>
+      <Variant_Description>Slate Black / Rust, 8.5</Variant_Description>
+      <Variant_QOH>2</Variant_QOH>
+      <Variant_Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/SLBKRU.jpg</Variant_Small_Image_URL>
+      <Variant_Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/SLBKRU.jpg</Variant_Medium_Image_URL>
+      <Variant_Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/SLBKRU.jpg</Variant_Large_Image_URL>
+    </Variant>
+    <Variant>
+      <Variant_SKU>KEN0451-SLBKRU-S9</Variant_SKU>
+      <Variant_Description>Slate Black / Rust, 9.0</Variant_Description>
+      <Variant_QOH>7</Variant_QOH>
+      <Variant_Small_Image_URL>http://www.backcountry.com/images/items/small/KEN/KEN0451/SLBKRU.jpg</Variant_Small_Image_URL>
+      <Variant_Medium_Image_URL>http://www.backcountry.com/images/items/medium/KEN/KEN0451/SLBKRU.jpg</Variant_Medium_Image_URL>
+      <Variant_Large_Image_URL>http://www.backcountry.com/images/items/large/KEN/KEN0451/SLBKRU.jpg</Variant_Large_Image_URL>
+    </Variant>
+  </Variants>
+  <Buy_URL>http://www.steepandcheap.com/steepcheap/index.html?cmp_sku=KEN0451</Buy_URL>
+  <Quantity_On_Hand>29</Quantity_On_Hand>
+</Product>

@@ -1,6 +1,6 @@
-package org.chemlab.dealdroid.feed;
+package org.chemlab.dealdroidapp.feed;
 
-import org.chemlab.dealdroid.Item;
+import org.chemlab.dealdroidapp.Item;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;

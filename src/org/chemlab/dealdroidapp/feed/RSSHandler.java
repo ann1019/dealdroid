@@ -1,12 +1,12 @@
-package org.chemlab.dealdroid.feed;
+package org.chemlab.dealdroidapp.feed;
 
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TreeMap;
 
-import org.chemlab.dealdroid.Item;
-import org.chemlab.dealdroid.Utils;
+import org.chemlab.dealdroidapp.Item;
+import org.chemlab.dealdroidapp.Utils;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
