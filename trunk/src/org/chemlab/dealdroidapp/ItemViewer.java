@@ -1,4 +1,4 @@
-package org.chemlab.dealdroid;
+package org.chemlab.dealdroidapp;
 
 import android.app.Activity;
 import android.net.Uri;
@@ -34,7 +34,7 @@ public class ItemViewer extends Activity {
 		// If we have a custom asset for the site, use it.  Otherwise just go to the page.
 		// Sorry, I am not doing custom assets unless there is an affiliation.
 		if (Utils.hasSiteAsset(this, site)) {
-			webview.loadUrl("content://org.chemlab.dealdroid/" + site.name());
+			webview.loadUrl("content://org.chemlab.dealdroidapp/" + site.name());
 		} else {
 			
 			final Database db = new Database(this);

@@ -1,12 +1,12 @@
-package org.chemlab.dealdroid;
+package org.chemlab.dealdroidapp;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import android.util.Xml.Encoding;
 
-import org.chemlab.dealdroid.feed.BCFeedHandler;
-import org.chemlab.dealdroid.feed.FeedHandler;
-import org.chemlab.dealdroid.feed.RSSHandler;
+import org.chemlab.dealdroidapp.feed.BCFeedHandler;
+import org.chemlab.dealdroidapp.feed.FeedHandler;
+import org.chemlab.dealdroidapp.feed.RSSHandler;
 
 import android.net.Uri;
 

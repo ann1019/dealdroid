@@ -1,21 +1,21 @@
-package org.chemlab.dealdroid;
+package org.chemlab.dealdroidapp;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
-import static org.chemlab.dealdroid.Intents.BOOT_INTENT;
-import static org.chemlab.dealdroid.Intents.DEALDROID_DISABLE;
-import static org.chemlab.dealdroid.Intents.DEALDROID_ENABLE;
-import static org.chemlab.dealdroid.Intents.DEALDROID_RESTART;
-import static org.chemlab.dealdroid.Intents.DEALDROID_START;
-import static org.chemlab.dealdroid.Intents.DEALDROID_STOP;
-import static org.chemlab.dealdroid.Intents.DEALDROID_UPDATE;
-import static org.chemlab.dealdroid.Preferences.APP_ENABLED;
-import static org.chemlab.dealdroid.Preferences.CHECK_INTERVAL;
-import static org.chemlab.dealdroid.Preferences.NOTIFY_LED;
-import static org.chemlab.dealdroid.Preferences.NOTIFY_RINGTONE;
-import static org.chemlab.dealdroid.Preferences.NOTIFY_VIBRATE;
-import static org.chemlab.dealdroid.Preferences.PREFS_NAME;
-import static org.chemlab.dealdroid.Preferences.getNumSitesEnabled;
-import static org.chemlab.dealdroid.Preferences.isEnabled;
+import static org.chemlab.dealdroidapp.Intents.BOOT_INTENT;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_DISABLE;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_ENABLE;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_RESTART;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_START;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_STOP;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_UPDATE;
+import static org.chemlab.dealdroidapp.Preferences.APP_ENABLED;
+import static org.chemlab.dealdroidapp.Preferences.CHECK_INTERVAL;
+import static org.chemlab.dealdroidapp.Preferences.NOTIFY_LED;
+import static org.chemlab.dealdroidapp.Preferences.NOTIFY_RINGTONE;
+import static org.chemlab.dealdroidapp.Preferences.NOTIFY_VIBRATE;
+import static org.chemlab.dealdroidapp.Preferences.PREFS_NAME;
+import static org.chemlab.dealdroidapp.Preferences.getNumSitesEnabled;
+import static org.chemlab.dealdroidapp.Preferences.isEnabled;
 
 import java.io.InputStream;
 import java.util.Date;
@@ -27,7 +27,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.params.AllClientPNames;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.chemlab.dealdroid.feed.FeedHandler;
+import org.chemlab.dealdroidapp.feed.FeedHandler;
 
 import android.app.AlarmManager;
 import android.app.Notification;

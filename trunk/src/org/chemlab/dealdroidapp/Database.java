@@ -1,4 +1,4 @@
-package org.chemlab.dealdroid;
+package org.chemlab.dealdroidapp;
 
 import java.util.Date;
 import java.util.Locale;

@@ -1,10 +1,10 @@
-package org.chemlab.dealdroid;
+package org.chemlab.dealdroidapp;
 
-import static org.chemlab.dealdroid.Intents.DEALDROID_DISABLE;
-import static org.chemlab.dealdroid.Intents.DEALDROID_ENABLE;
-import static org.chemlab.dealdroid.Intents.DEALDROID_RESTART;
-import static org.chemlab.dealdroid.Intents.DEALDROID_START;
-import static org.chemlab.dealdroid.Intents.DEALDROID_STOP;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_DISABLE;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_ENABLE;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_RESTART;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_START;
+import static org.chemlab.dealdroidapp.Intents.DEALDROID_STOP;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import android.util.Log;
  */
 public class Preferences extends PreferenceActivity implements OnSharedPreferenceChangeListener {
 		
-	public static final String PREFS_NAME = "org.chemlab.dealdroid_preferences";
+	public static final String PREFS_NAME = "org.chemlab.dealdroidapp_preferences";
 	
 	public static final String APP_ENABLED = "app_enabled";
 	
